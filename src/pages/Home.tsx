@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { RadioCard } from '@/components/RadioCard'
-import { AudioPlayer } from '@/components/AudioPlayer'
 import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { NewsSection } from '@/components/NewsSection'
@@ -72,7 +71,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
         
-        <AudioPlayer />
       </div>
     )
   }
@@ -146,9 +144,6 @@ export const Home: React.FC = () => {
           <NewsSection />
         </div>
       </div>
-      
-      {/* Audio Player */}
-      <AudioPlayer />
     </div>
   )
 }

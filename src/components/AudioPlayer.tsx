@@ -64,7 +64,7 @@ export const AudioPlayer: React.FC = () => {
   // Expanded Player UI
   if (isPlayerExpanded) {
     return (
-      <div className="fixed inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300">
+      <div className={cn("fixed inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300")}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4">
           <button 
@@ -158,6 +158,9 @@ export const AudioPlayer: React.FC = () => {
               value={volume}
               onChange={handleVolumeChange}
               className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
+              style={{
+                background: `linear-gradient(to right, #f97316 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+              }}
             />
           </div>
         </div>
@@ -170,6 +173,7 @@ export const AudioPlayer: React.FC = () => {
     <div 
       className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={handleMiniPlayerClick}
+      style={{ display: isPlayerExpanded ? 'none' : 'block' }}
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
@@ -235,6 +239,9 @@ export const AudioPlayer: React.FC = () => {
                 value={volume}
                 onChange={handleVolumeChange}
                 className="w-16 sm:w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
+                style={{
+                  background: `linear-gradient(to right, #f97316 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+                }}
               />
             </div>
           </div>

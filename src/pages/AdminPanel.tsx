@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -76,13 +76,22 @@ const AdminPanel: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Panel de Administración
-            </h1>
-            <p className="text-gray-600">
-              Gestiona tus emisoras de radio y su contenido
-            </p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Panel de Administración
+              </h1>
+              <p className="text-gray-600">
+                Gestiona tus emisoras de radio y su contenido
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Volver al inicio</span>
+            </button>
           </div>
           
           {/* Stats Cards */}
