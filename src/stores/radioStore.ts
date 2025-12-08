@@ -6,6 +6,7 @@ interface RadioStore {
   currentRadio: Radio | null
   isPlaying: boolean
   volume: number
+  isPlayerExpanded: boolean
   isLoading: boolean
   selectedCategory: string | null
   selectedLocation: string | null
@@ -15,6 +16,7 @@ interface RadioStore {
   setCurrentRadio: (radio: Radio | null) => void
   setIsPlaying: (playing: boolean) => void
   setVolume: (volume: number) => void
+  setIsPlayerExpanded: (expanded: boolean) => void
   setIsLoading: (loading: boolean) => void
   setSelectedCategory: (category: string | null) => void
   setSelectedLocation: (location: string | null) => void
@@ -28,6 +30,7 @@ export const useRadioStore = create<RadioStore>((set, get) => ({
   currentRadio: null,
   isPlaying: false,
   volume: 1,
+  isPlayerExpanded: false,
   isLoading: false,
   selectedCategory: null,
   selectedLocation: null,
@@ -36,6 +39,7 @@ export const useRadioStore = create<RadioStore>((set, get) => ({
   setCurrentRadio: (radio) => set({ currentRadio: radio }),
   setIsPlaying: (playing) => set({ isPlaying: playing }),
   setVolume: (volume) => set({ volume }),
+  setIsPlayerExpanded: (expanded) => set({ isPlayerExpanded: expanded }),
   setIsLoading: (loading) => set({ isLoading: loading }),
   setSelectedCategory: (category) => set({ selectedCategory: category }),
   setSelectedLocation: (location) => set({ selectedLocation: location }),
