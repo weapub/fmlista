@@ -14,6 +14,9 @@ export const RadioMicrosite: React.FC = () => {
   const navigate = useNavigate()
   const [radio, setRadio] = useState<RadioWithSchedule | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [coverError, setCoverError] = useState(false)
+  const [logoError, setLogoError] = useState(false)
+  const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
   const { currentRadio } = useRadioStore()
   const { togglePlay, isPlaying } = useAudioPlayer()
@@ -92,11 +95,12 @@ export const RadioMicrosite: React.FC = () => {
       
       {/* Cover Image */}
       <div className="relative h-64 bg-gradient-to-r from-secondary-500 to-secondary-700">
-        {radio.cover_url ? (
+        {radio.cover_url && !isPlaceholderUrl(radio.cover_url) && !coverError ? (
           <img
             src={radio.cover_url}
             alt={radio.name}
             className="w-full h-full object-cover"
+            onError={() => setCoverError(true)}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-secondary-500 to-secondary-700 flex items-center justify-center">
@@ -123,12 +127,17 @@ export const RadioMicrosite: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
-                {radio.logo_url && (
+                {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
                   <img
                     src={radio.logo_url}
                     alt={radio.name}
                     className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={() => setLogoError(true)}
                   />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                    <RadioIcon className="w-10 h-10 text-gray-400" />
+                  </div>
                 )}
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">

@@ -14,18 +14,13 @@ export default function ProfileEditor() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    frequency: '',
     description: '',
     location: '',
     category: '',
     stream_url: '',
-    website: '',
     logo_url: '',
-    cover_image_url: '',
-    facebook_url: '',
-    twitter_url: '',
-    instagram_url: '',
-    phone: '',
-    email: ''
+    cover_url: ''
   });
 
   const categories = ['Pop', 'Rock', 'Jazz', 'Classical', 'Electronic', 'Hip Hop', 'Country', 'Latin', 'News', 'Sports', 'Talk', 'Religious', 'Community', 'College', 'Other'];
@@ -57,18 +52,13 @@ export default function ProfileEditor() {
       setRadio(data);
       setFormData({
         name: data.name || '',
+        frequency: data.frequency || '',
         description: data.description || '',
         location: data.location || '',
         category: data.category || '',
         stream_url: data.stream_url || '',
-        website: data.website || '',
         logo_url: data.logo_url || '',
-        cover_image_url: data.cover_image_url || '',
-        facebook_url: data.facebook_url || '',
-        twitter_url: data.twitter_url || '',
-        instagram_url: data.instagram_url || '',
-        phone: data.phone || '',
-        email: data.email || ''
+        cover_url: data.cover_url || ''
       });
     } catch (error) {
       console.error('Error fetching radio:', error);
@@ -84,6 +74,10 @@ export default function ProfileEditor() {
   };
 
   const handleImageUpload = async (type: 'logo' | 'cover') => {
+    if (!user?.id) {
+      alert('Debes iniciar sesión para subir imágenes.');
+      return;
+    }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -92,7 +86,8 @@ export default function ProfileEditor() {
       if (!file) return;
 
       try {
-        const fileName = `${user?.id}/${radio?.id}/${type}_${Date.now()}.${file.name.split('.').pop()}`;
+        const radioFolder = radio?.id ?? 'new';
+        const fileName = `${user?.id}/${radioFolder}/${type}_${Date.now()}.${file.name.split('.').pop()}`;
         const { error: uploadError } = await supabase.storage
           .from('radio-images')
           .upload(fileName, file);
@@ -105,7 +100,7 @@ export default function ProfileEditor() {
 
         setFormData(prev => ({
           ...prev,
-          [type === 'logo' ? 'logo_url' : 'cover_image_url']: publicUrl
+          [type === 'logo' ? 'logo_url' : 'cover_url']: publicUrl
         }));
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -120,23 +115,42 @@ export default function ProfileEditor() {
     setSaving(true);
 
     try {
-      if (id === 'new') {
+      if (!user?.id) {
+        alert('Tu sesión no está disponible. Inicia sesión nuevamente.');
+        setSaving(false);
+        return;
+      }
+      if (!id || id === 'new') {
         const { error } = await supabase
           .from('radios')
           .insert({
-            ...formData,
-            user_id: user?.id,
-            status: 'active',
-            plan_type: 'free'
+            name: formData.name,
+            frequency: formData.frequency,
+            description: formData.description,
+            location: formData.location,
+            category: formData.category,
+            stream_url: formData.stream_url,
+            logo_url: formData.logo_url,
+            cover_url: formData.cover_url,
+            user_id: user.id
           });
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('radios')
-          .update(formData)
+          .update({
+            name: formData.name,
+            frequency: formData.frequency,
+            description: formData.description,
+            location: formData.location,
+            category: formData.category,
+            stream_url: formData.stream_url,
+            logo_url: formData.logo_url,
+            cover_url: formData.cover_url
+          })
           .eq('id', id)
-          .eq('user_id', user?.id);
+          .eq('user_id', user.id);
 
         if (error) throw error;
       }
@@ -192,6 +206,21 @@ export default function ProfileEditor() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Frequency (FM) *
+                </label>
+                <input
+                  type="text"
+                  name="frequency"
+                  value={formData.frequency}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Ej. 95.5"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category *
                 </label>
                 <select
@@ -236,44 +265,7 @@ export default function ProfileEditor() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
+              {/* Campos extra removidos para alinearse al esquema */}
             </div>
 
             <div>
@@ -289,46 +281,7 @@ export default function ProfileEditor() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Facebook URL
-                </label>
-                <input
-                  type="url"
-                  name="facebook_url"
-                  value={formData.facebook_url}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Twitter URL
-                </label>
-                <input
-                  type="url"
-                  name="twitter_url"
-                  value={formData.twitter_url}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Instagram URL
-                </label>
-                <input
-                  type="url"
-                  name="instagram_url"
-                  value={formData.instagram_url}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                />
-              </div>
-            </div>
+            {/* Campos de redes sociales removidos para alinearse al esquema */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -372,10 +325,10 @@ export default function ProfileEditor() {
                   Cover Image
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  {formData.cover_image_url ? (
+                  {formData.cover_url ? (
                     <div className="space-y-2">
                       <img
-                        src={formData.cover_image_url}
+                        src={formData.cover_url}
                         alt="Cover"
                         className="w-32 h-20 object-cover rounded-lg mx-auto"
                       />

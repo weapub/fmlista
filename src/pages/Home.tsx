@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { RadioCard } from '@/components/RadioCard'
 import { AudioPlayer } from '@/components/AudioPlayer'
-import { FilterBar } from '@/components/FilterBar'
 import { Navigation } from '@/components/Navigation'
+import { Hero } from '@/components/Hero'
+import { NewsSection } from '@/components/NewsSection'
 import { useRadioStore } from '@/stores/radioStore'
 import { api } from '@/lib/api'
 import { Radio } from '@/types/database'
@@ -36,6 +37,18 @@ export const Home: React.FC = () => {
     radio.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     radio.location?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const recentRadios = [...radios]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 6)
+  const categoryCounts = radios.reduce<Record<string, number>>((acc, r) => {
+    if (r.category) acc[r.category] = (acc[r.category] || 0) + 1
+    return acc
+  }, {})
+  const trendingCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+  const trendingRadios = trendingCategory
+    ? radios.filter(r => r.category === trendingCategory).slice(0, 6)
+    : radios.slice(0, 6)
   
   if (isLoading) {
     return (
@@ -68,36 +81,40 @@ export const Home: React.FC = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <RadioIcon className="w-12 h-12 text-secondary-500 mr-3" />
-            <h1 className="text-4xl font-bold text-primary-500">FM Lista</h1>
-          </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Descubre y escucha tus emisoras de radio FM favoritas. Explora estaciones de todo el país con información detallada y programación.
-          </p>
-        </div>
-        
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre o ubicación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500"
-            />
-          </div>
-        </div>
-        
-        {/* Filters */}
+        <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        {/* Tendencias */}
         <div className="mb-8">
-          <FilterBar />
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xl font-semibold text-gray-900">Tendencias</h2>
+            {trendingCategory && (
+              <span className="text-sm text-gray-500">Categoría: {trendingCategory}</span>
+            )}
+          </div>
+          {trendingRadios.length === 0 ? (
+            <p className="text-gray-600">Sin emisoras</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trendingRadios.map(radio => (
+                <RadioCard key={radio.id} radio={radio} />
+              ))}
+            </div>
+          )}
         </div>
-        
+
+        {/* Agregadas recientemente */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Agregadas recientemente</h2>
+          {recentRadios.length === 0 ? (
+            <p className="text-gray-600">Sin emisoras recientes</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentRadios.map(radio => (
+                <RadioCard key={radio.id} radio={radio} />
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Results count */}
         <div className="mb-6">
           <p className="text-gray-600">
@@ -121,6 +138,13 @@ export const Home: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Noticias de Formosa */}
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Noticias de Formosa</h2>
+          <p className="text-gray-600 mb-4">Actualidad desde los diarios más populares de la provincia.</p>
+          <NewsSection />
+        </div>
       </div>
       
       {/* Audio Player */}

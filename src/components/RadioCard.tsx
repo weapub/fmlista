@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Play, Radio as RadioIcon } from 'lucide-react'
 import { Radio } from '@/types/database'
@@ -13,6 +13,8 @@ interface RadioCardProps {
 export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
   const navigate = useNavigate()
   const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
+  const [logoError, setLogoError] = useState(false)
+  const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
   const isCurrentRadio = currentRadio?.id === radio.id
   
@@ -40,14 +42,12 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
     >
       <div className="flex items-center space-x-4">
         <div className="relative">
-          {radio.logo_url ? (
+          {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
             <img
               src={radio.logo_url}
               alt={radio.name}
               className="w-16 h-16 rounded-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none'
-              }}
+              onError={() => setLogoError(true)}
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
