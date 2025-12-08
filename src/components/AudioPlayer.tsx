@@ -3,9 +3,10 @@ import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack } from 'lucide-rea
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
+import { NowPlayingInfo } from '@/components/NowPlayingInfo'
 
 export const AudioPlayer: React.FC = () => {
-  const { currentRadio, isPlaying, volume } = useRadioStore()
+  const { currentRadio, isPlaying, volume, radios, setCurrentRadio, setIsPlaying } = useRadioStore()
   const { togglePlay, setVolume } = useAudioPlayer()
   
   if (!currentRadio) {
@@ -15,6 +16,23 @@ export const AudioPlayer: React.FC = () => {
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVolume(parseFloat(e.target.value))
   }
+
+  const goPrev = () => {
+    if (!radios || radios.length === 0 || !currentRadio) return
+    const idx = radios.findIndex(r => r.id === currentRadio.id)
+    const prevIdx = (idx - 1 + radios.length) % radios.length
+    setCurrentRadio(radios[prevIdx])
+    setIsPlaying(true)
+  }
+
+  const goNext = () => {
+    if (!radios || radios.length === 0 || !currentRadio) return
+    const idx = radios.findIndex(r => r.id === currentRadio.id)
+    const nextIdx = (idx + 1) % radios.length
+    setCurrentRadio(radios[nextIdx])
+    setIsPlaying(true)
+  }
+
   
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
@@ -27,6 +45,20 @@ export const AudioPlayer: React.FC = () => {
                 className="p-2 bg-secondary-500 text-white rounded-full hover:bg-secondary-600 transition-colors flex-shrink-0"
               >
                 {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              </button>
+              <button
+                onClick={goPrev}
+                className="p-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors flex-shrink-0"
+                title="Anterior"
+              >
+                <SkipBack className="w-5 h-5" />
+              </button>
+              <button
+                onClick={goNext}
+                className="p-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors flex-shrink-0"
+                title="Siguiente"
+              >
+                <SkipForward className="w-5 h-5" />
               </button>
             </div>
             
@@ -45,6 +77,7 @@ export const AudioPlayer: React.FC = () => {
                 <p className="text-xs sm:text-sm text-gray-600">
                   {currentRadio.frequency}
                 </p>
+                <NowPlayingInfo radio={currentRadio} />
               </div>
             </div>
           </div>

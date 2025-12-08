@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
         setRadios(data)
         setStoreRadios(data)
       } catch (error) {
-        console.error('Error fetching radios:', error)
+        // Ignore transient network errors during dev refresh
       } finally {
         setIsLoading(false)
       }

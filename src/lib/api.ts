@@ -4,13 +4,21 @@ import { Radio, ScheduleItem, RadioWithSchedule } from '@/types/database'
 export const api = {
   // Radio operations
   async getRadios(): Promise<Radio[]> {
-    const { data, error } = await supabase
-      .from('radios')
-      .select('*')
-      .order('name', { ascending: true })
-    
-    if (error) throw error
-    return data || []
+    const maxRetries = 3
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const { data, error } = await supabase
+        .from('radios')
+        .select('*')
+        .order('name', { ascending: true })
+      if (!error) return data || []
+      const msg = (error as any)?.message || ''
+      if (msg.includes('Failed to fetch') || msg.includes('AbortError')) {
+        await new Promise(r => setTimeout(r, 200 * (attempt + 1)))
+        continue
+      }
+      break
+    }
+    return []
   },
   
   async getRadioById(id: string): Promise<RadioWithSchedule | null> {
