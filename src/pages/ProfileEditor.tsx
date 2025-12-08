@@ -23,7 +23,27 @@ export default function ProfileEditor() {
     cover_url: ''
   });
 
-  const categories = ['Pop', 'Rock', 'Jazz', 'Classical', 'Electronic', 'Hip Hop', 'Country', 'Latin', 'News', 'Sports', 'Talk', 'Religious', 'Community', 'College', 'Other'];
+  const categories = [
+    'Noticias',
+    'Pop',
+    'Rock',
+    'Tropical',
+    'Cumbia',
+    'Folklore',
+    'Latina',
+    'Clásica',
+    'Electrónica',
+    'Jazz',
+    'Deportes',
+    'Religiosa',
+    'Cultural',
+    'Comunitaria',
+    'Universitaria',
+    'Hip Hop',
+    'Country',
+    'Charlas',
+    'Otra'
+  ];
 
   useEffect(() => {
     if (!user || user.role !== 'radio_admin') {

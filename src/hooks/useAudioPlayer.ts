@@ -59,11 +59,15 @@ export const useAudioPlayer = () => {
       // Remove trailing ';'
       if (path.endsWith(';')) {
         list.push(`${origin}${path.replace(/;$/, '')}`)
+      } else {
+        // Add trailing ';' for Shoutcast compatibility
+        list.push(`${stream};`)
       }
       // Common icecast patterns
       if (!path.includes('stream')) {
         list.push(`${origin}${path.endsWith('/') ? path + 'stream' : path + '/stream'}`)
         list.push(`${origin}${path.endsWith('/') ? path + ';stream/1' : path + '/;stream/1'}`)
+        list.push(`${origin}${path.endsWith('/') ? path + 'live' : path + '/live'}`)
       }
       return Array.from(new Set(list))
     } catch {

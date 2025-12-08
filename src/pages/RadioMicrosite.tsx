@@ -18,7 +18,7 @@ export const RadioMicrosite: React.FC = () => {
   const [logoError, setLogoError] = useState(false)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
-  const { currentRadio } = useRadioStore()
+  const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
   const { togglePlay, isPlaying } = useAudioPlayer()
   
   useEffect(() => {
@@ -40,8 +40,13 @@ export const RadioMicrosite: React.FC = () => {
   }, [id])
   
   const handlePlay = () => {
-    if (radio) {
+    if (!radio) return
+
+    if (currentRadio?.id === radio.id) {
       togglePlay()
+    } else {
+      setCurrentRadio(radio)
+      setIsPlaying(true)
     }
   }
   
