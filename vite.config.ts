@@ -27,4 +27,13 @@ export default defineConfig({
     }), 
     tsconfigPaths()
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://fmlista.vercel.app',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

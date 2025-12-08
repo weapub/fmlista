@@ -17,7 +17,7 @@ export const NowPlayingInfo: React.FC<Props> = ({ radio }) => {
         setNpError(false)
         setNowPlaying('')
         if (!radio?.stream_url) return
-        if (import.meta.env.DEV) return
+        // if (import.meta.env.DEV) return
         const url = `/api/nowplaying?stream=${encodeURIComponent(radio.stream_url)}`
         const res = await fetch(url, { cache: 'no-store' })
         if (!res.ok) throw new Error('np failed')
