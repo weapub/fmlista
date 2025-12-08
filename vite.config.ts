@@ -42,15 +42,29 @@ export default defineConfig({
 
             const u = new URL(stream)
             const origin = `${u.protocol}//${u.host}`
-            const mount = u.pathname.replace(/;$/, '') // Clean trailing ; for metadata lookup
+            // Clean trailing ; and / for metadata lookup to build clean paths
+            const mount = u.pathname.replace(/;$/, '').replace(/\/$/, '')
+            
             const candidates = [
               `${origin}/status-json.xsl`,
               `${origin}/status.xsl`,
               `${origin}${mount}/currentsong`,
               `${origin}/currentsong`,
+              // Add mount specific status if mount exists
+              ...(mount ? [`${origin}${mount}/status-json.xsl`, `${origin}${mount}/status.xsl`] : [])
             ]
             
             let title = ''
+            // Disable SSL verification for this fetch
+            const fetchOptions = {
+              agent: undefined, // native fetch doesn't support agent easily without undici, but we can try ignoring errors
+              // For Node 18+ native fetch, we can't easily disable SSL verify without global config
+            }
+            // Hack for dev environment to ignore SSL
+            if (process.env.NODE_ENV === 'development') {
+              process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+            }
+
             for (const url of candidates) {
               try {
                 const r = await fetch(url)
@@ -62,6 +76,7 @@ export default defineConfig({
                     const json = JSON.parse(text)
                     const src = json.icestats?.source
                     if (Array.isArray(src)) {
+                      // Try to match by mount point
                       const match = src.find((s: any) => s.listenurl?.includes(mount) || s.server_name)
                       title = match?.title || match?.server_name || ''
                     } else if (src) {
@@ -75,7 +90,9 @@ export default defineConfig({
                   title = (m && m[1]?.trim()) || ''
                 }
                 if (title) break
-              } catch {}
+              } catch (e) {
+                // ignore specific fetch errors
+              }
             }
             
             res.setHeader('Content-Type', 'application/json')
@@ -92,7 +109,6 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      // Keep proxy for other potential API routes, but nowplaying is handled locally
       '/api': {
         target: 'https://fmlista.vercel.app',
         changeOrigin: true,
