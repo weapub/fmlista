@@ -42,7 +42,7 @@ export default defineConfig({
 
             const u = new URL(stream)
             const origin = `${u.protocol}//${u.host}`
-            const mount = u.pathname
+            const mount = u.pathname.replace(/;$/, '') // Clean trailing ; for metadata lookup
             const candidates = [
               `${origin}/status-json.xsl`,
               `${origin}/status.xsl`,
