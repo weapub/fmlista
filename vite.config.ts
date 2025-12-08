@@ -67,8 +67,24 @@ export default defineConfig({
 
             for (const url of candidates) {
               try {
-                const r = await fetch(url)
+                // Use a short timeout for the fetch to avoid hanging on streams
+                const controller = new AbortController()
+                const timeoutId = setTimeout(() => controller.abort(), 2000)
+                
+                const r = await fetch(url, { 
+                  ...fetchOptions, 
+                  signal: controller.signal 
+                })
+                clearTimeout(timeoutId)
+                
                 if (!r.ok) continue
+                
+                // Check Content-Type to avoid reading audio streams
+                const contentType = r.headers.get('content-type') || ''
+                if (contentType.includes('audio/') || contentType.includes('video/') || contentType.includes('application/ogg')) {
+                  continue
+                }
+                
                 const text = await r.text()
                 
                 if (url.endsWith('status-json.xsl')) {

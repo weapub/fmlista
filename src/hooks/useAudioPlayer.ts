@@ -62,6 +62,10 @@ export const useAudioPlayer = () => {
       } else {
         // Add trailing ';' for Shoutcast compatibility
         list.push(`${stream};`)
+        // Try simple stream without path if it fails (sometimes needed for pure IP:PORT)
+        if (path === '/' || path === '') {
+             list.push(`${origin}/;`)
+        }
       }
       // Common icecast patterns
       if (!path.includes('stream')) {

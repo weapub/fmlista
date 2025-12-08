@@ -17,8 +17,18 @@ export default async function handler(req, res) {
     let title = ''
     for (const url of candidates) {
       try {
-        const r = await fetch(url)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const r = await fetch(url, { signal: controller.signal })
+        clearTimeout(timeoutId)
+        
         if (!r.ok) continue
+        
+        const contentType = r.headers.get('content-type') || ''
+        if (contentType.includes('audio/') || contentType.includes('video/') || contentType.includes('application/ogg')) {
+          continue
+        }
+
         const text = await r.text()
         // Try Icecast JSON
         if (url.endsWith('status-json.xsl')) {
