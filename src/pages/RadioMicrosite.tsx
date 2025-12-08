@@ -95,7 +95,7 @@ export const RadioMicrosite: React.FC = () => {
   const shareUrl = `${window.location.origin}/radio/${radio.id}`
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       
       {/* Cover Image */}

@@ -80,7 +80,7 @@ export const AudioPlayer: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8 space-y-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8 space-y-8 mt-12">
           {/* Album Art / Logo */}
           <div className="w-full max-w-sm aspect-square bg-gray-100 rounded-2xl shadow-2xl overflow-hidden flex items-center justify-center">
             {currentRadio.logo_url ? (
@@ -111,7 +111,7 @@ export const AudioPlayer: React.FC = () => {
         </div>
 
         {/* Controls */}
-        <div className="px-8 pb-12 w-full max-w-md mx-auto space-y-8">
+        <div className="px-8 pb-16 w-full max-w-md mx-auto space-y-8">
           {/* Progress / Live Indicator */}
           <div className="flex items-center justify-between text-xs font-medium text-gray-500">
              <span className="text-red-500 flex items-center gap-1">
@@ -146,9 +146,9 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Volume */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 mb-8">
             <button onClick={handleMuteToggle} className="text-gray-500">
-              {volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+              {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
             <input
               type="range"
@@ -157,7 +157,7 @@ export const AudioPlayer: React.FC = () => {
               step="0.01"
               value={volume}
               onChange={handleVolumeChange}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
+              className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
               style={{
                 background: `linear-gradient(to right, #f97316 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
               }}
