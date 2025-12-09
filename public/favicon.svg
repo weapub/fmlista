@@ -1,4 +1,37 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="32" height="32" fill="#0A0B0D"/>
-<path d="M26.6677 23.7149H8.38057V20.6496H5.33301V8.38159H26.6677V23.7149ZM8.38057 20.6496H23.6201V11.4482H8.38057V20.6496ZM16.0011 16.0021L13.8461 18.1705L11.6913 16.0021L13.8461 13.8337L16.0011 16.0021ZM22.0963 16.0008L19.9414 18.1691L17.7865 16.0008L19.9414 13.8324L22.0963 16.0008Z" fill="#32F08C"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background: Solid Coral/Salmon-Red -->
+  <rect width="512" height="512" fill="#FA8072" rx="64" />
+  
+  <!-- Text Group -->
+  <g transform="translate(60, 100)">
+    <!-- 'fm' text - Hand-drawn rounded style -->
+    <path d="M80 60 C 80 40, 90 20, 110 20 C 130 20, 130 50, 130 70 L 130 150" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+    <line x1="70" y1="90" x2="140" y2="90" stroke="white" stroke-width="35" stroke-linecap="round" />
+    
+    <path d="M160 150 L 160 90 C 160 70, 180 70, 180 90 C 180 70, 200 70, 200 90 L 200 150" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Yellow Dot/Teardrop -->
+  <circle cx="210" cy="240" r="25" fill="#FFE55C" />
+
+  <!-- 'Lista' text -->
+  <g transform="translate(60, 280)">
+    <!-- L -->
+    <path d="M40 0 L 40 100 L 90 100" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+    <!-- i -->
+    <line x1="120" y1="40" x2="120" y2="100" stroke="white" stroke-width="35" stroke-linecap="round" />
+    <!-- s -->
+    <path d="M160 100 C 140 100, 140 80, 160 80 C 180 80, 180 60, 160 60 C 140 60, 140 40, 160 40" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+    <!-- t -->
+    <path d="M210 20 L 210 100 M 190 40 L 230 40" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+    <!-- a -->
+    <path d="M270 70 C 250 70, 250 100, 270 100 L 270 40" stroke="white" stroke-width="35" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Yellow Rays/Burst -->
+  <g transform="translate(360, 240)" stroke="#FFE55C" stroke-width="25" stroke-linecap="round">
+    <line x1="20" y1="-40" x2="50" y2="-70" />
+    <line x1="40" y1="0" x2="80" y2="0" />
+    <line x1="20" y1="40" x2="50" y2="70" />
+  </g>
 </svg>
