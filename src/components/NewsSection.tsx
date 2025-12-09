@@ -40,7 +40,53 @@ export const NewsSection: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollPosRef = useRef(0)
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current
+    if (!scrollContainer || loading || items.length === 0) return
+
+    // Initialize scroll position from current DOM state in case it was manually scrolled
+    scrollPosRef.current = scrollContainer.scrollLeft
+
+    let animationFrameId: number
+    let lastTime = performance.now()
+    const speed = 30 // pixels per second
+
+    const animate = (time: number) => {
+      if (isPaused) {
+        lastTime = time
+        animationFrameId = requestAnimationFrame(animate)
+        return
+      }
+
+      const deltaTime = time - lastTime
+      if (deltaTime >= 16) { // Update approx every 60fps
+         const moveAmount = (speed * deltaTime) / 1000
+         scrollPosRef.current += moveAmount
+
+         // Infinite scroll reset logic
+         // We assume content is duplicated (first half == second half)
+         // Reset when we've scrolled past the first half
+         const halfWidth = scrollContainer.scrollWidth / 2
+         
+         if (scrollPosRef.current >= halfWidth) {
+             scrollPosRef.current = scrollPosRef.current - halfWidth
+             scrollContainer.scrollLeft = scrollPosRef.current
+         } else {
+             scrollContainer.scrollLeft = scrollPosRef.current
+         }
+         
+         lastTime = time
+      }
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animationFrameId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [items, loading, isPaused])
 
   useEffect(() => {
     const fetchFeeds = async () => {
@@ -125,27 +171,45 @@ export const NewsSection: React.FC = () => {
 
   if (error) return null
 
+  // Duplicate items for infinite scroll effect
+  const displayItems = [...items, ...items]
+
   return (
     <>
-      <div className="relative group bg-white border-y border-gray-200 py-2">
-        <div className="container mx-auto px-4 flex items-center">
-          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-3 uppercase tracking-wider whitespace-nowrap">
-            Último Momento
-          </span>
+      <div 
+        className="relative group bg-white border-y border-gray-200 py-2"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="container mx-auto px-4 flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider whitespace-nowrap z-10">
+              Último Momento
+            </span>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => scroll('left')}
+                className="p-1 hover:bg-gray-100 rounded-full hidden md:block z-10"
+              >
+                <ChevronLeft className="w-4 h-4 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => scroll('right')}
+                className="p-1 hover:bg-gray-100 rounded-full hidden md:block z-10"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+          </div>
           
-          <button 
-            onClick={() => scroll('left')}
-            className="p-1 hover:bg-gray-100 rounded-full mr-2 hidden md:block"
-          >
-            <ChevronLeft className="w-4 h-4 text-gray-500" />
-          </button>
-
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center space-x-6"
+            className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center space-x-6"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
           >
-            {items.map((item, index) => (
+            {displayItems.map((item, index) => (
               <button
                 key={`${item.link}-${index}`}
                 onClick={() => setSelectedUrl(item.link)}
@@ -156,13 +220,6 @@ export const NewsSection: React.FC = () => {
               </button>
             ))}
           </div>
-
-          <button 
-            onClick={() => scroll('right')}
-            className="p-1 hover:bg-gray-100 rounded-full ml-2 hidden md:block"
-          >
-            <ChevronRight className="w-4 h-4 text-gray-500" />
-          </button>
         </div>
       </div>
 
