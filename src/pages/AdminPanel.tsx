@@ -155,13 +155,22 @@ const AdminPanel: React.FC = () => {
             </h2>
             <div className="flex space-x-4">
                 {(user?.role === 'super_admin') && (
-                    <button
-                        onClick={() => navigate('/admin/ads')}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors flex items-center space-x-2"
-                    >
-                        <Megaphone className="w-4 h-4" />
-                        <span>Administrar Anuncios</span>
-                    </button>
+                    <>
+                        <button
+                            onClick={() => navigate('/admin/ads')}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+                        >
+                            <Megaphone className="w-4 h-4" />
+                            <span>Administrar Anuncios</span>
+                        </button>
+                        <button
+                            onClick={() => navigate('/admin/settings')}
+                            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                        >
+                            <Settings className="w-4 h-4" />
+                            <span>Configuración</span>
+                        </button>
+                    </>
                 )}
                 <button
                 onClick={() => navigate('/admin/profile/new')}

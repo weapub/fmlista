@@ -84,3 +84,9 @@ export interface Advertisement {
   clicks: number
   created_at: string
 }
+
+export interface AppSetting {
+  key: string
+  value: string
+  created_at: string
+}
