@@ -44,6 +44,34 @@ export const api = {
       schedule: scheduleData || []
     }
   },
+
+  async getRadioBySlug(slug: string): Promise<RadioWithSchedule | null> {
+    const { data: radioData, error: radioError } = await supabase
+      .from('radios')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+    
+    if (radioError) {
+        // If not found, return null instead of throwing, to handle gracefully
+        if (radioError.code === 'PGRST116') return null;
+        throw radioError;
+    }
+    if (!radioData) return null
+    
+    const { data: scheduleData, error: scheduleError } = await supabase
+      .from('schedule_items')
+      .select('*')
+      .eq('radio_id', radioData.id)
+      .order('start_time', { ascending: true })
+    
+    if (scheduleError) throw scheduleError
+    
+    return {
+      ...radioData,
+      schedule: scheduleData || []
+    }
+  },
   
   async createRadio(radio: Omit<Radio, 'id' | 'created_at' | 'updated_at'>): Promise<Radio> {
     const { data, error } = await supabase

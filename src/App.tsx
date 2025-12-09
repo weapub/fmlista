@@ -22,6 +22,8 @@ export default function App() {
         <Route path="/admin/schedule/:id" element={<ScheduleManager />} />
         <Route path="/admin/ads" element={<AdsManager />} />
         <Route path="/admin/settings" element={<AppSettings />} />
+        {/* Route for vanity URLs (slugs) - Must be last to avoid conflicts */}
+        <Route path="/:idOrSlug" element={<RadioMicrosite />} />
       </Routes>
       <AudioPlayer />
     </Router>

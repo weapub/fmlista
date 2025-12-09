@@ -14,6 +14,7 @@ export default function ProfileEditor() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    slug: '',
     frequency: '',
     description: '',
     location: '',
@@ -87,6 +88,7 @@ export default function ProfileEditor() {
       setRadio(data);
       setFormData({
         name: data.name || '',
+        slug: data.slug || '',
         frequency: data.frequency || '',
         description: data.description || '',
         location: data.location || '',
@@ -156,6 +158,13 @@ export default function ProfileEditor() {
     setSaving(true);
 
     try {
+      // Validate slug format if present
+      if (formData.slug && !/^[a-z0-9-]+$/.test(formData.slug)) {
+        alert('El identificador (slug) solo puede contener letras minúsculas, números y guiones.');
+        setSaving(false);
+        return;
+      }
+
       if (!user?.id) {
         alert('Tu sesión no está disponible. Inicia sesión nuevamente.');
         setSaving(false);
@@ -166,6 +175,7 @@ export default function ProfileEditor() {
           .from('radios')
           .insert({
             name: formData.name,
+            slug: formData.slug || null,
             frequency: formData.frequency,
             description: formData.description,
             location: formData.location,
@@ -186,6 +196,7 @@ export default function ProfileEditor() {
       } else {
         const updateData = {
             name: formData.name,
+            slug: formData.slug || null,
             frequency: formData.frequency,
             description: formData.description,
             location: formData.location,
@@ -338,6 +349,23 @@ export default function ProfileEditor() {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Identificador URL (Slug)
+                </label>
+                <p className="text-xs text-gray-500 mb-1">
+                    Ejemplo: "la-docta" para fmlista.com.ar/la-docta (Solo letras, números y guiones)
+                </p>
+                <input
+                  type="text"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleInputChange}
+                  placeholder="ej. radio-uno"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
                 />
               </div>

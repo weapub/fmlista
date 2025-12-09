@@ -14,7 +14,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 
 export const RadioMicrosite: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id, idOrSlug } = useParams<{ id?: string, idOrSlug?: string }>()
   const navigate = useNavigate()
   // Use explicit typing for radio to handle ScheduleItem[] correctly
   const [radio, setRadio] = useState<RadioWithSchedule | null>(null)
@@ -38,14 +38,33 @@ export const RadioMicrosite: React.FC = () => {
 
   useEffect(() => {
     const fetchRadioData = async () => {
-      if (!id) return
+      const param = id || idOrSlug;
+      if (!param) return
       
       try {
         setIsLoading(true)
-        const data = await api.getRadioById(id)
+        
+        let data: RadioWithSchedule | null = null;
+        
+        // Check if param is UUID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
+        
+        if (isUUID) {
+             data = await api.getRadioById(param);
+        } else {
+             data = await api.getRadioBySlug(param);
+        }
+
+        if (!data) {
+            setRadio(null);
+            return;
+        }
+
         // Ensure data matches RadioWithSchedule by explicitly typing the response or transforming if needed
         // Assuming api.getRadioById returns compatible structure but TypeScript might need reassurance on schedule
         setRadio(data as unknown as RadioWithSchedule)
+        
+        const radioId = data.id;
 
         // Fetch additional data if user is logged in or for public views
         if (user) {
@@ -53,7 +72,7 @@ export const RadioMicrosite: React.FC = () => {
             .from('favorites')
             .select('*')
             .eq('user_id', user.id)
-            .eq('radio_id', id)
+            .eq('radio_id', radioId)
             .single()
           setIsFavorite(!!favData)
         }
@@ -61,14 +80,14 @@ export const RadioMicrosite: React.FC = () => {
         const { data: reviewsData } = await supabase
           .from('reviews')
           .select('*, user:users(full_name, avatar_url)')
-          .eq('radio_id', id)
+          .eq('radio_id', radioId)
           .order('created_at', { ascending: false })
         setReviews(reviewsData || [])
 
         const { data: chatData } = await supabase
           .from('chat_messages')
           .select('*, user:users(full_name, avatar_url)')
-          .eq('radio_id', id)
+          .eq('radio_id', radioId)
           .order('created_at', { ascending: true })
           .limit(50)
         setChatMessages(chatData || [])
@@ -81,15 +100,24 @@ export const RadioMicrosite: React.FC = () => {
     }
     
     fetchRadioData()
-
-    // Subscribe to chat
+    
+    // Determine radioId for subscription
+    // Since radio state might not be set yet, we can't rely on it for subscription immediately if we used `id` param directly before.
+    // However, subscription depends on `radio.id`.
+    // We should probably move subscription inside a separate effect that depends on `radio`.
+  }, [id, idOrSlug, user])
+  
+  // Chat subscription effect
+  useEffect(() => {
+    if (!radio?.id) return;
+    
     const chatSubscription = supabase
-      .channel(`radio_chat:${id}`)
+      .channel(`radio_chat:${radio.id}`)
       .on('postgres_changes', { 
         event: 'INSERT', 
         schema: 'public', 
         table: 'chat_messages', 
-        filter: `radio_id=eq.${id}` 
+        filter: `radio_id=eq.${radio.id}` 
       }, async (payload) => {
         const { data: userData } = await supabase
           .from('users')
@@ -105,10 +133,10 @@ export const RadioMicrosite: React.FC = () => {
     return () => {
       chatSubscription.unsubscribe()
     }
-  }, [id, user])
+  }, [radio?.id]);
 
   const toggleFavorite = async () => {
-    if (!user) {
+    if (!user || !radio) {
       navigate('/login')
       return
     }
@@ -118,25 +146,25 @@ export const RadioMicrosite: React.FC = () => {
         .from('favorites')
         .delete()
         .eq('user_id', user.id)
-        .eq('radio_id', id)
+        .eq('radio_id', radio.id)
       setIsFavorite(false)
     } else {
       await supabase
         .from('favorites')
-        .insert({ user_id: user.id, radio_id: id })
+        .insert({ user_id: user.id, radio_id: radio.id })
       setIsFavorite(true)
     }
   }
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !id) return
+    if (!user || !radio) return
 
     const { data, error } = await supabase
       .from('reviews')
       .insert({
         user_id: user.id,
-        radio_id: id,
+        radio_id: radio.id,
         rating: newReview.rating,
         comment: newReview.comment
       })
@@ -151,13 +179,13 @@ export const RadioMicrosite: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !id || !newMessage.trim()) return
+    if (!user || !radio || !newMessage.trim()) return
 
     await supabase
       .from('chat_messages')
       .insert({
         user_id: user.id,
-        radio_id: id,
+        radio_id: radio.id,
         message: newMessage.trim()
       })
     
@@ -250,7 +278,9 @@ export const RadioMicrosite: React.FC = () => {
     )
   }
   
-  const shareUrl = `${window.location.origin}/radio/${radio.id}`
+  const shareUrl = radio.slug 
+    ? `${window.location.origin}/${radio.slug}`
+    : `${window.location.origin}/radio/${radio.id}`
   
   return (
     <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>

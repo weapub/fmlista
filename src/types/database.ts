@@ -11,6 +11,7 @@ export interface Radio {
   id: string
   user_id: string
   name: string
+  slug: string | null
   frequency: string
   logo_url: string | null
   cover_url: string | null
