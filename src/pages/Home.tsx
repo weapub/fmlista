@@ -80,7 +80,7 @@ export const Home: React.FC = () => {
   return (
     <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-0">
         <AdBanner position="home_top" />
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         {/* Tendencias */}

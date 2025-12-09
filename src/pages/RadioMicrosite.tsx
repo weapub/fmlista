@@ -363,7 +363,7 @@ export const RadioMicrosite: React.FC = () => {
       </div>
       
       {/* Content */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-0">
         <AdBanner position="microsite_top" />
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
