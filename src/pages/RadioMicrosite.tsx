@@ -429,7 +429,7 @@ export const RadioMicrosite: React.FC = () => {
                 
                 {/* Schedule Section */}
                 <div>
-                  <ScheduleDisplay schedule={radio.schedule} />
+                  <ScheduleDisplay schedule={radio.schedule || []} />
                 </div>
               </>
             )}

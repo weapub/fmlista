@@ -51,7 +51,9 @@ export default function ProfileEditor() {
   ];
 
   useEffect(() => {
-    if (!user || (user.role !== 'radio_admin' && user.role !== 'super_admin')) {
+    // TypeScript check requires casting or more complex type guards
+    const userRole = user?.role as string;
+    if (!user || (userRole !== 'radio_admin' && userRole !== 'super_admin')) {
       navigate('/login');
       return;
     }
@@ -71,7 +73,9 @@ export default function ProfileEditor() {
         .eq('id', id);
 
       // Si no es super admin, solo puede editar sus propias radios
-      if (user?.role !== 'super_admin') {
+      // TypeScript check requires casting or more complex type guards
+      const userRole = user?.role as string;
+      if (userRole !== 'super_admin') {
         query = query.eq('user_id', user?.id);
       }
 
@@ -198,7 +202,9 @@ export default function ProfileEditor() {
           .update(updateData)
           .eq('id', id);
 
-        if (user?.role !== 'super_admin') {
+        // TypeScript check requires casting or more complex type guards
+        const userRole = user?.role as string;
+        if (userRole !== 'super_admin') {
            query = query.eq('user_id', user.id);
         }
 

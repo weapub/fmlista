@@ -13,7 +13,9 @@ const AdminPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   
   useEffect(() => {
-    if (!user || (user.role !== 'radio_admin' && user.role !== 'super_admin')) {
+    // TypeScript check requires casting or more complex type guards
+    const userRole = user?.role as string;
+    if (!user || (userRole !== 'radio_admin' && userRole !== 'super_admin')) {
       navigate('/login')
       return
     }
@@ -28,7 +30,7 @@ const AdminPanel: React.FC = () => {
           .order('created_at', { ascending: false })
 
         // If not super_admin, filter by user_id
-        if (user.role !== 'super_admin') {
+        if (userRole !== 'super_admin') {
           query = query.eq('user_id', user.id)
         }
 
