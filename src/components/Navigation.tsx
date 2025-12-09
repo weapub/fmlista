@@ -10,9 +10,8 @@ export const Navigation: React.FC = () => {
   const [appLogo, setAppLogo] = useState('/favicon.svg')
   const [appTitle, setAppTitle] = useState('FM Lista')
   const [darkMode, setDarkMode] = useState(() => {
-    // Check local storage or system preference
+    // Check local storage, default to light
     if (localStorage.getItem('theme') === 'dark') return true
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme')) return true
     return false
   })
   
