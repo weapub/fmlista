@@ -19,6 +19,7 @@ export default function ProfileEditor() {
     location: '',
     category: '',
     stream_url: '',
+    video_stream_url: '',
     logo_url: '',
     cover_url: '',
     whatsapp: '',
@@ -91,6 +92,7 @@ export default function ProfileEditor() {
         location: data.location || '',
         category: data.category || '',
         stream_url: data.stream_url || '',
+        video_stream_url: data.video_stream_url || '',
         logo_url: data.logo_url || '',
         cover_url: data.cover_url || '',
         whatsapp: data.whatsapp || '',
@@ -169,6 +171,7 @@ export default function ProfileEditor() {
             location: formData.location,
             category: formData.category,
             stream_url: formData.stream_url,
+            video_stream_url: formData.video_stream_url,
             logo_url: formData.logo_url,
             cover_url: formData.cover_url,
             user_id: user.id,
@@ -188,6 +191,7 @@ export default function ProfileEditor() {
             location: formData.location,
             category: formData.category,
             stream_url: formData.stream_url,
+            video_stream_url: formData.video_stream_url,
             logo_url: formData.logo_url,
             cover_url: formData.cover_url,
             whatsapp: formData.whatsapp,
@@ -395,6 +399,20 @@ export default function ProfileEditor() {
                   value={formData.stream_url}
                   onChange={handleInputChange}
                   required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Video Stream URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  name="video_stream_url"
+                  value={formData.video_stream_url}
+                  onChange={handleInputChange}
+                  placeholder="Ej. https://www.youtube.com/watch?v=..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
                 />
               </div>

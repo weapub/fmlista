@@ -43,7 +43,8 @@ export default function ScheduleManager() {
         .from('schedule_items')
         .select('*')
         .eq('radio_id', id)
-        .order('day_of_week', { ascending: true })
+        // Remove day_of_week ordering since it's now string and might not order correctly alphabetically if we want logical order
+        // We will group and order in frontend
         .order('start_time', { ascending: true });
 
       if (error) throw error;
@@ -82,31 +83,41 @@ export default function ScheduleManager() {
 
     try {
       if (editingItem) {
-        // For editing, we only update the single item's day if changed, or we might need to rethink edit logic if it was part of a group
-        // But the requirement implies adding programming. 
-        // If editing, we usually edit a single entry. 
-        // However, if the user selects multiple days during edit, we should probably create new entries for the other days or update multiple if we tracked them.
-        // For simplicity in this iteration, let's assume editing is still single item, but let's see.
-        // Actually, if user selects multiple days in edit, it implies cloning this schedule to other days or moving it.
-        // Let's stick to: Create = multiple allowed. Edit = update current item (maybe allow changing day, but multiple days in edit is complex without a group ID).
-        // Let's allow creating multiple entries for new items.
+        // Update the existing item with the first selected day
+        const firstDay = formData.days_of_week[0];
         
-        // If editingItem is present, we update ONLY that item.
-        // But wait, the user asked to "allow selecting multiple days". This usually applies to creating new schedules (e.g. Mon-Fri 10-12).
-        
-        const { error } = await supabase
+        const { error: updateError } = await supabase
           .from('schedule_items')
           .update({
             program_name: formData.program_name,
             description: formData.description,
-            day_of_week: formData.days_of_week[0], // Take the first one if multiple selected, or better, restrict edit to single day
+            day_of_week: firstDay,
             start_time: formData.start_time,
             end_time: formData.end_time
           })
           .eq('id', editingItem.id)
           .eq('radio_id', id);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
+
+        // If multiple days were selected, create new entries for the additional days
+        if (formData.days_of_week.length > 1) {
+          const additionalDays = formData.days_of_week.slice(1);
+          const inserts = additionalDays.map(day => ({
+            radio_id: id,
+            program_name: formData.program_name,
+            description: formData.description,
+            day_of_week: day,
+            start_time: formData.start_time,
+            end_time: formData.end_time
+          }));
+
+          const { error: insertError } = await supabase
+            .from('schedule_items')
+            .insert(inserts);
+
+          if (insertError) throw insertError;
+        }
       } else {
         // Create multiple entries
         const inserts = formData.days_of_week.map(day => ({
@@ -233,7 +244,7 @@ export default function ScheduleManager() {
               className="flex items-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600"
             >
               <Plus className="w-4 h-4" />
-              <span>Agregar Programa</span>
+              <span>Agregar</span>
             </button>
           </div>
 

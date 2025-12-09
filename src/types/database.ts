@@ -16,6 +16,7 @@ export interface Radio {
   cover_url: string | null
   description: string | null
   stream_url: string
+  video_stream_url: string | null
   location: string | null
   category: string | null
   whatsapp: string | null

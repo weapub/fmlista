@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import ReactPlayer from 'react-player'
 import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone } from 'lucide-react'
 import { api } from '@/lib/api'
 import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
@@ -31,6 +32,7 @@ export const RadioMicrosite: React.FC = () => {
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' })
   const [newMessage, setNewMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'info' | 'chat' | 'reviews'>('info')
+  const [playingVideo, setPlayingVideo] = useState(false)
 
   useEffect(() => {
     const fetchRadioData = async () => {
@@ -170,6 +172,11 @@ export const RadioMicrosite: React.FC = () => {
       if (isPlaying) {
         setIsPlaying(false)
       }
+      // If video is playing, stop it
+      if (playingVideo) {
+        setPlayingVideo(false)
+      }
+      
       // Small timeout to ensure clean state transition
       setTimeout(() => {
         setCurrentRadio(radio)
@@ -178,7 +185,19 @@ export const RadioMicrosite: React.FC = () => {
     }
   }
   
+  const handleVideoPlay = () => {
+    setPlayingVideo(true)
+    if (isPlaying) {
+      setIsPlaying(false)
+    }
+  }
+
+  const handleVideoPause = () => {
+    setPlayingVideo(false)
+  }
+  
   const isCurrentRadio = currentRadio?.id === radio?.id
+  const Player = ReactPlayer as any
   
   if (isLoading) {
     return (
@@ -226,28 +245,51 @@ export const RadioMicrosite: React.FC = () => {
     <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       
-      {/* Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-secondary-500 to-secondary-700">
-        {radio.cover_url && !isPlaceholderUrl(radio.cover_url) && !coverError ? (
-          <img
-            src={radio.cover_url}
-            alt={radio.name}
-            className="w-full h-full object-cover"
-            onError={() => setCoverError(true)}
-          />
+      {/* Video or Cover Image */}
+      <div className={`relative ${radio.video_stream_url ? 'h-64 md:h-96' : 'h-64'} bg-black group`}>
+        {radio.video_stream_url ? (
+          <div className="w-full h-full">
+             <Player
+               url={radio.video_stream_url}
+               width="100%"
+               height="100%"
+               controls
+               playing={playingVideo}
+               onPlay={handleVideoPlay}
+               onPause={handleVideoPause}
+               light={radio.cover_url && !coverError ? radio.cover_url : false}
+               playIcon={
+                 <button className="p-4 bg-secondary-500 rounded-full text-white shadow-lg transform transition-transform group-hover:scale-110">
+                   <Play className="w-8 h-8 fill-current" />
+                 </button>
+               }
+             />
+           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-secondary-500 to-secondary-700 flex items-center justify-center">
-            <RadioIcon className="w-24 h-24 text-white opacity-50" />
-          </div>
+          <>
+            <div className="w-full h-full bg-gradient-to-r from-secondary-500 to-secondary-700">
+              {radio.cover_url && !isPlaceholderUrl(radio.cover_url) && !coverError ? (
+                <img
+                  src={radio.cover_url}
+                  alt={radio.name}
+                  className="w-full h-full object-cover"
+                  onError={() => setCoverError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <RadioIcon className="w-24 h-24 text-white opacity-50" />
+                </div>
+              )}
+            </div>
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+          </>
         )}
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         
         {/* Back Button */}
         <button
           onClick={() => navigate('/')}
-          className="absolute top-4 left-4 p-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full hover:bg-opacity-30 transition-all"
+          className="absolute top-4 left-4 p-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full hover:bg-opacity-30 transition-all z-10"
         >
           <ArrowLeft className="w-6 h-6 text-white" />
         </button>

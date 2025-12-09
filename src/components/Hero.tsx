@@ -34,10 +34,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0, transparent 35%), radial-gradient(circle at 80% 30%, rgba(255,255,255,0.12) 0, transparent 40%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0, transparent 35%)'
       }} />
       <div className="relative px-6 py-10 md:px-10 md:py-16 text-white text-center">
-        <h1 className="text-3xl md:text-5xl font-bold mb-3">FM Lista</h1>
-        <p className="text-white/90 max-w-2xl mx-auto mb-6">
-          Descubre emisoras FM por ciudad y género. Explora micrositios, programación y reproduce en vivo.
-        </p>
+        <h1 className="text-3xl md:text-5xl font-bold mb-3">Todas las radios de Formosa en una App</h1>
+        <p className="text-white/90 max-w-2xl mx-auto mb-6">Conectate con tu radio favorita, enviá mensajes y participa en vivo.</p>
 
         <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-3 md:space-y-0 justify-center">
           <div className="relative w-full md:max-w-lg">
