@@ -8,6 +8,7 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
   const [appLogo, setAppLogo] = useState('/favicon.svg')
+  const [appTitle, setAppTitle] = useState('FM Lista')
   
   const userRole = user?.role as string
 
@@ -15,12 +16,18 @@ export const Navigation: React.FC = () => {
     const fetchLogo = async () => {
       const { data } = await supabase
         .from('app_settings')
-        .select('value')
-        .eq('key', 'app_logo')
-        .single();
+        .select('key, value')
+        .in('key', ['app_logo', 'app_title']);
       
-      if (data?.value) {
-        setAppLogo(data.value);
+      const logoSetting = data?.find(s => s.key === 'app_logo');
+      const titleSetting = data?.find(s => s.key === 'app_title');
+
+      if (logoSetting?.value) {
+        setAppLogo(logoSetting.value);
+      }
+
+      if (titleSetting) {
+        setAppTitle(titleSetting.value);
       }
     };
     fetchLogo();
@@ -41,8 +48,8 @@ export const Navigation: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src={appLogo} alt="FM Lista Logo" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-bold text-primary-500">FM Lista</span>
+            <img src={appLogo} alt="Logo" className="w-8 h-8 object-contain" />
+            {appTitle && <span className="text-xl font-bold text-primary-500">{appTitle}</span>}
           </Link>
           
           {/* Navigation Links */}

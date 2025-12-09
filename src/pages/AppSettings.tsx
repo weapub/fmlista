@@ -9,6 +9,7 @@ export default function AppSettings() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState('');
+  const [appTitle, setAppTitle] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,16 +27,24 @@ export default function AppSettings() {
     try {
       const { data, error } = await supabase
         .from('app_settings')
-        .select('value')
-        .eq('key', 'app_logo')
-        .single();
+        .select('key, value')
+        .in('key', ['app_logo', 'app_title']);
 
-      if (error && error.code !== 'PGRST116') throw error;
-      if (data) {
-        setLogoUrl(data.value);
+      if (error) throw error;
+      
+      const logoSetting = data?.find(s => s.key === 'app_logo');
+      const titleSetting = data?.find(s => s.key === 'app_title');
+
+      if (logoSetting) {
+        setLogoUrl(logoSetting.value);
       } else {
-        // Default fallback if not in DB yet
         setLogoUrl('/favicon.svg');
+      }
+
+      if (titleSetting) {
+        setAppTitle(titleSetting.value);
+      } else {
+        setAppTitle('FM Lista');
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -79,15 +88,25 @@ export default function AppSettings() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const { error } = await supabase
+      const { error: logoError } = await supabase
         .from('app_settings')
         .upsert({ 
           key: 'app_logo', 
           value: logoUrl 
         });
+      
+      if (logoError) throw logoError;
 
-      if (error) throw error;
-      alert('Logo actualizado correctamente. Recarga la página para ver los cambios.');
+      const { error: titleError } = await supabase
+        .from('app_settings')
+        .upsert({ 
+          key: 'app_title', 
+          value: appTitle 
+        });
+
+      if (titleError) throw titleError;
+
+      alert('Configuración actualizada correctamente. Recarga la página para ver los cambios.');
     } catch (error: any) {
       console.error('Error saving settings:', error);
       alert(`Error al guardar la configuración: ${error.message || 'Error desconocido'}`);
@@ -136,13 +155,28 @@ export default function AppSettings() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,image/svg+xml"
                     onChange={handleLogoUpload}
                     disabled={saving}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100"
                   />
                 </div>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nombre de la Aplicación</label>
+              <p className="text-sm text-gray-500 mb-2">
+                Este texto aparecerá junto al logo en la barra de navegación. Déjalo vacío si solo quieres mostrar el logo.
+              </p>
+              <input
+                type="text"
+                value={appTitle}
+                onChange={(e) => setAppTitle(e.target.value)}
+                disabled={saving}
+                placeholder="Ej. FM Lista"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+              />
             </div>
 
             <div className="pt-4 border-t border-gray-100 flex justify-end">
