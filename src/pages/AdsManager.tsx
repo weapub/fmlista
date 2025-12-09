@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
 import { Advertisement } from '@/types/database';
@@ -7,36 +7,76 @@ import { Plus, Trash2, Edit, Save, X, Image as ImageIcon, ExternalLink, ArrowLef
 
 export default function AdsManager() {
   const navigate = useNavigate();
+  const { radioId } = useParams<{ radioId: string }>();
   const { user } = useAuthStore();
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
+  const [radioName, setRadioName] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     image_url: '',
     link_url: '',
     position: 'home_top',
-    active: true
+    active: true,
+    display_order: 0
   });
 
   useEffect(() => {
     const checkRole = async () => {
-        if (!user || user.role !== 'super_admin') {
-            navigate('/admin');
+        if (!user) {
+            navigate('/login');
             return;
         }
+
+        if (radioId) {
+            // Radio Admin Context
+            // Verify ownership
+            const { data: radio, error } = await supabase
+                .from('radios')
+                .select('id, user_id, name')
+                .eq('id', radioId)
+                .single();
+            
+            if (error || !radio) {
+                navigate('/admin');
+                return;
+            }
+
+            if (user.role !== 'super_admin' && radio.user_id !== user.id) {
+                navigate('/admin');
+                return;
+            }
+            setRadioName(radio.name);
+        } else {
+            // Super Admin Context (Global Ads)
+            if (user.role !== 'super_admin') {
+                navigate('/admin');
+                return;
+            }
+        }
+        
         fetchAds();
     };
     checkRole();
-  }, [user, navigate]);
+  }, [user, navigate, radioId]);
 
   const fetchAds = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('advertisements')
         .select('*')
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
+
+      if (radioId) {
+          query = query.eq('radio_id', radioId);
+      } else {
+          query = query.is('radio_id', null);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setAds(data || []);
@@ -60,11 +100,12 @@ export default function AdsManager() {
     if (!file) return;
 
     try {
-      const fileName = `ads/${Date.now()}_${file.name}`;
+      const fileName = `ads/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const { error: uploadError } = await supabase.storage
         .from('radio-images')
         .upload(fileName, file, {
-          contentType: file.type // Explicitly set content type to handle GIFs correctly
+          contentType: file.type,
+          upsert: true
         });
 
       if (uploadError) throw uploadError;
@@ -91,20 +132,28 @@ export default function AdsManager() {
             image_url: formData.image_url,
             link_url: formData.link_url,
             position: formData.position,
-            active: formData.active
+            active: formData.active,
+            display_order: formData.display_order
           })
           .eq('id', editingAd.id);
         if (error) throw error;
       } else {
+        const payload: any = {
+          title: formData.title,
+          image_url: formData.image_url,
+          link_url: formData.link_url,
+          position: formData.position,
+          active: formData.active,
+          display_order: formData.display_order
+        };
+        
+        if (radioId) {
+            payload.radio_id = radioId;
+        }
+
         const { error } = await supabase
           .from('advertisements')
-          .insert([{
-            title: formData.title,
-            image_url: formData.image_url,
-            link_url: formData.link_url,
-            position: formData.position,
-            active: formData.active
-          }]);
+          .insert([payload]);
         if (error) throw error;
       }
 
@@ -115,7 +164,8 @@ export default function AdsManager() {
         image_url: '',
         link_url: '',
         position: 'home_top',
-        active: true
+        active: true,
+        display_order: 0
       });
       fetchAds();
     } catch (error) {
@@ -131,7 +181,8 @@ export default function AdsManager() {
       image_url: ad.image_url,
       link_url: ad.link_url || '',
       position: ad.position,
-      active: ad.active
+      active: ad.active,
+      display_order: ad.display_order || 0
     });
     setShowForm(true);
   };
@@ -169,7 +220,9 @@ export default function AdsManager() {
                 <button onClick={() => navigate('/admin')} className="text-gray-600 hover:text-gray-900">
                     <ArrowLeft className="w-6 h-6" />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900">Administrador de Anuncios</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                    {radioId ? `Anuncios de ${radioName}` : 'Administrador de Anuncios'}
+                </h1>
             </div>
             <button
                 onClick={() => setShowForm(true)}
@@ -209,11 +262,22 @@ export default function AdsManager() {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             >
-                                <option value="home_top">Inicio - Arriba</option>
-                                <option value="home_middle">Inicio - Medio</option>
+                                {!radioId && <option value="home_top">Inicio - Arriba</option>}
+                                {!radioId && <option value="home_middle">Inicio - Medio</option>}
                                 <option value="microsite_top">Micrositio - Arriba</option>
                                 <option value="microsite_sidebar">Micrositio - Lateral</option>
                             </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Orden de Visualización</label>
+                            <input
+                                type="number"
+                                name="display_order"
+                                value={formData.display_order}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                min="0"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Enlace (Opcional)</label>
@@ -272,6 +336,7 @@ export default function AdsManager() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
@@ -288,6 +353,9 @@ export default function AdsManager() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {ad.position}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {ad.display_order || 0}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ad.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

@@ -1,0 +1,124 @@
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Plan } from '@/types/database';
+import { Check, Info } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
+import { Footer } from '@/components/Footer';
+
+export const PlansPage: React.FC = () => {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const { data } = await supabase
+        .from('plans')
+        .select('*')
+        .eq('active', true)
+        .order('price', { ascending: true });
+      
+      setPlans(data || []);
+      setLoading(false);
+    };
+
+    fetchPlans();
+  }, []);
+
+  const handleSubscribe = (plan: Plan) => {
+    // For now, redirect to WhatsApp or contact
+    const message = `Hola, estoy interesado en el ${plan.name} (${plan.type})`;
+    const whatsappUrl = `https://wa.me/543704000000?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const renderPlanSection = (title: string, type: string, description: string) => {
+    const filteredPlans = plans.filter(p => p.type === type);
+    if (filteredPlans.length === 0) return null;
+
+    return (
+      <div className="mb-16">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{description}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
+          {filteredPlans.map((plan) => (
+            <div key={plan.id} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:border-secondary-500 transition-all transform hover:-translate-y-1">
+              <div className="p-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                <div className="flex items-baseline mb-6">
+                  <span className="text-4xl font-bold text-secondary-600">${plan.price}</span>
+                  <span className="text-gray-500 ml-2">/{plan.interval === 'monthly' ? 'mes' : 'año'}</span>
+                </div>
+                <p className="text-gray-600 mb-6">{plan.description}</p>
+                <ul className="space-y-4 mb-8">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleSubscribe(plan)}
+                  className="w-full py-3 px-6 bg-secondary-600 text-white rounded-lg font-semibold hover:bg-secondary-700 transition-colors shadow-md hover:shadow-lg"
+                >
+                  Contratar Ahora
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-secondary-900 to-secondary-800 text-white py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Planes y Servicios</h1>
+          <p className="text-xl text-secondary-100">
+            Lleva tu radio al siguiente nivel con nuestras soluciones de streaming y publicidad.
+          </p>
+        </div>
+      </div>
+
+      <div className="py-16">
+        {renderPlanSection(
+          "Streaming de Audio y Video",
+          "streaming",
+          "Alta calidad, estabilidad garantizada y soporte técnico especializado para tu emisora."
+        )}
+        
+        {renderPlanSection(
+          "Soluciones Publicitarias",
+          "ads",
+          "Destaca tu marca o radio en nuestra plataforma y llega a miles de oyentes diarios."
+        )}
+
+        {renderPlanSection(
+          "Servicios Premium para Radios",
+          "premium_feature",
+          "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
+        )}
+      </div>
+
+      <Footer />
+    </div>
+  );
+};

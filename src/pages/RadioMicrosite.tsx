@@ -364,7 +364,7 @@ export const RadioMicrosite: React.FC = () => {
       
       {/* Content */}
       <div className="container mx-auto px-4 py-0">
-        <AdBanner position="microsite_top" />
+        <AdBanner position="microsite_top" radioId={radio.id} />
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -700,7 +700,7 @@ export const RadioMicrosite: React.FC = () => {
             {/* Sidebar with Ads */}
             <div className="lg:col-span-1">
                  <div className="sticky top-8">
-                     <AdBanner position="microsite_sidebar" />
+                     <AdBanner position="microsite_sidebar" radioId={radio.id} />
                  </div>
             </div>
           </div>

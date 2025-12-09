@@ -246,6 +246,14 @@ const AdminPanel: React.FC = () => {
                       </button>
                       
                       <button
+                        onClick={() => navigate(`/admin/ads/${radio.id}`)}
+                        className="flex-1 bg-indigo-100 text-indigo-700 px-3 py-2 rounded-md hover:bg-indigo-200 transition-colors flex items-center justify-center space-x-1 text-sm"
+                        title="Mis Anuncios"
+                      >
+                        <Megaphone className="w-4 h-4" />
+                      </button>
+
+                      <button
                         onClick={() => navigate(`/admin/schedule/${radio.id}`)}
                         className="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-md hover:bg-blue-200 transition-colors flex items-center justify-center space-x-1 text-sm"
                       >

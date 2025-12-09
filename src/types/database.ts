@@ -84,6 +84,29 @@ export interface Advertisement {
   active: boolean
   clicks: number
   created_at: string
+  display_order?: number
+  radio_id?: string
+}
+
+export interface Plan {
+  id: string
+  name: string
+  type: 'streaming' | 'ads' | 'premium_feature'
+  price: number
+  currency: string
+  description: string | null
+  features: string[]
+  interval: 'monthly' | 'yearly' | 'one_time'
+  active: boolean
+}
+
+export interface Subscription {
+  id: string
+  user_id: string
+  plan_id: string
+  status: 'active' | 'cancelled' | 'past_due' | 'trialing'
+  current_period_end: string
+  plan?: Plan
 }
 
 export interface AppSetting {
