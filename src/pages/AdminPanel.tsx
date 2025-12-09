@@ -49,16 +49,23 @@ const AdminPanel: React.FC = () => {
   }, [user, navigate])
   
   const handleDeleteRadio = async (radioId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta emisora?')) {
+    // Optimistic update for better perceived performance
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta emisora?')) {
       return
     }
     
+    // Optimistically remove from UI immediately
+    const originalRadios = [...radios];
+    setRadios(prev => prev.filter(radio => radio.id !== radioId));
+
     try {
       await api.deleteRadio(radioId)
-      setRadios(radios.filter(radio => radio.id !== radioId))
+      // Success, no further action needed as state is already updated
     } catch (error) {
       console.error('Error deleting radio:', error)
       alert('Error al eliminar la emisora')
+      // Revert optimistic update on failure
+      setRadios(originalRadios);
     }
   }
   

@@ -167,8 +167,14 @@ export default function ScheduleManager() {
   };
 
   const handleDelete = async (itemId: string) => {
-    if (!confirm('Are you sure you want to delete this schedule item?')) return;
+    // Optimistic UI update or skip confirm to avoid blocking thread excessively
+    // For better UX, we can use a custom modal instead of window.confirm, 
+    // but for now, let's just make sure the async operation doesn't freeze UI before it starts.
+    if (!window.confirm('Are you sure you want to delete this schedule item?')) return;
 
+    // Set loading state for specific item if possible, or global loading
+    // Ideally we should have a deletingId state to show spinner on specific button
+    
     try {
       const { error } = await supabase
         .from('schedule_items')
@@ -177,10 +183,14 @@ export default function ScheduleManager() {
         .eq('radio_id', id);
 
       if (error) throw error;
-      fetchSchedule();
+      
+      // Update local state immediately instead of waiting for fetch
+      setScheduleItems(prev => prev.filter(item => item.id !== itemId));
     } catch (error) {
       console.error('Error deleting schedule item:', error);
       alert('Error deleting schedule item. Please try again.');
+      // Revert state if needed (fetchSchedule will handle sync)
+      fetchSchedule();
     }
   };
 
@@ -251,7 +261,7 @@ export default function ScheduleManager() {
           {showForm && (
             <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <h3 className="text-lg font-semibold mb-4">
-                {editingItem ? 'Edit Program' : 'Add New Program'}
+                {editingItem ? 'Edit Program' : 'Agregar nuevo programa'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,7 +358,7 @@ export default function ScheduleManager() {
                     className="flex items-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    <span>{saving ? 'Saving...' : (editingItem ? 'Update' : 'Save')}</span>
+                    <span>{saving ? 'Saving...' : (editingItem ? 'Actualizar' : 'Guardar')}</span>
                   </button>
                 </div>
               </form>

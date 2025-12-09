@@ -137,16 +137,25 @@ export default function AdsManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this ad?')) return;
+    // Optimistic UI update
+    if (!window.confirm('Are you sure you want to delete this ad?')) return;
+    
+    // Immediately update local state
+    const originalAds = [...ads];
+    setAds(prev => prev.filter(ad => ad.id !== id));
+
     try {
       const { error } = await supabase
         .from('advertisements')
         .delete()
         .eq('id', id);
       if (error) throw error;
-      fetchAds();
+      // No need to fetchAds() if success, state is already correct
     } catch (error) {
       console.error('Error deleting ad:', error);
+      // Revert on failure
+      setAds(originalAds);
+      alert('Error deleting ad');
     }
   };
 
