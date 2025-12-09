@@ -27,7 +27,7 @@ export default function ScheduleManager() {
   ] as const;
 
   useEffect(() => {
-    if (!user || user.role !== 'radio_admin') {
+    if (!user || (user.role !== 'radio_admin' && user.role !== 'super_admin')) {
       navigate('/login');
       return;
     }
