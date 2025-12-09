@@ -9,6 +9,7 @@ export default function AppSettings() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState('');
+  const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [appTitle, setAppTitle] = useState('');
   const [appDescription, setAppDescription] = useState('');
   const [saving, setSaving] = useState(false);
@@ -29,11 +30,12 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_title', 'app_description']);
+        .in('key', ['app_logo', 'app_footer_logo', 'app_title', 'app_description']);
 
       if (error) throw error;
       
       const logoSetting = data?.find(s => s.key === 'app_logo');
+      const footerLogoSetting = data?.find(s => s.key === 'app_footer_logo');
       const titleSetting = data?.find(s => s.key === 'app_title');
       const descriptionSetting = data?.find(s => s.key === 'app_description');
 
@@ -41,6 +43,13 @@ export default function AppSettings() {
         setLogoUrl(logoSetting.value);
       } else {
         setLogoUrl('/favicon.svg');
+      }
+
+      if (footerLogoSetting) {
+        setFooterLogoUrl(footerLogoSetting.value);
+      } else {
+        // Fallback to main logo or default if not set
+        setFooterLogoUrl(logoSetting?.value || '/favicon.svg');
       }
 
       if (titleSetting) {
@@ -61,13 +70,14 @@ export default function AppSettings() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' = 'main') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       setSaving(true);
-      const fileName = `settings/logo_${Date.now()}_${file.name}`;
+      const prefix = type === 'footer' ? 'footer_logo' : 'logo';
+      const fileName = `settings/${prefix}_${Date.now()}_${file.name}`;
       
       // Determine content type correctly for SVG
       const contentType = file.type === 'image/svg+xml' ? 'image/svg+xml' : file.type;
@@ -87,7 +97,14 @@ export default function AppSettings() {
         .from('radio-images')
         .getPublicUrl(fileName);
 
-      setLogoUrl(publicUrl);
+      if (type === 'main') {
+        setLogoUrl(publicUrl);
+        // If footer logo is not set (or same as main), update it too if desired, 
+        // but here we keep them separate unless explicitly set.
+        // Actually, logic in fetchSettings uses main logo as fallback, so we don't need to force set it here.
+      } else {
+        setFooterLogoUrl(publicUrl);
+      }
     } catch (error: any) {
       console.error('Error uploading logo:', error);
       alert(`Error al subir el logo: ${error.message || 'Error desconocido'}`);
@@ -107,6 +124,17 @@ export default function AppSettings() {
         });
       
       if (logoError) throw logoError;
+
+      if (footerLogoUrl) {
+        const { error: footerLogoError } = await supabase
+          .from('app_settings')
+          .upsert({ 
+            key: 'app_footer_logo', 
+            value: footerLogoUrl 
+          });
+        
+        if (footerLogoError) throw footerLogoError;
+      }
 
       const { error: titleError } = await supabase
         .from('app_settings')
@@ -176,7 +204,39 @@ export default function AppSettings() {
                   <input
                     type="file"
                     accept="image/*,image/svg+xml"
-                    onChange={handleLogoUpload}
+                    onChange={(e) => handleLogoUpload(e, 'main')}
+                    disabled={saving}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Logo del Pie de Página (Footer)</label>
+              <div className="flex items-start space-x-6">
+                <div className="flex-shrink-0">
+                  {footerLogoUrl ? (
+                    <img 
+                      src={footerLogoUrl} 
+                      alt="Footer Logo" 
+                      className="h-24 w-24 object-contain border border-gray-200 rounded-lg p-2 bg-gray-50" 
+                    />
+                  ) : (
+                    <div className="h-24 w-24 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                      <ImageIcon className="w-8 h-8" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-4">
+                    Sube una imagen diferente para el pie de página si lo deseas. Si no se sube ninguna, se usará el logo principal.
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*,image/svg+xml"
+                    onChange={(e) => handleLogoUpload(e, 'footer')}
                     disabled={saving}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100"
                   />
