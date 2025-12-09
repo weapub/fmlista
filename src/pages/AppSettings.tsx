@@ -61,12 +61,15 @@ export default function AppSettings() {
       setSaving(true);
       const fileName = `settings/logo_${Date.now()}_${file.name}`;
       
+      // Determine content type correctly for SVG
+      const contentType = file.type === 'image/svg+xml' ? 'image/svg+xml' : file.type;
+
       // Use radio-images bucket for now, or create a new one. 
       // radio-images is fine as super_admin has full access.
       const { error: uploadError } = await supabase.storage
         .from('radio-images')
         .upload(fileName, file, {
-          contentType: file.type,
+          contentType: contentType,
           upsert: true
         });
 
