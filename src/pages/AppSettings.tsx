@@ -57,7 +57,8 @@ export default function AppSettings() {
       const { error: uploadError } = await supabase.storage
         .from('radio-images')
         .upload(fileName, file, {
-          contentType: file.type
+          contentType: file.type,
+          upsert: true
         });
 
       if (uploadError) throw uploadError;
@@ -67,9 +68,9 @@ export default function AppSettings() {
         .getPublicUrl(fileName);
 
       setLogoUrl(publicUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading logo:', error);
-      alert('Error uploading logo');
+      alert(`Error al subir el logo: ${error.message || 'Error desconocido'}`);
     } finally {
       setSaving(false);
     }
@@ -87,9 +88,9 @@ export default function AppSettings() {
 
       if (error) throw error;
       alert('Logo actualizado correctamente. Recarga la página para ver los cambios.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving settings:', error);
-      alert('Error saving settings');
+      alert(`Error al guardar la configuración: ${error.message || 'Error desconocido'}`);
     } finally {
       setSaving(false);
     }
