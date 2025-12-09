@@ -34,6 +34,7 @@ export const RadioMicrosite: React.FC = () => {
   const [newMessage, setNewMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'info' | 'chat' | 'reviews'>('info')
   const [playingVideo, setPlayingVideo] = useState(false)
+  const [videoMode, setVideoMode] = useState(false)
 
   useEffect(() => {
     const fetchRadioData = async () => {
@@ -167,6 +168,9 @@ export const RadioMicrosite: React.FC = () => {
     if (!radio) return
 
     if (currentRadio?.id === radio.id) {
+      if (!isPlaying) {
+        setPlayingVideo(false)
+      }
       togglePlay()
     } else {
       // Stop current playback before switching to avoid double playback issues
@@ -186,6 +190,12 @@ export const RadioMicrosite: React.FC = () => {
     }
   }
   
+  const handleVideoStart = () => {
+    setVideoMode(true)
+    setPlayingVideo(true)
+    setIsPlaying(false)
+  }
+
   const handleVideoPlay = () => {
     setPlayingVideo(true)
     if (isPlaying) {
@@ -250,22 +260,42 @@ export const RadioMicrosite: React.FC = () => {
       <div className={`relative ${radio.video_stream_url ? 'h-64 md:h-96' : 'h-64'} bg-black group`}>
         {radio.video_stream_url ? (
           <div className="w-full h-full">
-             <Player
-               url={radio.video_stream_url}
-               width="100%"
-               height="100%"
-               controls
-               playing={playingVideo}
-               onPlay={handleVideoPlay}
-               onPause={handleVideoPause}
-               light={radio.cover_url && !coverError ? radio.cover_url : false}
-               playIcon={
-                 <button className="p-4 bg-secondary-500 rounded-full text-white shadow-lg transform transition-transform group-hover:scale-110">
-                   <Play className="w-8 h-8 fill-current" />
-                 </button>
-               }
-             />
-           </div>
+            {!videoMode ? (
+               <div className="relative w-full h-full cursor-pointer" onClick={handleVideoStart}>
+                 {/* Cover Image Background */}
+                 <div className="absolute inset-0 bg-gradient-to-r from-secondary-500 to-secondary-700">
+                    {radio.cover_url && !isPlaceholderUrl(radio.cover_url) && !coverError ? (
+                      <img
+                        src={radio.cover_url}
+                        alt={radio.name}
+                        className="w-full h-full object-cover opacity-80"
+                        onError={() => setCoverError(true)}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <RadioIcon className="w-24 h-24 text-white opacity-50" />
+                      </div>
+                    )}
+                 </div>
+                 {/* Play Button Overlay */}
+                 <div className="absolute inset-0 flex items-center justify-center z-10">
+                   <button className="p-4 bg-secondary-500 rounded-full text-white shadow-lg transform transition-transform group-hover:scale-110">
+                     <Play className="w-8 h-8 fill-current" />
+                   </button>
+                 </div>
+               </div>
+            ) : (
+               <Player
+                 url={radio.video_stream_url}
+                 width="100%"
+                 height="100%"
+                 controls
+                 playing={playingVideo}
+                 onPlay={handleVideoPlay}
+                 onPause={handleVideoPause}
+               />
+            )}
+          </div>
         ) : (
           <>
             <div className="w-full h-full bg-gradient-to-r from-secondary-500 to-secondary-700">
