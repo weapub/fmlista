@@ -54,11 +54,13 @@ export const Footer: React.FC = () => {
           </div>
           
           <div className="flex flex-col items-center md:items-end">
-             {footerLogo && (
-               <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain mb-2" />
-             )}
-             <div className="text-sm text-gray-400">
-               &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
+             <div className="flex items-center space-x-2 mb-2 md:mb-0">
+               {footerLogo && (
+                 <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain" />
+               )}
+               <div className="text-sm text-gray-400">
+                 &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
+               </div>
              </div>
           </div>
         </div>
