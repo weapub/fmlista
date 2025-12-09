@@ -165,7 +165,7 @@ export const NewsSection: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-12 bg-gray-100 rounded animate-pulse" />
+      <div className="w-full h-12 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
     )
   }
 
@@ -177,7 +177,7 @@ export const NewsSection: React.FC = () => {
   return (
     <>
       <div 
-        className="relative group bg-white border-y border-gray-200 py-2"
+        className="relative group bg-white dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700 py-2 transition-colors"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -189,15 +189,15 @@ export const NewsSection: React.FC = () => {
             <div className="flex space-x-2">
               <button 
                 onClick={() => scroll('left')}
-                className="p-1 hover:bg-gray-100 rounded-full hidden md:block z-10"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full hidden md:block z-10"
               >
-                <ChevronLeft className="w-4 h-4 text-gray-500" />
+                <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               </button>
               <button 
                 onClick={() => scroll('right')}
-                className="p-1 hover:bg-gray-100 rounded-full hidden md:block z-10"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full hidden md:block z-10"
               >
-                <ChevronRight className="w-4 h-4 text-gray-500" />
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>
@@ -213,9 +213,9 @@ export const NewsSection: React.FC = () => {
               <button
                 key={`${item.link}-${index}`}
                 onClick={() => setSelectedUrl(item.link)}
-                className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:text-primary-600 transition-colors flex-shrink-0"
+                className="inline-flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex-shrink-0"
               >
-                <span className="font-semibold text-primary-500 text-xs">[{item.source}]</span>
+                <span className="font-semibold text-primary-500 dark:text-primary-400 text-xs">[{item.source}]</span>
                 <span>{item.title}</span>
               </button>
             ))}
@@ -226,24 +226,24 @@ export const NewsSection: React.FC = () => {
       {/* Internal Browser Modal */}
       {selectedUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-          <div className="bg-white w-full h-full max-w-6xl rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+          <div className="bg-white dark:bg-gray-900 w-full h-full max-w-6xl rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800">
               <div className="flex items-center space-x-4 overflow-hidden">
                 <button 
                   onClick={() => setSelectedUrl(null)}
-                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
                 >
-                  <X className="w-6 h-6 text-gray-600" />
+                  <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
                 </button>
                 <div className="flex flex-col">
-                  <h3 className="text-sm font-medium text-gray-900 truncate max-w-md">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-md">
                     {items.find(i => i.link === selectedUrl)?.title}
                   </h3>
                   <a 
                     href={selectedUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-xs text-gray-500 hover:text-primary-600 flex items-center space-x-1"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center space-x-1"
                   >
                     <span>{selectedUrl}</span>
                     <ExternalLink className="w-3 h-3" />
@@ -261,7 +261,7 @@ export const NewsSection: React.FC = () => {
                   </a>
               </div>
             </div>
-            <div className="flex-1 bg-gray-100 relative">
+            <div className="flex-1 bg-gray-100 dark:bg-black relative">
                <iframe
                  src={selectedUrl}
                  className="w-full h-full border-0"

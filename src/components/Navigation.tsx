@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, LogOut, Settings, Radio } from 'lucide-react'
+import { User, LogOut, Settings, Radio, Moon, Sun } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 
@@ -9,6 +9,12 @@ export const Navigation: React.FC = () => {
   const { user, signOut } = useAuthStore()
   const [appLogo, setAppLogo] = useState('/favicon.svg')
   const [appTitle, setAppTitle] = useState('FM Lista')
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check local storage or system preference
+    if (localStorage.getItem('theme') === 'dark') return true
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme')) return true
+    return false
+  })
   
   const userRole = user?.role as string
 
@@ -32,6 +38,16 @@ export const Navigation: React.FC = () => {
     };
     fetchLogo();
   }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }, [darkMode])
   
   const handleLogout = async () => {
     try {
@@ -43,20 +59,28 @@ export const Navigation: React.FC = () => {
   }
   
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 transition-colors">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <Link to="/" className="flex items-center space-x-2">
             <img src={appLogo} alt="Logo" className="w-16 h-16 object-contain" />
-            {appTitle && <span className="text-xl font-bold text-primary-500">{appTitle}</span>}
+            {appTitle && <span className="text-xl font-bold text-primary-500 dark:text-white">{appTitle}</span>}
           </Link>
           
           {/* Navigation Links */}
           <div className="flex items-center space-x-4 sm:space-x-6">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title={darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             <Link 
               to="/" 
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:inline"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors hidden sm:inline"
             >
               Inicio
             </Link>
@@ -66,7 +90,7 @@ export const Navigation: React.FC = () => {
                 {(userRole === 'radio_admin' || userRole === 'super_admin') && (
                   <Link 
                     to="/admin" 
-                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:flex items-center space-x-1"
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors hidden sm:flex items-center space-x-1"
                   >
                     <Settings className="w-4 h-4" />
                     <span>Panel de Control</span>
@@ -75,15 +99,15 @@ export const Navigation: React.FC = () => {
                 
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   {(userRole === 'radio_admin' || userRole === 'super_admin') ? (
-                    <Link to="/admin" className="flex items-center space-x-2 text-gray-700 hover:text-secondary-600">
-                      <div className="w-8 h-8 bg-secondary-100 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-secondary-600" />
+                    <Link to="/admin" className="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-secondary-600">
+                      <div className="w-8 h-8 bg-secondary-100 dark:bg-secondary-900 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-secondary-600 dark:text-secondary-400" />
                       </div>
                       <span className="text-sm font-medium hidden sm:inline">{user.email}</span>
                     </Link>
                   ) : (
-                    <div className="flex items-center space-x-2 text-gray-700">
-                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-200">
+                      <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4" />
                       </div>
                       <span className="text-sm font-medium hidden sm:inline">{user.email}</span>
@@ -92,7 +116,7 @@ export const Navigation: React.FC = () => {
                   
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                    className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="hidden sm:inline">Salir</span>

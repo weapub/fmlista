@@ -40,15 +40,15 @@ export const Footer: React.FC = () => {
   }, []);
 
   return (
-    <footer className="bg-white border-t border-gray-200 mt-auto">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto transition-colors">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
             <Link to="/" className="flex items-center space-x-2 mb-2">
               <img src={appLogo} alt="Logo" className="w-10 h-10 object-contain" />
-              {appTitle && <span className="text-lg font-bold text-primary-500">{appTitle}</span>}
+              {appTitle && <span className="text-lg font-bold text-primary-500 dark:text-white">{appTitle}</span>}
             </Link>
-            <p className="text-gray-500 text-sm text-center md:text-left max-w-xs">
+            <p className="text-gray-500 dark:text-gray-400 text-sm text-center md:text-left max-w-xs">
               {appDescription}
             </p>
           </div>
@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
                {footerLogo && (
                  <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain" />
                )}
-               <div className="text-sm text-gray-400">
+               <div className="text-sm text-gray-400 dark:text-gray-500">
                  &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
                </div>
              </div>

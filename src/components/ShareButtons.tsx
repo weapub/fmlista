@@ -52,7 +52,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({
   
   return (
     <div className={cn("flex items-center space-x-3", className)}>
-      <span className="text-sm font-medium text-gray-700">Compartir:</span>
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Compartir:</span>
       
       <button
         onClick={shareOnFacebook}

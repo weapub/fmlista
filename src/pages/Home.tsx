@@ -78,7 +78,7 @@ export const Home: React.FC = () => {
   }
   
   return (
-    <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       <div className="container mx-auto px-4 py-0">
         <AdBanner position="home_top" />
@@ -92,13 +92,13 @@ export const Home: React.FC = () => {
         {/* Tendencias */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xl font-semibold text-gray-900">Tendencias</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
             {trendingCategory && (
-              <span className="text-sm text-gray-500">Categoría: {trendingCategory}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Categoría: {trendingCategory}</span>
             )}
           </div>
           {trendingRadios.length === 0 ? (
-            <p className="text-gray-600">Sin emisoras</p>
+            <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {trendingRadios.map(radio => (
@@ -110,9 +110,9 @@ export const Home: React.FC = () => {
 
         {/* Agregadas recientemente */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">Agregadas recientemente</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
           {recentRadios.length === 0 ? (
-            <p className="text-gray-600">Sin emisoras recientes</p>
+            <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentRadios.map(radio => (
@@ -124,7 +124,7 @@ export const Home: React.FC = () => {
 
         {/* Results count */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Mostrando {filteredBySearch.length} de {radios.length} emisoras
           </p>
         </div>
@@ -134,9 +134,9 @@ export const Home: React.FC = () => {
         {/* Radio Grid */}
         {filteredBySearch.length === 0 ? (
           <div className="text-center py-12">
-            <RadioIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron emisoras</h3>
-            <p className="text-gray-600">
+            <RadioIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron emisoras</h3>
+            <p className="text-gray-600 dark:text-gray-400">
               Intenta ajustar tus filtros o término de búsqueda
             </p>
           </div>

@@ -241,16 +241,16 @@ export const RadioMicrosite: React.FC = () => {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <Navigation />
         <div className="animate-pulse">
-          <div className="h-64 bg-gray-200"></div>
+          <div className="h-64 bg-gray-200 dark:bg-gray-800"></div>
           <div className="container mx-auto px-4 py-8">
-            <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-            <div className="h-4 w-96 bg-gray-200 rounded mb-8"></div>
+            <div className="h-8 w-64 bg-gray-200 dark:bg-gray-800 rounded mb-4"></div>
+            <div className="h-4 w-96 bg-gray-200 dark:bg-gray-800 rounded mb-8"></div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-64 bg-gray-200 rounded"></div>
+              <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded"></div>
+              <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded"></div>
             </div>
           </div>
         </div>
@@ -260,13 +260,13 @@ export const RadioMicrosite: React.FC = () => {
   
   if (!radio) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <Navigation />
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <div className="text-center">
-            <RadioIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Radio no encontrada</h2>
-            <p className="text-gray-600 mb-4">La emisora que buscas no existe o ha sido eliminada.</p>
+            <RadioIcon className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Radio no encontrada</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">La emisora que buscas no existe o ha sido eliminada.</p>
             <button
               onClick={() => navigate('/')}
               className="px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 transition-colors"
@@ -284,7 +284,7 @@ export const RadioMicrosite: React.FC = () => {
     : `${window.location.origin}/radio/${radio.id}`
   
   return (
-    <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       
       {/* Video or Cover Image */}
@@ -367,26 +367,26 @@ export const RadioMicrosite: React.FC = () => {
         <AdBanner position="microsite_top" radioId={radio.id} />
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 transition-colors">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full">
                 {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
                   <img
                     src={radio.logo_url}
                     alt={radio.name}
-                    className="w-24 h-24 md:w-20 md:h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    className="w-24 h-24 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
                     onError={() => setLogoError(true)}
                   />
                 ) : (
-                  <div className="w-24 h-24 md:w-20 md:h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
-                    <RadioIcon className="w-12 h-12 md:w-10 md:h-10 text-gray-400" />
+                  <div className="w-24 h-24 md:w-20 md:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-lg">
+                    <RadioIcon className="w-12 h-12 md:w-10 md:h-10 text-gray-400 dark:text-gray-500" />
                   </div>
                 )}
                 <div className="text-center md:text-left w-full">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {radio.name}
                   </h1>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-gray-600">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-gray-600 dark:text-gray-300">
                     <span className="text-lg font-semibold">{radio.frequency}</span>
                     {radio.location && (
                       <div className="flex items-center space-x-1">
@@ -395,7 +395,7 @@ export const RadioMicrosite: React.FC = () => {
                       </div>
                     )}
                     {radio.category && (
-                      <span className="px-3 py-1 bg-secondary-100 text-secondary-800 rounded-full text-sm font-medium whitespace-nowrap">
+                      <span className="px-3 py-1 bg-secondary-100 dark:bg-secondary-900 text-secondary-800 dark:text-secondary-200 rounded-full text-sm font-medium whitespace-nowrap">
                         {radio.category}
                       </span>
                     )}
@@ -423,14 +423,14 @@ export const RadioMicrosite: React.FC = () => {
             </div>
 
             {/* Actions Bar */}
-            <div className="flex flex-col md:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-100 gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 gap-4">
               <div className="flex items-center justify-center space-x-4 w-full md:w-auto">
                 <button
                   onClick={toggleFavorite}
                   className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-full transition-colors w-full md:w-auto ${
                     isFavorite 
-                      ? 'bg-red-50 text-red-500 hover:bg-red-100' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
@@ -442,7 +442,7 @@ export const RadioMicrosite: React.FC = () => {
                     href={`https://wa.me/${radio.whatsapp}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors w-full md:w-auto"
+                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors w-full md:w-auto"
                   >
                     <MessageCircle className="w-5 h-5" />
                     <span>WhatsApp</span>
@@ -454,7 +454,7 @@ export const RadioMicrosite: React.FC = () => {
                  <button
                    onClick={() => setActiveTab('info')}
                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
-                     activeTab === 'info' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
+                     activeTab === 'info' ? 'bg-secondary-50 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                    }`}
                  >
                    Información
@@ -462,7 +462,7 @@ export const RadioMicrosite: React.FC = () => {
                  <button
                    onClick={() => setActiveTab('reviews')}
                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
-                     activeTab === 'reviews' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
+                     activeTab === 'reviews' ? 'bg-secondary-50 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                    }`}
                  >
                    Reseñas ({reviews.length})
@@ -470,7 +470,7 @@ export const RadioMicrosite: React.FC = () => {
                  <button
                    onClick={() => setActiveTab('chat')}
                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
-                     activeTab === 'chat' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
+                     activeTab === 'chat' ? 'bg-secondary-50 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                    }`}
                  >
                    Chat
@@ -486,17 +486,17 @@ export const RadioMicrosite: React.FC = () => {
                 {/* Description & Details */}
                 <div className="space-y-6">
                   {(radio.description || radio.address || radio.social_facebook || radio.social_instagram || radio.social_twitter) && (
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         Acerca de esta emisora
                       </h2>
                       {radio.description && (
-                        <p className="text-gray-700 leading-relaxed mb-4">
+                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                           {radio.description}
                         </p>
                       )}
                       
-                      <div className="space-y-2 text-sm text-gray-600">
+                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                         {radio.address && (
                           <div className="flex items-center space-x-2">
                             <MapPin className="w-4 h-4" />
@@ -513,12 +513,12 @@ export const RadioMicrosite: React.FC = () => {
 
                       {/* Social Links */}
                       {(radio.social_facebook || radio.social_instagram || radio.social_twitter) && (
-                         <div className="mt-4 pt-4 border-t border-gray-100 flex space-x-4">
+                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex space-x-4">
                            {radio.social_facebook && (
-                             <a href={radio.social_facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Facebook</a>
+                             <a href={radio.social_facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Facebook</a>
                            )}
                            {radio.social_instagram && (
-                             <a href={radio.social_instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:underline">Instagram</a>
+                             <a href={radio.social_instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 dark:text-pink-400 hover:underline">Instagram</a>
                            )}
                            {radio.social_twitter && (
                              <a href={radio.social_twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">X (Twitter)</a>
@@ -529,8 +529,8 @@ export const RadioMicrosite: React.FC = () => {
                   )}
                   
                   {/* Share Buttons */}
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                       Compartir esta emisora
                     </h3>
                     <ShareButtons
@@ -550,8 +550,8 @@ export const RadioMicrosite: React.FC = () => {
 
             {activeTab === 'reviews' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold mb-4">Escribe una reseña</h3>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Escribe una reseña</h3>
                   {user ? (
                     <form onSubmit={handleReviewSubmit} className="space-y-4">
                       <div className="flex space-x-2">
@@ -560,7 +560,7 @@ export const RadioMicrosite: React.FC = () => {
                             key={star}
                             type="button"
                             onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
-                            className={`p-1 ${newReview.rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
+                            className={`p-1 ${newReview.rating >= star ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
                           >
                             <Star className="w-6 h-6 fill-current" />
                           </button>
@@ -570,7 +570,7 @@ export const RadioMicrosite: React.FC = () => {
                         value={newReview.comment}
                         onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
                         placeholder="Comparte tu opinión sobre esta radio..."
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         rows={3}
                         required
                       />
@@ -582,9 +582,9 @@ export const RadioMicrosite: React.FC = () => {
                       </button>
                     </form>
                   ) : (
-                    <div className="text-center py-4 bg-gray-50 rounded-lg">
-                      <p className="text-gray-600">Inicia sesión para dejar una reseña.</p>
-                      <button onClick={() => navigate('/login')} className="mt-2 text-secondary-600 font-medium hover:underline">
+                    <div className="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                      <p className="text-gray-600 dark:text-gray-400">Inicia sesión para dejar una reseña.</p>
+                      <button onClick={() => navigate('/login')} className="mt-2 text-secondary-600 dark:text-secondary-400 font-medium hover:underline">
                         Iniciar Sesión
                       </button>
                     </div>
@@ -593,21 +593,21 @@ export const RadioMicrosite: React.FC = () => {
 
                 <div className="space-y-4">
                   {reviews.map((review) => (
-                    <div key={review.id} className="bg-white rounded-lg shadow-sm p-6">
+                    <div key={review.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
-                           <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
+                           <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                              {review.user?.avatar_url ? (
                                <img src={review.user.avatar_url} alt="" className="w-full h-full object-cover" />
                              ) : (
-                               <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                               <div className="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs">
                                  {review.user?.full_name?.charAt(0) || 'U'}
                                </div>
                              )}
                            </div>
-                           <span className="font-medium text-gray-900">{review.user?.full_name || 'Usuario'}</span>
+                           <span className="font-medium text-gray-900 dark:text-white">{review.user?.full_name || 'Usuario'}</span>
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {new Date(review.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -616,11 +616,11 @@ export const RadioMicrosite: React.FC = () => {
                           <Star key={i} className="w-4 h-4 fill-current" />
                         ))}
                       </div>
-                      <p className="text-gray-700">{review.comment}</p>
+                      <p className="text-gray-700 dark:text-gray-300">{review.comment}</p>
                     </div>
                   ))}
                   {reviews.length === 0 && (
-                    <p className="text-center text-gray-500 py-8">Aún no hay reseñas. ¡Sé el primero!</p>
+                    <p className="text-center text-gray-500 dark:text-gray-400 py-8">Aún no hay reseñas. ¡Sé el primero!</p>
                   )}
                 </div>
               </div>
@@ -628,20 +628,20 @@ export const RadioMicrosite: React.FC = () => {
 
             {activeTab === 'chat' && (
               <div>
-                <div className="bg-white rounded-lg shadow-sm h-[600px] flex flex-col">
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Chat en Vivo</h3>
-                    <p className="text-sm text-gray-500">Conversa con otros oyentes</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm h-[600px] flex flex-col transition-colors">
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Chat en Vivo</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Conversa con otros oyentes</p>
                   </div>
                   
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {chatMessages.map((msg) => (
                       <div key={msg.id} className={`flex items-start space-x-3 ${msg.user_id === user?.id ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                        <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex-shrink-0">
                            {msg.user?.avatar_url ? (
                              <img src={msg.user.avatar_url} alt="" className="w-full h-full object-cover" />
                            ) : (
-                             <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                             <div className="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs">
                                {msg.user?.full_name?.charAt(0) || 'U'}
                              </div>
                            )}
@@ -649,7 +649,7 @@ export const RadioMicrosite: React.FC = () => {
                         <div className={`max-w-[70%] rounded-lg p-3 ${
                           msg.user_id === user?.id 
                             ? 'bg-secondary-500 text-white rounded-tr-none' 
-                            : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
                         }`}>
                           <div className="text-xs opacity-75 mb-1">
                             {msg.user?.full_name || 'Usuario'}
@@ -659,13 +659,13 @@ export const RadioMicrosite: React.FC = () => {
                       </div>
                     ))}
                     {chatMessages.length === 0 && (
-                      <div className="h-full flex items-center justify-center text-gray-400">
+                      <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                         <p>No hay mensajes recientes. ¡Saluda!</p>
                       </div>
                     )}
                   </div>
 
-                  <div className="p-4 border-t border-gray-200">
+                  <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                     {user ? (
                       <form onSubmit={handleSendMessage} className="flex space-x-2">
                         <input
@@ -673,7 +673,7 @@ export const RadioMicrosite: React.FC = () => {
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           placeholder="Escribe un mensaje..."
-                          className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         />
                         <button
                           type="submit"
@@ -684,8 +684,8 @@ export const RadioMicrosite: React.FC = () => {
                         </button>
                       </form>
                     ) : (
-                      <div className="text-center text-sm text-gray-500">
-                        <button onClick={() => navigate('/login')} className="text-secondary-600 hover:underline">
+                      <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                        <button onClick={() => navigate('/login')} className="text-secondary-600 dark:text-secondary-400 hover:underline">
                           Inicia sesión
                         </button>
                         {' '}para participar en el chat.

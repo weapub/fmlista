@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -251,6 +251,14 @@ const AdminPanel: React.FC = () => {
                         title="Mis Anuncios"
                       >
                         <Megaphone className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() => navigate(`/admin/analytics/${radio.id}`)}
+                        className="flex-1 bg-green-100 text-green-700 px-3 py-2 rounded-md hover:bg-green-200 transition-colors flex items-center justify-center space-x-1 text-sm"
+                        title="Estadísticas"
+                      >
+                        <BarChart2 className="w-4 h-4" />
                       </button>
 
                       <button

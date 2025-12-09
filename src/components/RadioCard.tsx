@@ -35,7 +35,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
   return (
     <div 
       className={cn(
-        "bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer",
+        "bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer",
         className
       )}
       onClick={handleCardClick}
@@ -50,26 +50,26 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
               onError={() => setLogoError(true)}
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-              <RadioIcon className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <RadioIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
             </div>
           )}
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg text-gray-900 truncate">
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate">
             {radio.name}
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {radio.frequency}
           </p>
           {radio.location && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {radio.location}
             </p>
           )}
           {radio.category && (
-            <span className="inline-block mt-1 px-2 py-1 text-xs bg-secondary-100 text-secondary-800 rounded-full">
+            <span className="inline-block mt-1 px-2 py-1 text-xs bg-secondary-100 dark:bg-secondary-900 text-secondary-800 dark:text-secondary-200 rounded-full">
               {radio.category}
             </span>
           )}
@@ -81,7 +81,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
             "p-3 rounded-full transition-colors",
             isCurrentRadio
               ? "bg-secondary-500 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-secondary-100 hover:text-secondary-600"
+              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-secondary-100 dark:hover:bg-secondary-900 hover:text-secondary-600 dark:hover:text-secondary-400"
           )}
         >
           <Play className="w-5 h-5" />
