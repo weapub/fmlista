@@ -55,7 +55,7 @@ export const Footer: React.FC = () => {
           
           <div className="flex flex-col items-center md:items-end">
              {footerLogo && (
-               <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain mb-2" />
+               <img src={footerLogo} alt="Footer Logo" className="w-20 h-20 object-contain mb-2" />
              )}
              <div className="text-sm text-gray-400">
                &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
