@@ -22,9 +22,9 @@ export default function ScheduleManager() {
     end_time: ''
   });
 
-  const daysOfWeek: ('Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo')[] = [
+  const daysOfWeek = [
     'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
-  ];
+  ] as const;
 
   useEffect(() => {
     if (!user || user.role !== 'radio_admin') {

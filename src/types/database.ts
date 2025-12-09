@@ -62,7 +62,7 @@ export interface ScheduleItem {
   id: string
   radio_id: string
   program_name: string
-  day_of_week: number
+  day_of_week: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo'
   start_time: string
   end_time: string
   description: string | null
