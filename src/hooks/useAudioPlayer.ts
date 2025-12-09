@@ -100,17 +100,39 @@ export const useAudioPlayer = () => {
   useEffect(() => {
     const audio = audioRef.current
     const src = currentRadio?.stream_url
-    if (!audio || !src) return
-    audio.pause()
-    candidatesRef.current = buildCandidates(src)
-    candidateIndexRef.current = 0
-    audio.src = candidatesRef.current[0]
-    audio.load()
+    if (!audio) return
+    
+    // If stream changed
+    if (src) {
+      // Stop any current playback completely first
+      audio.pause()
+      audio.currentTime = 0 // Reset time
+      
+      // Check if it's a new radio or just a re-trigger
+      // Using candidatesRef to check if source is actually new might be safer than direct src comparison if we want to avoid reload
+      const newCandidates = buildCandidates(src)
+      // Simple check: if primary candidate is different
+      if (candidatesRef.current[0] !== newCandidates[0]) {
+         candidatesRef.current = newCandidates
+         candidateIndexRef.current = 0
+         audio.src = candidatesRef.current[0]
+         audio.load()
+      }
+    } else {
+      audio.pause()
+      audio.src = ''
+    }
+
     audio.onerror = () => {
       tryNextCandidate()
     }
-    if (isPlaying) safePlay()
-  }, [currentRadio?.stream_url])
+    
+    if (isPlaying && src) {
+        // Use a small timeout to allow the load to process before playing
+        const playPromise = setTimeout(() => safePlay(), 10)
+        return () => clearTimeout(playPromise)
+    }
+  }, [currentRadio?.id, currentRadio?.stream_url]) // Depend on ID to force refresh on radio change
 
   // Control play/pause based on state
   useEffect(() => {

@@ -163,8 +163,15 @@ export const RadioMicrosite: React.FC = () => {
     if (currentRadio?.id === radio.id) {
       togglePlay()
     } else {
-      setCurrentRadio(radio)
-      setIsPlaying(true)
+      // Stop current playback before switching to avoid double playback issues
+      if (isPlaying) {
+        setIsPlaying(false)
+      }
+      // Small timeout to ensure clean state transition
+      setTimeout(() => {
+        setCurrentRadio(radio)
+        setIsPlaying(true)
+      }, 50)
     }
   }
   
@@ -248,34 +255,34 @@ export const RadioMicrosite: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+              <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full">
                 {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
                   <img
                     src={radio.logo_url}
                     alt={radio.name}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    className="w-24 h-24 md:w-20 md:h-20 rounded-full object-cover border-4 border-white shadow-lg"
                     onError={() => setLogoError(true)}
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
-                    <RadioIcon className="w-10 h-10 text-gray-400" />
+                  <div className="w-24 h-24 md:w-20 md:h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                    <RadioIcon className="w-12 h-12 md:w-10 md:h-10 text-gray-400" />
                   </div>
                 )}
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <div className="text-center md:text-left w-full">
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                     {radio.name}
                   </h1>
-                  <div className="flex items-center space-x-4 text-gray-600">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-gray-600">
                     <span className="text-lg font-semibold">{radio.frequency}</span>
                     {radio.location && (
                       <div className="flex items-center space-x-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>{radio.location}</span>
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                        <span className="whitespace-normal text-center md:text-left">{radio.location}</span>
                       </div>
                     )}
                     {radio.category && (
-                      <span className="px-3 py-1 bg-secondary-100 text-secondary-800 rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-secondary-100 text-secondary-800 rounded-full text-sm font-medium whitespace-nowrap">
                         {radio.category}
                       </span>
                     )}
@@ -285,29 +292,36 @@ export const RadioMicrosite: React.FC = () => {
               
               <button
                 onClick={handlePlay}
-                className={`p-4 rounded-full transition-colors ${
+                className={`p-4 rounded-full transition-colors flex-shrink-0 ${
                   isCurrentRadio && isPlaying
                     ? 'bg-secondary-500 text-white'
                     : 'bg-secondary-500 text-white hover:bg-secondary-600'
                 }`}
               >
-                <Play className="w-6 h-6" />
+                {isCurrentRadio && isPlaying ? (
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <div className="w-2 h-6 bg-white rounded-sm animate-pulse mr-1"></div>
+                    <div className="w-2 h-6 bg-white rounded-sm animate-pulse delay-75"></div>
+                  </div>
+                ) : (
+                  <Play className="w-6 h-6 ml-1" />
+                )}
               </button>
             </div>
 
             {/* Actions Bar */}
-            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
-              <div className="flex space-x-4">
+            <div className="flex flex-col md:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-100 gap-4">
+              <div className="flex items-center justify-center space-x-4 w-full md:w-auto">
                 <button
                   onClick={toggleFavorite}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
+                  className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-full transition-colors w-full md:w-auto ${
                     isFavorite 
                       ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                  <span>{isFavorite ? 'Favorito' : 'Añadir a favoritos'}</span>
+                  <span className="whitespace-nowrap">{isFavorite ? 'Favorito' : 'Añadir a favoritos'}</span>
                 </button>
                 
                 {radio.whatsapp && (
@@ -315,7 +329,7 @@ export const RadioMicrosite: React.FC = () => {
                     href={`https://wa.me/${radio.whatsapp}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors"
+                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors w-full md:w-auto"
                   >
                     <MessageCircle className="w-5 h-5" />
                     <span>WhatsApp</span>
@@ -323,10 +337,10 @@ export const RadioMicrosite: React.FC = () => {
                 )}
               </div>
               
-              <div className="flex space-x-2">
+              <div className="flex items-center justify-center space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                  <button
                    onClick={() => setActiveTab('info')}
-                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
                      activeTab === 'info' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
                    }`}
                  >
@@ -334,7 +348,7 @@ export const RadioMicrosite: React.FC = () => {
                  </button>
                  <button
                    onClick={() => setActiveTab('reviews')}
-                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
                      activeTab === 'reviews' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
                    }`}
                  >
@@ -342,11 +356,11 @@ export const RadioMicrosite: React.FC = () => {
                  </button>
                  <button
                    onClick={() => setActiveTab('chat')}
-                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-1 md:flex-none ${
                      activeTab === 'chat' ? 'bg-secondary-50 text-secondary-700' : 'text-gray-600 hover:bg-gray-50'
                    }`}
                  >
-                   Chat en Vivo
+                   Chat
                  </button>
               </div>
             </div>
