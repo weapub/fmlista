@@ -26,13 +26,6 @@ export const Footer: React.FC = () => {
 
       if (footerLogoSetting?.value) {
         setFooterLogo(footerLogoSetting.value);
-      } else {
-        // Fallback to main logo if footer logo is not set
-        if (logoSetting?.value) {
-            setFooterLogo(logoSetting.value);
-        } else {
-            setFooterLogo('/favicon.svg');
-        }
       }
 
       if (titleSetting) {
@@ -52,7 +45,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
             <Link to="/" className="flex items-center space-x-2 mb-2">
-              <img src={footerLogo || appLogo} alt="Logo" className="w-10 h-10 object-contain" />
+              <img src={appLogo} alt="Logo" className="w-10 h-10 object-contain" />
               {appTitle && <span className="text-lg font-bold text-primary-500">{appTitle}</span>}
             </Link>
             <p className="text-gray-500 text-sm text-center md:text-left max-w-xs">
@@ -61,6 +54,9 @@ export const Footer: React.FC = () => {
           </div>
           
           <div className="flex flex-col items-center md:items-end">
+             {footerLogo && (
+               <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain mb-2" />
+             )}
              <div className="text-sm text-gray-400">
                &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
              </div>
