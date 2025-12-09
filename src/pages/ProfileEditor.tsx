@@ -20,7 +20,12 @@ export default function ProfileEditor() {
     category: '',
     stream_url: '',
     logo_url: '',
-    cover_url: ''
+    cover_url: '',
+    whatsapp: '',
+    social_facebook: '',
+    social_instagram: '',
+    social_twitter: '',
+    address: ''
   });
 
   const categories = [
@@ -46,7 +51,7 @@ export default function ProfileEditor() {
   ];
 
   useEffect(() => {
-    if (!user || user.role !== 'radio_admin') {
+    if (!user || (user.role !== 'radio_admin' && user.role !== 'super_admin')) {
       navigate('/login');
       return;
     }
@@ -60,12 +65,17 @@ export default function ProfileEditor() {
 
   const fetchRadio = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('radios')
         .select('*')
-        .eq('id', id)
-        .eq('user_id', user?.id)
-        .single();
+        .eq('id', id);
+
+      // Si no es super admin, solo puede editar sus propias radios
+      if (user?.role !== 'super_admin') {
+        query = query.eq('user_id', user?.id);
+      }
+
+      const { data, error } = await query.single();
 
       if (error) throw error;
 
@@ -78,7 +88,12 @@ export default function ProfileEditor() {
         category: data.category || '',
         stream_url: data.stream_url || '',
         logo_url: data.logo_url || '',
-        cover_url: data.cover_url || ''
+        cover_url: data.cover_url || '',
+        whatsapp: data.whatsapp || '',
+        social_facebook: data.social_facebook || '',
+        social_instagram: data.social_instagram || '',
+        social_twitter: data.social_twitter || '',
+        address: data.address || ''
       });
     } catch (error) {
       console.error('Error fetching radio:', error);
@@ -152,14 +167,17 @@ export default function ProfileEditor() {
             stream_url: formData.stream_url,
             logo_url: formData.logo_url,
             cover_url: formData.cover_url,
-            user_id: user.id
+            user_id: user.id,
+            whatsapp: formData.whatsapp,
+            social_facebook: formData.social_facebook,
+            social_instagram: formData.social_instagram,
+            social_twitter: formData.social_twitter,
+            address: formData.address
           });
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('radios')
-          .update({
+        const updateData = {
             name: formData.name,
             frequency: formData.frequency,
             description: formData.description,
@@ -167,10 +185,24 @@ export default function ProfileEditor() {
             category: formData.category,
             stream_url: formData.stream_url,
             logo_url: formData.logo_url,
-            cover_url: formData.cover_url
-          })
-          .eq('id', id)
-          .eq('user_id', user.id);
+            cover_url: formData.cover_url,
+            whatsapp: formData.whatsapp,
+            social_facebook: formData.social_facebook,
+            social_instagram: formData.social_instagram,
+            social_twitter: formData.social_twitter,
+            address: formData.address
+        };
+
+        let query = supabase
+          .from('radios')
+          .update(updateData)
+          .eq('id', id);
+
+        if (user?.role !== 'super_admin') {
+           query = query.eq('user_id', user.id);
+        }
+
+        const { error } = await query;
 
         if (error) throw error;
       }
@@ -209,6 +241,82 @@ export default function ProfileEditor() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Contact & Social Media */}
+            <div className="border-t border-gray-200 pt-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Información de Contacto y Redes Sociales</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    WhatsApp (Número con código de país)
+                  </label>
+                  <input
+                    type="text"
+                    name="whatsapp"
+                    value={formData.whatsapp}
+                    onChange={handleInputChange}
+                    placeholder="Ej. 5491112345678"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dirección Física
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Ej. Av. Siempre Viva 123"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Facebook URL
+                  </label>
+                  <input
+                    type="url"
+                    name="social_facebook"
+                    value={formData.social_facebook}
+                    onChange={handleInputChange}
+                    placeholder="https://facebook.com/turadio"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Instagram URL
+                  </label>
+                  <input
+                    type="url"
+                    name="social_instagram"
+                    value={formData.social_instagram}
+                    onChange={handleInputChange}
+                    placeholder="https://instagram.com/turadio"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Twitter / X URL
+                  </label>
+                  <input
+                    type="url"
+                    name="social_twitter"
+                    value={formData.social_twitter}
+                    onChange={handleInputChange}
+                    placeholder="https://twitter.com/turadio"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
