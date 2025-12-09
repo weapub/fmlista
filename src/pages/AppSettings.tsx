@@ -99,7 +99,7 @@ export default function AppSettings() {
   if (loading) return <div className="p-8 text-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center space-x-4 mb-8">
           <button onClick={() => navigate('/admin')} className="text-gray-600 hover:text-gray-900">
