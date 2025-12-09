@@ -10,6 +10,7 @@ export default function AppSettings() {
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState('');
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
+  const [heroImageUrl, setHeroImageUrl] = useState('');
   const [appTitle, setAppTitle] = useState('');
   const [appDescription, setAppDescription] = useState('');
   const [saving, setSaving] = useState(false);
@@ -30,12 +31,13 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_footer_logo', 'app_title', 'app_description']);
+        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_description']);
 
       if (error) throw error;
       
       const logoSetting = data?.find(s => s.key === 'app_logo');
       const footerLogoSetting = data?.find(s => s.key === 'app_footer_logo');
+      const heroImageSetting = data?.find(s => s.key === 'app_hero_image');
       const titleSetting = data?.find(s => s.key === 'app_title');
       const descriptionSetting = data?.find(s => s.key === 'app_description');
 
@@ -50,6 +52,10 @@ export default function AppSettings() {
       } else {
         // Fallback to main logo or default if not set
         setFooterLogoUrl(logoSetting?.value || '/favicon.svg');
+      }
+
+      if (heroImageSetting) {
+        setHeroImageUrl(heroImageSetting.value);
       }
 
       if (titleSetting) {
@@ -70,13 +76,16 @@ export default function AppSettings() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' = 'main') => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' | 'hero' = 'main') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       setSaving(true);
-      const prefix = type === 'footer' ? 'footer_logo' : 'logo';
+      let prefix = 'logo';
+      if (type === 'footer') prefix = 'footer_logo';
+      if (type === 'hero') prefix = 'hero_image';
+      
       const fileName = `settings/${prefix}_${Date.now()}_${file.name}`;
       
       // Determine content type correctly for SVG
@@ -102,12 +111,14 @@ export default function AppSettings() {
         // If footer logo is not set (or same as main), update it too if desired, 
         // but here we keep them separate unless explicitly set.
         // Actually, logic in fetchSettings uses main logo as fallback, so we don't need to force set it here.
-      } else {
+      } else if (type === 'footer') {
         setFooterLogoUrl(publicUrl);
+      } else if (type === 'hero') {
+        setHeroImageUrl(publicUrl);
       }
     } catch (error: any) {
-      console.error('Error uploading logo:', error);
-      alert(`Error al subir el logo: ${error.message || 'Error desconocido'}`);
+      console.error('Error uploading file:', error);
+      alert(`Error al subir el archivo: ${error.message || 'Error desconocido'}`);
     } finally {
       setSaving(false);
     }
@@ -134,6 +145,17 @@ export default function AppSettings() {
           });
         
         if (footerLogoError) throw footerLogoError;
+      }
+
+      if (heroImageUrl) {
+        const { error: heroImageError } = await supabase
+          .from('app_settings')
+          .upsert({ 
+            key: 'app_hero_image', 
+            value: heroImageUrl 
+          });
+        
+        if (heroImageError) throw heroImageError;
       }
 
       const { error: titleError } = await supabase
@@ -237,6 +259,38 @@ export default function AppSettings() {
                     type="file"
                     accept="image/*,image/svg+xml"
                     onChange={(e) => handleLogoUpload(e, 'footer')}
+                    disabled={saving}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del Hero (Inicio)</label>
+              <div className="flex items-start space-x-6">
+                <div className="flex-shrink-0">
+                  {heroImageUrl ? (
+                    <img 
+                      src={heroImageUrl} 
+                      alt="Hero Image" 
+                      className="h-24 w-40 object-cover border border-gray-200 rounded-lg bg-gray-50" 
+                    />
+                  ) : (
+                    <div className="h-24 w-40 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                      <ImageIcon className="w-8 h-8" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-4">
+                    Sube una imagen para el fondo del buscador en la página de inicio.
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleLogoUpload(e, 'hero')}
                     disabled={saving}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100"
                   />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Search, Filter } from 'lucide-react'
 import { api } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 import { useRadioStore } from '@/stores/radioStore'
 
 interface HeroProps {
@@ -12,6 +13,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [locations, setLocations] = useState<string[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [heroImage, setHeroImage] = useState<string>('')
   const { selectedCategory, selectedLocation, setSelectedCategory, setSelectedLocation } = useRadioStore()
 
   useEffect(() => {
@@ -20,6 +22,17 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         const [cats, locs] = await Promise.all([api.getCategories(), api.getLocations()])
         setCategories(cats)
         setLocations(locs)
+
+        // Fetch hero image
+        const { data } = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'app_hero_image')
+          .single();
+        
+        if (data?.value) {
+          setHeroImage(data.value);
+        }
       } catch (e) {
         console.error('Error loading hero data:', e)
       }
@@ -29,10 +42,23 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
   return (
     <div className="relative rounded-2xl overflow-hidden mb-8">
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary-500 via-primary-600 to-primary-800" />
-      <div className="absolute inset-0 opacity-20" style={{
-        backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0, transparent 35%), radial-gradient(circle at 80% 30%, rgba(255,255,255,0.12) 0, transparent 40%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0, transparent 35%)'
-      }} />
+      {heroImage ? (
+        <>
+          <div className="absolute inset-0">
+            <img src={heroImage} alt="Hero Background" className="w-full h-full object-cover" />
+          </div>
+          {/* Overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-black/50" />
+        </>
+      ) : (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary-500 via-primary-600 to-primary-800" />
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0, transparent 35%), radial-gradient(circle at 80% 30%, rgba(255,255,255,0.12) 0, transparent 40%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0, transparent 35%)'
+          }} />
+        </>
+      )}
+      
       <div className="relative px-6 py-10 md:px-10 md:py-16 text-white text-center">
         <h1 className="text-3xl md:text-5xl font-bold mb-3">Todas las radios de Formosa en una App</h1>
         <p className="text-white/90 max-w-2xl mx-auto mb-6">Conectate con tu radio favorita, enviá mensajes y participa en vivo.</p>
