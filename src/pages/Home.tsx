@@ -8,6 +8,7 @@ import { api } from '@/lib/api'
 import { Radio } from '@/types/database'
 import { Radio as RadioIcon, Search } from 'lucide-react'
 import { AdBanner } from '@/components/AdBanner'
+import { Footer } from '@/components/Footer'
 
 export const Home: React.FC = () => {
   const [radios, setRadios] = useState<Radio[]>([])
@@ -148,6 +149,7 @@ export const Home: React.FC = () => {
           <NewsSection />
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

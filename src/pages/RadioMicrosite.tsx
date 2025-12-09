@@ -8,6 +8,7 @@ import { ScheduleDisplay } from '@/components/ScheduleDisplay'
 import { ShareButtons } from '@/components/ShareButtons'
 import { Navigation } from '@/components/Navigation'
 import { AdBanner } from '@/components/AdBanner'
+import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useAuthStore } from '@/stores/authStore'
@@ -704,6 +705,7 @@ export const RadioMicrosite: React.FC = () => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </div>
   )
