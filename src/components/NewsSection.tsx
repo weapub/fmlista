@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 
 interface NewsItem {
   title: string
@@ -38,15 +39,24 @@ export const NewsSection: React.FC = () => {
   const [items, setItems] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchFeeds = async () => {
       try {
         setLoading(true)
         if (import.meta.env.DEV) {
-          setError('Las noticias se muestran en producción')
-          setItems([])
-          return
+          // Mock data for dev to test layout
+           const mockItems = Array(10).fill(0).map((_, i) => ({
+             title: `Noticia de prueba ${i + 1} - Un titular lo suficientemente largo para probar el scroll horizontal`,
+             link: `https://example.com/news/${i}`,
+             pubDate: new Date().toISOString(),
+             source: ['La Mañana', 'Diario Formosa', 'Expres Diario'][i % 3]
+           }))
+           setItems(mockItems)
+           setLoading(false)
+           return
         }
         const results = await Promise.allSettled(
           FEEDS.map(async (feed) => {
@@ -86,7 +96,7 @@ export const NewsSection: React.FC = () => {
         })
         const uniq = Array.from(new Map(merged.map(i => [i.link, i])).values())
         uniq.sort((a, b) => new Date(b.pubDate || 0).getTime() - new Date(a.pubDate || 0).getTime())
-        setItems(uniq.slice(0, 9))
+        setItems(uniq.slice(0, 15))
         setError(null)
       } catch (e) {
         setError('No se pudo cargar noticias en este momento')
@@ -97,54 +107,115 @@ export const NewsSection: React.FC = () => {
     fetchFeeds()
   }, [])
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 300
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow-sm p-4 animate-pulse h-32" />
-        ))}
-      </div>
+      <div className="w-full h-12 bg-gray-100 rounded animate-pulse" />
     )
   }
 
-  if (error) {
-    return (
-      <div>
-        <p className="text-red-600 mb-3">{error}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { title: 'La Mañana Online', link: 'https://www.lamananaonline.com.ar/' },
-            { title: 'Diario Formosa', link: 'https://diarioformosa.net/' },
-            { title: 'Expres Diario', link: 'https://www.expresdiario.com.ar/' }
-          ].map((s) => (
-            <a key={s.link} href={s.link} target="_blank" rel="noopener noreferrer" className="block bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
-              <h3 className="text-gray-900 font-medium">{s.title}</h3>
-              <p className="text-xs text-gray-500 mt-1">Abrir sitio</p>
-            </a>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  if (error) return null
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {items.map((item) => (
-        <a
-          key={item.link}
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
-        >
-          <p className="text-sm text-gray-500 mb-1">{item.source}</p>
-          <h3 className="text-gray-900 font-medium line-clamp-2">{item.title}</h3>
-          {item.pubDate && (
-            <p className="text-xs text-gray-400 mt-2">{new Date(item.pubDate).toLocaleString()}</p>
-          )}
-        </a>
-      ))}
-    </div>
+    <>
+      <div className="relative group bg-white border-y border-gray-200 py-2">
+        <div className="container mx-auto px-4 flex items-center">
+          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-3 uppercase tracking-wider whitespace-nowrap">
+            Último Momento
+          </span>
+          
+          <button 
+            onClick={() => scroll('left')}
+            className="p-1 hover:bg-gray-100 rounded-full mr-2 hidden md:block"
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-500" />
+          </button>
+
+          <div 
+            ref={scrollRef}
+            className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center space-x-6"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {items.map((item, index) => (
+              <button
+                key={`${item.link}-${index}`}
+                onClick={() => setSelectedUrl(item.link)}
+                className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:text-primary-600 transition-colors flex-shrink-0"
+              >
+                <span className="font-semibold text-primary-500 text-xs">[{item.source}]</span>
+                <span>{item.title}</span>
+              </button>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => scroll('right')}
+            className="p-1 hover:bg-gray-100 rounded-full ml-2 hidden md:block"
+          >
+            <ChevronRight className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* Internal Browser Modal */}
+      {selectedUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
+          <div className="bg-white w-full h-full max-w-6xl rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center space-x-4 overflow-hidden">
+                <button 
+                  onClick={() => setSelectedUrl(null)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-medium text-gray-900 truncate max-w-md">
+                    {items.find(i => i.link === selectedUrl)?.title}
+                  </h3>
+                  <a 
+                    href={selectedUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-500 hover:text-primary-600 flex items-center space-x-1"
+                  >
+                    <span>{selectedUrl}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                 <a 
+                    href={selectedUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 transition-colors hidden sm:block"
+                  >
+                    Abrir en navegador
+                  </a>
+              </div>
+            </div>
+            <div className="flex-1 bg-gray-100 relative">
+               <iframe
+                 src={selectedUrl}
+                 className="w-full h-full border-0"
+                 title="News Preview"
+                 sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+               />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

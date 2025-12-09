@@ -83,6 +83,12 @@ export const Home: React.FC = () => {
       <div className="container mx-auto px-4 py-0">
         <AdBanner position="home_top" />
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        
+        {/* Breaking News Ticker */}
+        <div className="mb-8">
+          <NewsSection />
+        </div>
+
         {/* Tendencias */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
@@ -142,12 +148,12 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Noticias de Formosa */}
-        <div className="mt-12">
+        {/* Noticias de Formosa - Removed bottom section */}
+        {/* <div className="mt-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Noticias de Formosa</h2>
           <p className="text-gray-600 mb-4">Actualidad desde los diarios más populares de la provincia.</p>
           <NewsSection />
-        </div>
+        </div> */}
       </div>
       <Footer />
     </div>
