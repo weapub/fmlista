@@ -5,6 +5,7 @@ import { Login } from '@/pages/Login'
 import AdminPanel from '@/pages/AdminPanel'
 import ProfileEditor from '@/pages/ProfileEditor'
 import ScheduleManager from '@/pages/ScheduleManager'
+import AdsManager from '@/pages/AdsManager'
 import { AudioPlayer } from '@/components/AudioPlayer'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/admin/profile/:id" element={<ProfileEditor />} />
         <Route path="/admin/profile/new" element={<ProfileEditor />} />
         <Route path="/admin/schedule/:id" element={<ScheduleManager />} />
+        <Route path="/admin/ads" element={<AdsManager />} />
       </Routes>
       <AudioPlayer />
     </Router>

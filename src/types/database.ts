@@ -73,3 +73,14 @@ export interface ScheduleItem {
 export interface RadioWithSchedule extends Radio {
   schedule?: ScheduleItem[]
 }
+
+export interface Advertisement {
+  id: string
+  title: string
+  image_url: string
+  link_url: string | null
+  position: 'home_top' | 'home_middle' | 'microsite_top' | 'microsite_sidebar'
+  active: boolean
+  clicks: number
+  created_at: string
+}

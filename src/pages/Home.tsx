@@ -7,6 +7,7 @@ import { useRadioStore } from '@/stores/radioStore'
 import { api } from '@/lib/api'
 import { Radio } from '@/types/database'
 import { Radio as RadioIcon, Search } from 'lucide-react'
+import { AdBanner } from '@/components/AdBanner'
 
 export const Home: React.FC = () => {
   const [radios, setRadios] = useState<Radio[]>([])
@@ -79,6 +80,7 @@ export const Home: React.FC = () => {
     <div className={`min-h-screen bg-gray-50 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       <div className="container mx-auto px-4 py-8">
+        <AdBanner position="home_top" />
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         {/* Tendencias */}
         <div className="mb-8">
@@ -119,6 +121,8 @@ export const Home: React.FC = () => {
             Mostrando {filteredBySearch.length} de {radios.length} emisoras
           </p>
         </div>
+
+        <AdBanner position="home_middle" />
         
         {/* Radio Grid */}
         {filteredBySearch.length === 0 ? (

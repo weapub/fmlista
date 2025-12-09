@@ -7,6 +7,7 @@ import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
 import { ScheduleDisplay } from '@/components/ScheduleDisplay'
 import { ShareButtons } from '@/components/ShareButtons'
 import { Navigation } from '@/components/Navigation'
+import { AdBanner } from '@/components/AdBanner'
 import { useRadioStore } from '@/stores/radioStore'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useAuthStore } from '@/stores/authStore'
@@ -297,6 +298,7 @@ export const RadioMicrosite: React.FC = () => {
       
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
+        <AdBanner position="microsite_top" />
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -411,7 +413,8 @@ export const RadioMicrosite: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
             {activeTab === 'info' && (
               <>
                 {/* Description & Details */}
@@ -480,7 +483,7 @@ export const RadioMicrosite: React.FC = () => {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h3 className="text-lg font-semibold mb-4">Escribe una reseña</h3>
                   {user ? (
@@ -558,7 +561,7 @@ export const RadioMicrosite: React.FC = () => {
             )}
 
             {activeTab === 'chat' && (
-              <div className="lg:col-span-2">
+              <div>
                 <div className="bg-white rounded-lg shadow-sm h-[600px] flex flex-col">
                   <div className="p-4 border-b border-gray-200">
                     <h3 className="text-lg font-semibold">Chat en Vivo</h3>
@@ -626,6 +629,14 @@ export const RadioMicrosite: React.FC = () => {
                 </div>
               </div>
             )}
+            </div>
+
+            {/* Sidebar with Ads */}
+            <div className="lg:col-span-1">
+                 <div className="sticky top-8">
+                     <AdBanner position="microsite_sidebar" />
+                 </div>
+            </div>
           </div>
         </div>
       </div>

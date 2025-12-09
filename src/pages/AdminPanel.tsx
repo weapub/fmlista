@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -146,13 +146,24 @@ const AdminPanel: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900">
               Mis Emisoras
             </h2>
-            <button
-              onClick={() => navigate('/admin/profile/new')}
-              className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center space-x-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Nueva Emisora</span>
-            </button>
+            <div className="flex space-x-4">
+                {(user?.role === 'super_admin') && (
+                    <button
+                        onClick={() => navigate('/admin/ads')}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+                    >
+                        <Megaphone className="w-4 h-4" />
+                        <span>Administrar Anuncios</span>
+                    </button>
+                )}
+                <button
+                onClick={() => navigate('/admin/profile/new')}
+                className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center space-x-2"
+                >
+                <Plus className="w-4 h-4" />
+                <span>Nueva Emisora</span>
+                </button>
+            </div>
           </div>
           
           {/* Radios Grid */}

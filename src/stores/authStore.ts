@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 interface User {
   id: string
   email: string
-  role: 'listener' | 'radio_admin'
+  role: 'listener' | 'radio_admin' | 'super_admin'
 }
 
 interface AuthStore {
