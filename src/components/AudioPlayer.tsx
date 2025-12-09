@@ -82,7 +82,7 @@ export const AudioPlayer: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8 space-y-8 mt-12">
           {/* Album Art / Logo */}
-          <div className="w-full max-w-sm aspect-square bg-gray-100 rounded-2xl shadow-2xl overflow-hidden flex items-center justify-center">
+          <div className="w-full max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center animate-spin-slow">
             {currentRadio.logo_url ? (
               <img
                 src={currentRadio.logo_url}
@@ -122,26 +122,26 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Main Buttons */}
-          <div className="flex items-center justify-center space-x-10">
+          <div className="flex items-center justify-center space-x-8">
             <button
               onClick={(e) => goPrev(e)}
-              className="p-4 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <SkipBack className="w-8 h-8" />
+              <SkipBack className="w-7 h-7" />
             </button>
             
             <button
               onClick={(e) => handleTogglePlay(e)}
-              className="p-6 bg-secondary-500 text-white rounded-full shadow-lg hover:bg-secondary-600 hover:scale-105 transition-all"
+              className="p-5 bg-secondary-500 text-white rounded-full shadow-lg hover:bg-secondary-600 hover:scale-105 transition-all"
             >
-              {isPlaying ? <Pause className="w-10 h-10" /> : <Play className="w-10 h-10 ml-1" />}
+              {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
             </button>
 
             <button
               onClick={(e) => goNext(e)}
-              className="p-4 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <SkipForward className="w-8 h-8" />
+              <SkipForward className="w-7 h-7" />
             </button>
           </div>
 
