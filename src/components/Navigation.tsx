@@ -7,6 +7,8 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
   
+  const userRole = user?.role as string
+  
   const handleLogout = async () => {
     try {
       await signOut()
@@ -37,7 +39,7 @@ export const Navigation: React.FC = () => {
             
             {user ? (
               <>
-                {(user.role === 'radio_admin' || user.role === 'super_admin') && (
+                {(userRole === 'radio_admin' || userRole === 'super_admin') && (
                   <Link 
                     to="/admin" 
                     className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:flex items-center space-x-1"
@@ -48,7 +50,7 @@ export const Navigation: React.FC = () => {
                 )}
                 
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                  {(user.role === 'radio_admin' || user.role === 'super_admin') ? (
+                  {(userRole === 'radio_admin' || userRole === 'super_admin') ? (
                     <Link to="/admin" className="flex items-center space-x-2 text-gray-700 hover:text-secondary-600">
                       <div className="w-8 h-8 bg-secondary-100 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-secondary-600" />
