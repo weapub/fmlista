@@ -37,21 +37,32 @@ export const Navigation: React.FC = () => {
             
             {user ? (
               <>
-                {user.role === 'radio_admin' && (
+                {(user.role === 'radio_admin' || user.role === 'super_admin') && (
                   <Link 
                     to="/admin" 
                     className="text-gray-600 hover:text-gray-900 font-medium transition-colors hidden sm:flex items-center space-x-1"
                   >
                     <Settings className="w-4 h-4" />
-                    <span>Admin</span>
+                    <span>Panel de Control</span>
                   </Link>
                 )}
                 
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                  <div className="flex items-center space-x-2 text-gray-700 hidden sm:flex">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm font-medium">{user.email}</span>
-                  </div>
+                  {(user.role === 'radio_admin' || user.role === 'super_admin') ? (
+                    <Link to="/admin" className="flex items-center space-x-2 text-gray-700 hover:text-secondary-600">
+                      <div className="w-8 h-8 bg-secondary-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-secondary-600" />
+                      </div>
+                      <span className="text-sm font-medium hidden sm:inline">{user.email}</span>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center space-x-2 text-gray-700">
+                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium hidden sm:inline">{user.email}</span>
+                    </div>
+                  )}
                   
                   <button
                     onClick={handleLogout}

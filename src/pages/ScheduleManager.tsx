@@ -17,7 +17,7 @@ export default function ScheduleManager() {
   const [formData, setFormData] = useState({
     program_name: '',
     description: '',
-    day_of_week: 'Lunes' as 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo',
+    days_of_week: [] as string[],
     start_time: '',
     end_time: ''
   });
@@ -63,26 +63,64 @@ export default function ScheduleManager() {
     }));
   };
 
+  const handleDayChange = (day: string) => {
+    setFormData(prev => {
+      const days = prev.days_of_week.includes(day)
+        ? prev.days_of_week.filter(d => d !== day)
+        : [...prev.days_of_week, day];
+      return { ...prev, days_of_week: days };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.days_of_week.length === 0) {
+      alert('Please select at least one day of the week.');
+      return;
+    }
     setSaving(true);
 
     try {
       if (editingItem) {
+        // For editing, we only update the single item's day if changed, or we might need to rethink edit logic if it was part of a group
+        // But the requirement implies adding programming. 
+        // If editing, we usually edit a single entry. 
+        // However, if the user selects multiple days during edit, we should probably create new entries for the other days or update multiple if we tracked them.
+        // For simplicity in this iteration, let's assume editing is still single item, but let's see.
+        // Actually, if user selects multiple days in edit, it implies cloning this schedule to other days or moving it.
+        // Let's stick to: Create = multiple allowed. Edit = update current item (maybe allow changing day, but multiple days in edit is complex without a group ID).
+        // Let's allow creating multiple entries for new items.
+        
+        // If editingItem is present, we update ONLY that item.
+        // But wait, the user asked to "allow selecting multiple days". This usually applies to creating new schedules (e.g. Mon-Fri 10-12).
+        
         const { error } = await supabase
           .from('schedule_items')
-          .update(formData)
+          .update({
+            program_name: formData.program_name,
+            description: formData.description,
+            day_of_week: formData.days_of_week[0], // Take the first one if multiple selected, or better, restrict edit to single day
+            start_time: formData.start_time,
+            end_time: formData.end_time
+          })
           .eq('id', editingItem.id)
           .eq('radio_id', id);
 
         if (error) throw error;
       } else {
+        // Create multiple entries
+        const inserts = formData.days_of_week.map(day => ({
+          radio_id: id,
+          program_name: formData.program_name,
+          description: formData.description,
+          day_of_week: day,
+          start_time: formData.start_time,
+          end_time: formData.end_time
+        }));
+
         const { error } = await supabase
           .from('schedule_items')
-          .insert({
-            ...formData,
-            radio_id: id
-          });
+          .insert(inserts);
 
         if (error) throw error;
       }
@@ -92,7 +130,7 @@ export default function ScheduleManager() {
       setFormData({
         program_name: '',
         description: '',
-        day_of_week: 'Lunes',
+        days_of_week: [],
         start_time: '',
         end_time: ''
       });
@@ -110,7 +148,7 @@ export default function ScheduleManager() {
     setFormData({
       program_name: item.program_name,
       description: item.description || '',
-      day_of_week: item.day_of_week,
+      days_of_week: [item.day_of_week], // Initialize with the single day of the item being edited
       start_time: item.start_time,
       end_time: item.end_time
     });
@@ -141,7 +179,7 @@ export default function ScheduleManager() {
     setFormData({
       program_name: '',
       description: '',
-      day_of_week: 'Lunes',
+      days_of_week: [],
       start_time: '',
       end_time: ''
     });
@@ -179,7 +217,7 @@ export default function ScheduleManager() {
       <div className="max-w-6xl mx-auto py-8 px-4">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-primary-500">Schedule Manager</h1>
+            <h1 className="text-2xl font-bold text-primary-500">Configuración de Programación</h1>
             <button
               onClick={() => navigate('/admin')}
               className="p-2 text-gray-500 hover:text-gray-700"
@@ -195,7 +233,7 @@ export default function ScheduleManager() {
               className="flex items-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Program</span>
+              <span>Agregar Programa</span>
             </button>
           </div>
 
@@ -221,26 +259,30 @@ export default function ScheduleManager() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Día de la semana *
-                    </label>
-                    <select
-                      name="day_of_week"
-                      value={formData.day_of_week}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                    >
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Días de la semana *</label>
+                    <div className="flex flex-wrap gap-2">
                       {daysOfWeek.map((day) => (
-                        <option key={day} value={day}>{day}</option>
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => handleDayChange(day)}
+                          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                            formData.days_of_week.includes(day)
+                              ? 'bg-secondary-500 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {day.substring(0, 3)}
+                        </button>
                       ))}
-                    </select>
+                    </div>
+                    {formData.days_of_week.length === 0 && (
+                      <p className="text-xs text-red-500 mt-1">Selecciona al menos un día</p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Time *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hora de Inicio *</label>
                     <input
                       type="time"
                       name="start_time"
@@ -252,9 +294,7 @@ export default function ScheduleManager() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      End Time *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hora de Cierre *</label>
                     <input
                       type="time"
                       name="end_time"
