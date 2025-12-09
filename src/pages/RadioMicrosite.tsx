@@ -293,6 +293,11 @@ export const RadioMicrosite: React.FC = () => {
                  playing={playingVideo}
                  onPlay={handleVideoPlay}
                  onPause={handleVideoPause}
+                 config={{
+                    file: {
+                        forceHLS: radio.video_stream_url.endsWith('.m3u8')
+                    }
+                 }}
                />
             )}
           </div>
