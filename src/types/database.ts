@@ -59,23 +59,16 @@ export interface ChatMessage {
 }
 
 export interface ScheduleItem {
-  id: string;
-  radio_id: string;
-  program_name: string;
-  day_of_week: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo';
-  start_time: string;
-  end_time: string;
-  description: string | null;
-  created_at: string;
+  id: string
+  radio_id: string
+  program_name: string
+  day_of_week: number
+  start_time: string
+  end_time: string
+  description: string | null
+  created_at: string
 }
 
 export interface RadioWithSchedule extends Radio {
-  schedule?: {
-    id: string
-    day_of_week: number
-    start_time: string
-    end_time: string
-    program_name: string
-    description: string | null
-  }[]
+  schedule?: ScheduleItem[]
 }

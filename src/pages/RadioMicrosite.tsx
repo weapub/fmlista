@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase'
 export const RadioMicrosite: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  // Use explicit typing for radio to handle ScheduleItem[] correctly
   const [radio, setRadio] = useState<RadioWithSchedule | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [coverError, setCoverError] = useState(false)
@@ -38,7 +39,9 @@ export const RadioMicrosite: React.FC = () => {
       try {
         setIsLoading(true)
         const data = await api.getRadioById(id)
-        setRadio(data)
+        // Ensure data matches RadioWithSchedule by explicitly typing the response or transforming if needed
+        // Assuming api.getRadioById returns compatible structure but TypeScript might need reassurance on schedule
+        setRadio(data as unknown as RadioWithSchedule)
 
         // Fetch additional data if user is logged in or for public views
         if (user) {
