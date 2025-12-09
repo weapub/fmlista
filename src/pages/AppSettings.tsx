@@ -10,6 +10,7 @@ export default function AppSettings() {
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState('');
   const [appTitle, setAppTitle] = useState('');
+  const [appDescription, setAppDescription] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -28,12 +29,13 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_title']);
+        .in('key', ['app_logo', 'app_title', 'app_description']);
 
       if (error) throw error;
       
       const logoSetting = data?.find(s => s.key === 'app_logo');
       const titleSetting = data?.find(s => s.key === 'app_title');
+      const descriptionSetting = data?.find(s => s.key === 'app_description');
 
       if (logoSetting) {
         setLogoUrl(logoSetting.value);
@@ -45,6 +47,12 @@ export default function AppSettings() {
         setAppTitle(titleSetting.value);
       } else {
         setAppTitle('FM Lista');
+      }
+
+      if (descriptionSetting) {
+        setAppDescription(descriptionSetting.value);
+      } else {
+        setAppDescription('Todas las radios de Formosa en un solo lugar. Escucha tu música y programas favoritos donde quieras.');
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -108,6 +116,15 @@ export default function AppSettings() {
         });
 
       if (titleError) throw titleError;
+
+      const { error: descriptionError } = await supabase
+        .from('app_settings')
+        .upsert({ 
+          key: 'app_description', 
+          value: appDescription 
+        });
+
+      if (descriptionError) throw descriptionError;
 
       alert('Configuración actualizada correctamente. Recarga la página para ver los cambios.');
     } catch (error: any) {
@@ -178,6 +195,21 @@ export default function AppSettings() {
                 onChange={(e) => setAppTitle(e.target.value)}
                 disabled={saving}
                 placeholder="Ej. FM Lista"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Descripción de la Aplicación (Footer)</label>
+              <p className="text-sm text-gray-500 mb-2">
+                Breve descripción que aparecerá en el pie de página.
+              </p>
+              <textarea
+                value={appDescription}
+                onChange={(e) => setAppDescription(e.target.value)}
+                disabled={saving}
+                placeholder="Ej. Todas las radios de Formosa..."
+                rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
               />
             </div>

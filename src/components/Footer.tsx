@@ -5,16 +5,18 @@ import { supabase } from '@/lib/supabase'
 export const Footer: React.FC = () => {
   const [appLogo, setAppLogo] = useState('/favicon.svg')
   const [appTitle, setAppTitle] = useState('FM Lista')
+  const [appDescription, setAppDescription] = useState('Todas las radios de Formosa en un solo lugar. Escucha tu música y programas favoritos donde quieras.')
 
   useEffect(() => {
     const fetchSettings = async () => {
       const { data } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_title']);
+        .in('key', ['app_logo', 'app_title', 'app_description']);
       
       const logoSetting = data?.find(s => s.key === 'app_logo');
       const titleSetting = data?.find(s => s.key === 'app_title');
+      const descriptionSetting = data?.find(s => s.key === 'app_description');
 
       if (logoSetting?.value) {
         setAppLogo(logoSetting.value);
@@ -22,6 +24,10 @@ export const Footer: React.FC = () => {
 
       if (titleSetting) {
         setAppTitle(titleSetting.value);
+      }
+
+      if (descriptionSetting) {
+        setAppDescription(descriptionSetting.value);
       }
     };
     fetchSettings();
@@ -37,7 +43,7 @@ export const Footer: React.FC = () => {
               {appTitle && <span className="text-lg font-bold text-primary-500">{appTitle}</span>}
             </Link>
             <p className="text-gray-500 text-sm text-center md:text-left max-w-xs">
-              Todas las radios de Formosa en un solo lugar. Escucha tu música y programas favoritos donde quieras.
+              {appDescription}
             </p>
           </div>
           
