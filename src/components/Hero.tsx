@@ -14,7 +14,30 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [categories, setCategories] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [heroImage, setHeroImage] = useState<string>('')
-  const { selectedCategory, selectedLocation, setSelectedCategory, setSelectedLocation } = useRadioStore()
+  const { selectedCategory, selectedLocation, setSelectedCategory, setSelectedLocation, radios, setCurrentRadio } = useRadioStore()
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
+  // Suggestions logic
+  const suggestions = React.useMemo(() => {
+    if (!searchTerm) return []
+    const term = searchTerm.toLowerCase()
+    return radios
+      .filter(r => r.name.toLowerCase().includes(term) || r.location?.toLowerCase().includes(term))
+      .slice(0, 5) // Limit to 5 suggestions
+  }, [searchTerm, radios])
+
+  useEffect(() => {
+    if (suggestions.length > 0 && searchTerm) {
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [suggestions, searchTerm])
+
+  const handleSuggestionClick = (radio: typeof radios[0]) => {
+    onSearchChange(radio.name)
+    setShowSuggestions(false)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,6 +94,9 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               placeholder="Buscar por nombre o ubicación"
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true)
+              }}
               className="w-full pl-12 pr-12 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none shadow-sm"
             />
             <button
@@ -84,6 +110,31 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             >
               <Filter className="w-5 h-5" />
             </button>
+
+            {/* Suggestions Dropdown */}
+            {showSuggestions && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl overflow-hidden z-50 text-left">
+                <ul>
+                  {suggestions.map((radio) => (
+                    <li 
+                      key={radio.id}
+                      onClick={() => handleSuggestionClick(radio)}
+                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 border-gray-100 flex items-center justify-between group"
+                    >
+                      <div>
+                        <span className="font-medium text-gray-900 block">{radio.name}</span>
+                        {radio.location && (
+                          <span className="text-xs text-gray-500">{radio.location}</span>
+                        )}
+                      </div>
+                      <div className="text-gray-400 group-hover:text-secondary-500">
+                        <Search className="w-4 h-4" />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
@@ -140,9 +191,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             <button
               onClick={() => setSelectedLocation(null)}
               className={`px-3 py-1 rounded-full text-sm ${selectedLocation ? 'bg-white/20' : 'bg-white text-gray-900'}`}
-            >
-              Todas
-            </button>
+            >Todas</button>
             {locations.map((city) => (
               <button
                 key={city}
