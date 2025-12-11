@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactPlayer from 'react-player'
-import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus } from 'lucide-react'
+import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus, Facebook, Instagram, Twitter } from 'lucide-react'
 import { api } from '@/lib/api'
 import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
 import { ScheduleDisplay } from '@/components/ScheduleDisplay'
@@ -463,22 +463,22 @@ export const RadioMicrosite: React.FC = () => {
               <div className="flex items-center justify-center space-x-4 w-full md:w-auto">
                 <button
                   onClick={toggleFavorite}
-                  className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-full transition-colors w-full md:w-auto ${
+                  title={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                  className={`flex items-center justify-center p-3 rounded-full transition-colors ${
                     isFavorite 
                       ? 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50' 
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                  <span className="whitespace-nowrap">{isFavorite ? 'Favorito' : 'Añadir a favoritos'}</span>
                 </button>
 
                 <button
                   onClick={() => user ? setShowPlaylistModal(true) : navigate('/login')}
-                  className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors w-full md:w-auto"
+                  title="Añadir a lista"
+                  className="flex items-center justify-center p-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   <ListMusic className="w-5 h-5" />
-                  <span className="whitespace-nowrap">Añadir a lista</span>
                 </button>
                 
                 {radio.whatsapp && (
@@ -559,13 +559,19 @@ export const RadioMicrosite: React.FC = () => {
                       {(radio.social_facebook || radio.social_instagram || radio.social_twitter) && (
                          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex space-x-4">
                            {radio.social_facebook && (
-                             <a href={radio.social_facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Facebook</a>
+                             <a href={radio.social_facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors" title="Facebook">
+                               <Facebook className="w-5 h-5" />
+                             </a>
                            )}
                            {radio.social_instagram && (
-                             <a href={radio.social_instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 dark:text-pink-400 hover:underline">Instagram</a>
+                             <a href={radio.social_instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors" title="Instagram">
+                               <Instagram className="w-5 h-5" />
+                             </a>
                            )}
                            {radio.social_twitter && (
-                             <a href={radio.social_twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">X (Twitter)</a>
+                             <a href={radio.social_twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 transition-colors" title="X (Twitter)">
+                               <Twitter className="w-5 h-5" />
+                             </a>
                            )}
                          </div>
                       )}
@@ -627,9 +633,9 @@ export const RadioMicrosite: React.FC = () => {
                     </form>
                   ) : (
                     <div className="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <p className="text-gray-600 dark:text-gray-400">Inicia sesión para dejar una reseña.</p>
+                      <p className="text-gray-600 dark:text-gray-400">Ingresa para dejar una reseña.</p>
                       <button onClick={() => navigate('/login')} className="mt-2 text-secondary-600 dark:text-secondary-400 font-medium hover:underline">
-                        Iniciar Sesión
+                        Ingresar
                       </button>
                     </div>
                   )}
@@ -730,7 +736,7 @@ export const RadioMicrosite: React.FC = () => {
                     ) : (
                       <div className="text-center text-sm text-gray-500 dark:text-gray-400">
                         <button onClick={() => navigate('/login')} className="text-secondary-600 dark:text-secondary-400 hover:underline">
-                          Inicia sesión
+                          Ingresa
                         </button>
                         {' '}para participar en el chat.
                       </div>
@@ -749,8 +755,8 @@ export const RadioMicrosite: React.FC = () => {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
+      <Footer />
       
       {/* Playlist Selection Modal */}
       {showPlaylistModal && (

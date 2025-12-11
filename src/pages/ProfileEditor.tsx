@@ -118,7 +118,7 @@ export default function ProfileEditor() {
 
   const handleImageUpload = async (type: 'logo' | 'cover') => {
     if (!user?.id) {
-      alert('Debes iniciar sesión para subir imágenes.');
+      alert('Debes ingresar para subir imágenes.');
       return;
     }
     const input = document.createElement('input');
@@ -166,7 +166,7 @@ export default function ProfileEditor() {
       }
 
       if (!user?.id) {
-        alert('Tu sesión no está disponible. Inicia sesión nuevamente.');
+        alert('Tu sesión no está disponible. Ingresa nuevamente.');
         setSaving(false);
         return;
       }

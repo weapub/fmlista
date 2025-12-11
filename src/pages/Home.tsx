@@ -98,7 +98,7 @@ export const Home: React.FC = () => {
 
         {/* Destacadas */}
         {featuredRadios.length > 0 && !searchTerm && (
-          <div className="mb-8">
+          <div className="mb-8 max-w-[896px] mx-auto">
             <div className="flex items-center space-x-2 mb-4">
               <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Destacadas</h2>
@@ -106,7 +106,7 @@ export const Home: React.FC = () => {
                 Sponsoreado
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {featuredRadios.map(radio => (
                 <RadioCard key={radio.id} radio={radio} isFeatured={true} />
               ))}
@@ -115,7 +115,7 @@ export const Home: React.FC = () => {
         )}
 
         {/* Tendencias */}
-        <div className="mb-8">
+        <div className="mb-8 max-w-[896px] mx-auto">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
             {trendingCategory && (
@@ -125,7 +125,7 @@ export const Home: React.FC = () => {
           {trendingRadios.length === 0 ? (
             <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {trendingRadios.map(radio => (
                 <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
               ))}
@@ -134,12 +134,12 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Agregadas recientemente */}
-        <div className="mb-8">
+        <div className="mb-8 max-w-[896px] mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
           {recentRadios.length === 0 ? (
             <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {recentRadios.map(radio => (
                 <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
               ))}
@@ -148,7 +148,7 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Results count */}
-        <div className="mb-6">
+        <div className="mb-6 max-w-[896px] mx-auto">
           <p className="text-gray-600 dark:text-gray-400">
             Mostrando {filteredBySearch.length} de {radios.length} emisoras
           </p>
@@ -166,10 +166,12 @@ export const Home: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBySearch.map((radio) => (
-              <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
-            ))}
+          <div className="max-w-[896px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredBySearch.map((radio) => (
+                <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
+              ))}
+            </div>
           </div>
         )}
 

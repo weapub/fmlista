@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       }
     } catch (error) {
       set({ 
-        error: error instanceof Error ? error.message : 'Error al iniciar sesión',
+        error: error instanceof Error ? error.message : 'Error al ingresar',
         isLoading: false 
       })
       throw error

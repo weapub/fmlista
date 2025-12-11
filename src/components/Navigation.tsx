@@ -138,7 +138,7 @@ export const Navigation: React.FC = () => {
                 to="/login" 
                 className="bg-secondary-500 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-secondary-600 transition-colors font-medium text-sm sm:text-base"
               >
-                Iniciar Sesión
+                Ingresar
               </Link>
             )}
           </div>

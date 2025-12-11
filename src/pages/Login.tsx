@@ -70,7 +70,7 @@ export const Login: React.FC = () => {
             <h1 className="text-3xl font-bold text-white">FM Lista</h1>
           </div>
           <p className="text-secondary-100">
-            {isLogin ? 'Inicia sesión en tu cuenta' : 'Crea una nueva cuenta'}
+            {isLogin ? 'Ingresa a tu cuenta' : 'Crea una nueva cuenta'}
           </p>
         </div>
         
@@ -160,7 +160,7 @@ export const Login: React.FC = () => {
               ) : (
                 <div className="flex items-center">
                   <LogIn className="h-4 w-4 mr-2" />
-                  {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+                  {isLogin ? 'Ingresar' : 'Registrarse'}
                 </div>
               )}
             </button>
@@ -173,7 +173,7 @@ export const Login: React.FC = () => {
             >
               {isLogin 
                 ? '¿No tienes una cuenta? Regístrate aquí' 
-                : '¿Ya tienes una cuenta? Inicia sesión aquí'
+                : '¿Ya tienes una cuenta? Ingresa aquí'
               }
             </button>
           </div>
