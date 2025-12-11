@@ -159,7 +159,7 @@ export const AudioPlayer: React.FC = () => {
               onChange={handleVolumeChange}
               className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
               style={{
-                background: `linear-gradient(to right, #f97316 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+                background: `linear-gradient(to right, #f26968 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
               }}
             />
           </div>
@@ -240,8 +240,8 @@ export const AudioPlayer: React.FC = () => {
                 onChange={handleVolumeChange}
                 className="w-16 sm:w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
                 style={{
-                  background: `linear-gradient(to right, #f97316 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
-                }}
+                background: `linear-gradient(to right, #f26968 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+              }}
               />
             </div>
           </div>

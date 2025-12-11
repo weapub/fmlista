@@ -10,7 +10,6 @@ import { Navigation } from '@/components/Navigation'
 import { AdBanner } from '@/components/AdBanner'
 import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
-import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 
@@ -24,9 +23,12 @@ export const RadioMicrosite: React.FC = () => {
   const [logoError, setLogoError] = useState(false)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
-  const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
-  const { togglePlay, isPlaying } = useAudioPlayer()
+  const { currentRadio, setCurrentRadio, setIsPlaying, isPlaying } = useRadioStore()
   const { user } = useAuthStore()
+  
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying)
+  }
   
   const [isFavorite, setIsFavorite] = useState(false)
   const [reviews, setReviews] = useState<Review[]>([])
