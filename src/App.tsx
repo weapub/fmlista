@@ -8,6 +8,7 @@ import ScheduleManager from '@/pages/ScheduleManager'
 import AdsManager from '@/pages/AdsManager'
 import AppSettings from '@/pages/AppSettings'
 import RadioAnalytics from '@/pages/RadioAnalytics'
+import UserLibrary from '@/pages/UserLibrary'
 import { PlansPage } from '@/pages/PlansPage'
 import { AudioPlayer } from '@/components/AudioPlayer'
 
@@ -17,6 +18,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/planes" element={<PlansPage />} />
+        <Route path="/library" element={<UserLibrary />} />
         <Route path="/radio/:id" element={<RadioMicrosite />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />

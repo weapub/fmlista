@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils'
 interface RadioCardProps {
   radio: Radio
   className?: string
+  isFeatured?: boolean
 }
 
-export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
+export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatured }) => {
   const navigate = useNavigate()
   const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
   const [logoError, setLogoError] = useState(false)
@@ -35,11 +36,19 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className }) => {
   return (
     <div 
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer",
+        "bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer relative overflow-hidden",
+        isFeatured && "border-2 border-yellow-400 dark:border-yellow-600 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20",
         className
       )}
       onClick={handleCardClick}
     >
+      {isFeatured && (
+        <div className="absolute top-0 right-0">
+          <div className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+            DESTACADO
+          </div>
+        </div>
+      )}
       <div className="flex items-center space-x-4">
         <div className="relative">
           {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (

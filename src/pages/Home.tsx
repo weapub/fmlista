@@ -6,7 +6,7 @@ import { NewsSection } from '@/components/NewsSection'
 import { useRadioStore } from '@/stores/radioStore'
 import { api } from '@/lib/api'
 import { Radio } from '@/types/database'
-import { Radio as RadioIcon, Search } from 'lucide-react'
+import { Radio as RadioIcon, Search, Star } from 'lucide-react'
 import { AdBanner } from '@/components/AdBanner'
 import { Footer } from '@/components/Footer'
 
@@ -22,8 +22,13 @@ export const Home: React.FC = () => {
       try {
         setIsLoading(true)
         const data = await api.getRadios()
-        setRadios(data)
-        setStoreRadios(data)
+        // Mock featured radios for demo purposes if not present in DB
+        const dataWithFeatured = data.map(r => ({
+          ...r,
+          is_featured: r.is_featured ?? (Math.random() > 0.85) // 15% chance if undefined
+        }))
+        setRadios(dataWithFeatured)
+        setStoreRadios(dataWithFeatured)
       } catch (error) {
         // Ignore transient network errors during dev refresh
       } finally {
@@ -38,6 +43,8 @@ export const Home: React.FC = () => {
     radio.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     radio.location?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const featuredRadios = radios.filter(r => r.is_featured).slice(0, 3)
 
   const recentRadios = [...radios]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -89,6 +96,24 @@ export const Home: React.FC = () => {
           <NewsSection />
         </div>
 
+        {/* Destacadas */}
+        {featuredRadios.length > 0 && !searchTerm && (
+          <div className="mb-8">
+            <div className="flex items-center space-x-2 mb-4">
+              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Destacadas</h2>
+              <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800 font-medium">
+                Sponsoreado
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredRadios.map(radio => (
+                <RadioCard key={radio.id} radio={radio} isFeatured={true} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tendencias */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
@@ -102,7 +127,7 @@ export const Home: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {trendingRadios.map(radio => (
-                <RadioCard key={radio.id} radio={radio} />
+                <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
               ))}
             </div>
           )}
@@ -116,7 +141,7 @@ export const Home: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentRadios.map(radio => (
-                <RadioCard key={radio.id} radio={radio} />
+                <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
               ))}
             </div>
           )}
@@ -143,7 +168,7 @@ export const Home: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBySearch.map((radio) => (
-              <RadioCard key={radio.id} radio={radio} />
+              <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
             ))}
           </div>
         )}

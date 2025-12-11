@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactPlayer from 'react-player'
-import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone } from 'lucide-react'
+import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus } from 'lucide-react'
 import { api } from '@/lib/api'
 import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
 import { ScheduleDisplay } from '@/components/ScheduleDisplay'
@@ -36,6 +36,40 @@ export const RadioMicrosite: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'info' | 'chat' | 'reviews'>('info')
   const [playingVideo, setPlayingVideo] = useState(false)
   const [videoMode, setVideoMode] = useState(false)
+
+  // Playlist State
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false)
+  const [userPlaylists, setUserPlaylists] = useState<any[]>([])
+
+  useEffect(() => {
+    if (showPlaylistModal && user) {
+      const saved = localStorage.getItem(`playlists_${user.id}`)
+      if (saved) {
+        setUserPlaylists(JSON.parse(saved))
+      }
+    }
+  }, [showPlaylistModal, user])
+
+  const addToPlaylist = (playlistId: string) => {
+    if (!user || !radio) return
+    
+    const playlists = [...userPlaylists]
+    const playlistIndex = playlists.findIndex(p => p.id === playlistId)
+    
+    if (playlistIndex !== -1) {
+      const playlist = playlists[playlistIndex]
+      // Check if radio already exists
+      if (!playlist.radios.some((r: any) => r.id === radio.id)) {
+        playlist.radios.push(radio)
+        playlists[playlistIndex] = playlist
+        localStorage.setItem(`playlists_${user.id}`, JSON.stringify(playlists))
+        alert('Añadido a la playlist')
+      } else {
+        alert('Ya está en esta playlist')
+      }
+    }
+    setShowPlaylistModal(false)
+  }
 
   useEffect(() => {
     const fetchRadioData = async () => {
@@ -436,6 +470,14 @@ export const RadioMicrosite: React.FC = () => {
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                   <span className="whitespace-nowrap">{isFavorite ? 'Favorito' : 'Añadir a favoritos'}</span>
                 </button>
+
+                <button
+                  onClick={() => user ? setShowPlaylistModal(true) : navigate('/login')}
+                  className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors w-full md:w-auto"
+                >
+                  <ListMusic className="w-5 h-5" />
+                  <span className="whitespace-nowrap">Añadir a lista</span>
+                </button>
                 
                 {radio.whatsapp && (
                   <a
@@ -707,6 +749,50 @@ export const RadioMicrosite: React.FC = () => {
         </div>
         <Footer />
       </div>
+      
+      {/* Playlist Selection Modal */}
+      {showPlaylistModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Guardar en Playlist</h3>
+            
+            {userPlaylists.length > 0 ? (
+              <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
+                {userPlaylists.map(playlist => (
+                  <button
+                    key={playlist.id}
+                    onClick={() => addToPlaylist(playlist.id)}
+                    className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors flex items-center space-x-3"
+                  >
+                    <ListMusic className="w-5 h-5 text-gray-500" />
+                    <span className="text-gray-900 dark:text-white">{playlist.name}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 mb-4 text-center">
+                No tienes playlists creadas.
+              </p>
+            )}
+
+            <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+               <button
+                 onClick={() => navigate('/library')}
+                 className="text-secondary-600 dark:text-secondary-400 text-sm font-medium hover:underline flex items-center"
+               >
+                 <Plus className="w-4 h-4 mr-1" />
+                 Nueva Playlist
+               </button>
+               <button
+                 onClick={() => setShowPlaylistModal(false)}
+                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+               >
+                 Cancelar
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

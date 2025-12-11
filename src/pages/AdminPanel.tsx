@@ -192,7 +192,7 @@ const AdminPanel: React.FC = () => {
               </p>
               <button
                 onClick={() => navigate('/admin/profile/new')}
-                className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+                className="bg-secondary-500 text-white px-4 py-2 rounded-md hover:bg-secondary-600 transition-colors"
               >
                 Crear Emisora
               </button>
@@ -208,7 +208,7 @@ const AdminPanel: React.FC = () => {
                       className="w-full h-32 object-cover"
                     />
                   ) : (
-                    <div className="w-full h-32 bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center">
+                    <div className="w-full h-32 bg-gradient-to-r from-secondary-400 to-secondary-600 flex items-center justify-center">
                       <Radio className="w-12 h-12 text-white opacity-50" />
                     </div>
                   )}

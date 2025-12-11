@@ -26,6 +26,7 @@ export interface Radio {
   social_twitter: string | null
   address: string | null
   created_at: string
+  is_featured?: boolean
 }
 
 export interface Favorite {

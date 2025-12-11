@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, LogOut, Settings, Radio, Moon, Sun } from 'lucide-react'
+import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 
@@ -79,20 +79,31 @@ export const Navigation: React.FC = () => {
 
             <Link 
               to="/" 
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors hidden sm:inline"
+              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Inicio"
             >
-              Inicio
+              <Home className="w-5 h-5" />
             </Link>
+
+            {user && (
+              <Link 
+                to="/library" 
+                className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title="Mi Biblioteca"
+              >
+                <Library className="w-5 h-5" />
+              </Link>
+            )}
             
             {user ? (
               <>
                 {(userRole === 'radio_admin' || userRole === 'super_admin') && (
                   <Link 
                     to="/admin" 
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors hidden sm:flex items-center space-x-1"
+                    className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    title="Panel de Control"
                   >
-                    <Settings className="w-4 h-4" />
-                    <span>Panel de Control</span>
+                    <Settings className="w-5 h-5" />
                   </Link>
                 )}
                 

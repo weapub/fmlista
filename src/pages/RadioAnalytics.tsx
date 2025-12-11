@@ -183,8 +183,8 @@ const RadioAnalytics: React.FC = () => {
 
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                <Globe className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              <div className="p-3 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg">
+                <Globe className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
               </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">País Principal</p>
@@ -242,7 +242,7 @@ const RadioAnalytics: React.FC = () => {
                   </div>
                   <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                     <div 
-                      className="bg-orange-500 h-2.5 rounded-full transition-all duration-1000 ease-out"
+                      className="bg-secondary-500 h-2.5 rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${loc.percentage}%` }}
                     ></div>
                   </div>
