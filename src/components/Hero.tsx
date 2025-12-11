@@ -63,24 +63,28 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         <h1 className="text-3xl md:text-5xl font-bold mb-3">Todas las radios de Formosa en una App</h1>
         <p className="text-white/90 max-w-2xl mx-auto mb-6">Conectate con tu radio favorita, enviá mensajes y participa en vivo.</p>
 
-        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-3 md:space-y-0 justify-center">
+        <div className="flex justify-center">
           <div className="relative w-full md:max-w-lg">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar por nombre o ubicación"
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none"
+              className="w-full pl-12 pr-12 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none shadow-sm"
             />
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${
+                showFilters 
+                  ? 'text-secondary-500 bg-secondary-50' 
+                  : 'text-gray-400 hover:text-secondary-500 hover:bg-gray-50'
+              }`}
+              title="Filtros"
+            >
+              <Filter className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center space-x-2 px-4 py-3 rounded-lg bg-white/20 hover:bg-white/25 transition-colors"
-          >
-            <Filter className="w-5 h-5" />
-            <span>Filtros</span>
-          </button>
         </div>
 
         {showFilters && (
