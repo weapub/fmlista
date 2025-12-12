@@ -42,7 +42,7 @@ export default function App() {
         <Route path="/:idOrSlug" element={<RadioMicrosite />} />
       </Routes>
       <AudioPlayer />
-      {/* <PWAPrompt /> */}
+      <PWAPrompt />
     </Router>
   )
 }
