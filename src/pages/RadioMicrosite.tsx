@@ -756,7 +756,7 @@ export const RadioMicrosite: React.FC = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
       
       {/* Playlist Selection Modal */}
       {showPlaylistModal && (

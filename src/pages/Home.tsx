@@ -76,7 +76,7 @@ export const Home: React.FC = () => {
   }, [isLoading, filteredBySearch]);
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
       <Navigation />
       <div className="container mx-auto px-4 py-0">
         <AdBanner position="home_top" />
@@ -190,7 +190,7 @@ export const Home: React.FC = () => {
           </>
         )}
       </div>
-      <Footer />
+      <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
     </div>
   )
 }

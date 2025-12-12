@@ -19,7 +19,7 @@ interface Playlist {
 export const UserLibrary: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
-  const { setCurrentRadio, setIsPlaying } = useRadioStore()
+  const { setCurrentRadio, setIsPlaying, currentRadio } = useRadioStore()
   const [activeTab, setActiveTab] = useState<'favorites' | 'playlists'>('favorites')
   const [favorites, setFavorites] = useState<Radio[]>([])
   const [playlists, setPlaylists] = useState<Playlist[]>([])
@@ -280,8 +280,7 @@ export const UserLibrary: React.FC = () => {
           </div>
         </div>
       )}
-
-      <Footer />
+      <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
     </div>
   )
 }

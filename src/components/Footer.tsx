@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<{ className?: string }> = ({ className }) => {
   const [appLogo, setAppLogo] = useState('/favicon.svg')
   const [footerLogo, setFooterLogo] = useState('')
   const [appTitle, setAppTitle] = useState('FM Lista')
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
   }, []);
 
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto transition-colors">
+    <footer className={`bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto transition-colors ${className || ''}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">

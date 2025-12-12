@@ -4,10 +4,12 @@ import { Plan } from '@/types/database';
 import { Check, Info } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
+import { useRadioStore } from '@/stores/radioStore';
 
 export const PlansPage: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const { currentRadio } = useRadioStore();
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -166,8 +168,7 @@ export const PlansPage: React.FC = () => {
           "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
         )}
       </div>
-
-      <Footer />
+      <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
     </div>
   );
 };
