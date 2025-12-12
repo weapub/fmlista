@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Search, Filter } from 'lucide-react'
+import { Search, Filter, Radio, Megaphone } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { useRadioStore } from '@/stores/radioStore'
@@ -202,6 +203,23 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Link 
+            to="/planes" 
+            className="flex items-center gap-2 px-6 py-2.5 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-sm font-medium tracking-wide backdrop-blur-sm"
+          >
+            <Radio className="w-4 h-4" />
+            PLANES DE STREAMING
+          </Link>
+          <Link 
+            to="/planes" 
+            className="flex items-center gap-2 px-6 py-2.5 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-sm font-medium tracking-wide backdrop-blur-sm"
+          >
+            <Megaphone className="w-4 h-4" />
+            PUBLICITAR
+          </Link>
         </div>
       </div>
     </div>
