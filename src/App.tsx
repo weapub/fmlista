@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Home } from '@/pages/Home'
 import { RadioMicrosite } from '@/pages/RadioMicrosite'
@@ -11,8 +12,15 @@ import RadioAnalytics from '@/pages/RadioAnalytics'
 import UserLibrary from '@/pages/UserLibrary'
 import { PlansPage } from '@/pages/PlansPage'
 import { AudioPlayer } from '@/components/AudioPlayer'
+import { useDeviceStore } from '@/stores/deviceStore'
 
 export default function App() {
+  const { checkDevice } = useDeviceStore()
+
+  useEffect(() => {
+    checkDevice()
+  }, [checkDevice])
+
   return (
     <Router>
       <Routes>

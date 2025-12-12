@@ -35,8 +35,14 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
   
   return (
     <div 
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          handleCardClick();
+        }
+      }}
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer relative overflow-hidden",
+        "bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer relative overflow-hidden focusable focus:ring-4 focus:ring-secondary-500 focus:outline-none",
         isFeatured && "border-2 border-yellow-400 dark:border-yellow-600 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20",
         className
       )}

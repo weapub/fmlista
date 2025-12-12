@@ -66,6 +66,15 @@ export const Home: React.FC = () => {
   
   const hasActiveFilters = searchTerm !== '' || selectedLocation !== null || selectedCategory !== null
 
+  useEffect(() => {
+    if (document.body.classList.contains('tv-mode')) {
+      const focusableElements = document.querySelectorAll('.focusable');
+      if (focusableElements.length > 0 && !document.activeElement?.classList.contains('focusable')) {
+        (focusableElements[0] as HTMLElement).focus();
+      }
+    }
+  }, [isLoading, filteredBySearch]);
+
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
