@@ -72,14 +72,14 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate">
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate radio-card-title">
             {radio.name}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600 dark:text-gray-400 radio-card-subtitle">
             {radio.frequency}
           </p>
           {radio.location && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500 dark:text-gray-400 radio-card-subtitle">
               {radio.location}
             </p>
           )}

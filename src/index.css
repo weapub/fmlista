@@ -55,3 +55,48 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .pb-32 {
   padding-bottom: 4rem;
 }
+
+/* TV Mode Styles */
+body.tv-mode {
+  font-size: 1.25rem; /* Base font size increase */
+}
+
+body.tv-mode h1 {
+  @apply text-5xl;
+}
+
+body.tv-mode h2 {
+  @apply text-3xl mb-6;
+}
+
+body.tv-mode h3 {
+  @apply text-2xl;
+}
+
+body.tv-mode .radio-card-title {
+  @apply text-2xl;
+}
+
+body.tv-mode .radio-card-subtitle {
+  @apply text-lg;
+}
+
+body.tv-mode button, 
+body.tv-mode a {
+  @apply min-h-[60px] min-w-[60px] text-lg; /* Larger touch targets */
+}
+
+/* Enhanced Focus for TV Navigation */
+body.tv-mode .focusable:focus {
+  @apply ring-4 ring-secondary-400 outline-none transform scale-105 transition-transform z-10;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+body.tv-mode .grid {
+  @apply gap-8; /* More spacing between items */
+}
+
+/* Hide non-essential elements on TV if needed */
+body.tv-mode .hide-on-tv {
+  display: none;
+}
