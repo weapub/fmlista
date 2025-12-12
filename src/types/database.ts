@@ -92,7 +92,7 @@ export interface Advertisement {
 export interface Plan {
   id: string
   name: string
-  type: 'streaming' | 'ads' | 'premium_feature'
+  type: 'streaming' | 'ads' | 'premium_feature' | 'microsite'
   price: number
   currency: string
   description: string | null
