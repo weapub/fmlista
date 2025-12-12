@@ -12,6 +12,7 @@ import RadioAnalytics from '@/pages/RadioAnalytics'
 import UserLibrary from '@/pages/UserLibrary'
 import { PlansPage } from '@/pages/PlansPage'
 import { AudioPlayer } from '@/components/AudioPlayer'
+import { PWAPrompt } from '@/components/PWAPrompt'
 import { useDeviceStore } from '@/stores/deviceStore'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/:idOrSlug" element={<RadioMicrosite />} />
       </Routes>
       <AudioPlayer />
+      <PWAPrompt />
     </Router>
   )
 }
