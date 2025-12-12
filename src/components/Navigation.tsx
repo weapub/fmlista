@@ -63,7 +63,7 @@ export const Navigation: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src={appLogo} alt="Logo" className="w-16 h-16 object-contain dark:brightness-0 dark:invert" />
+            <img src={appLogo} alt="Logo" className="w-16 h-16 object-contain dark:invert dark:hue-rotate-180" />
             {appTitle && <span className="text-xl font-bold text-primary-500 dark:text-white">{appTitle}</span>}
           </Link>
           
