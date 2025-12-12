@@ -17,7 +17,50 @@ export const PlansPage: React.FC = () => {
         .eq('active', true)
         .order('price', { ascending: true });
       
-      setPlans(data || []);
+      let fetchedPlans = data || [];
+
+      // Check if we have microsite plans, if not add mock ones for display
+      const hasMicrositePlans = fetchedPlans.some(p => p.type === 'microsite');
+      if (!hasMicrositePlans) {
+        const mockMicrositePlans: Plan[] = [
+          {
+            id: 'mock-micro-1',
+            name: 'Microsite Básico',
+            type: 'microsite',
+            price: 2000,
+            currency: 'ARS',
+            description: 'Mejora la presencia de tu radio con un diseño personalizado básico.',
+            features: ['Personalización de colores', 'Banner de cabecera propio', 'Enlaces a redes sociales destacados', 'Soporte por email'],
+            interval: 'monthly',
+            active: true
+          },
+          {
+            id: 'mock-micro-2',
+            name: 'Microsite Profesional',
+            type: 'microsite',
+            price: 4500,
+            currency: 'ARS',
+            description: 'Todo lo necesario para una imagen profesional y atractiva.',
+            features: ['Todo lo del plan Básico', 'Galería de fotos (hasta 20)', 'Sección de programación semanal', 'Botón de WhatsApp flotante', 'Soporte prioritario'],
+            interval: 'monthly',
+            active: true
+          },
+          {
+            id: 'mock-micro-3',
+            name: 'Microsite Full',
+            type: 'microsite',
+            price: 8000,
+            currency: 'ARS',
+            description: 'La experiencia definitiva para tus oyentes con todas las funciones.',
+            features: ['Todo lo del plan Profesional', 'Blog de noticias integrado', 'Integración chat en vivo', 'Analytics avanzados de visitas', 'Dominio personalizado (.com.ar)'],
+            interval: 'monthly',
+            active: true
+          }
+        ];
+        fetchedPlans = [...fetchedPlans, ...mockMicrositePlans];
+      }
+      
+      setPlans(fetchedPlans);
       setLoading(false);
     };
 
@@ -41,7 +84,7 @@ export const PlansPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">{description}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[896px] mx-auto px-4">
           {filteredPlans.map((plan) => (
             <div key={plan.id} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:border-secondary-500 transition-all transform hover:-translate-y-1">
               <div className="p-8">
@@ -115,6 +158,12 @@ export const PlansPage: React.FC = () => {
           "Servicios Premium para Radios",
           "premium_feature",
           "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
+        )}
+
+        {renderPlanSection(
+          "Mejora tu Micrositio",
+          "microsite",
+          "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
         )}
       </div>
 
