@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown } from 'lucide-react'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { NowPlayingInfo } from '@/components/NowPlayingInfo'
+import { useDeviceStore } from '@/stores/deviceStore'
 
 export const AudioPlayer: React.FC = () => {
   const { 
@@ -17,8 +18,17 @@ export const AudioPlayer: React.FC = () => {
     setIsPlayerExpanded,
     setVolume: setStoreVolume
   } = useRadioStore()
+
+  const { isTV } = useDeviceStore()
   
   const { togglePlay, setVolume } = useAudioPlayer()
+
+  useEffect(() => {
+    // Auto-expand player on TV when playing starts
+    if (isTV && currentRadio && isPlaying) {
+      setIsPlayerExpanded(true)
+    }
+  }, [isTV, currentRadio, isPlaying, setIsPlayerExpanded])
   
   if (!currentRadio) {
     return null
@@ -64,16 +74,19 @@ export const AudioPlayer: React.FC = () => {
   // Expanded Player UI
   if (isPlayerExpanded) {
     return (
-      <div className={cn("fixed inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300")}>
+      <div className={cn(
+        "fixed inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300",
+        isTV ? "tv-player-mode" : ""
+      )}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4">
           <button 
             onClick={() => setIsPlayerExpanded(false)}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors focusable"
           >
-            <ChevronDown className="w-8 h-8" />
+            <ChevronDown className={cn("w-8 h-8", isTV && "w-12 h-12")} />
           </button>
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-widest">
+          <div className={cn("text-xs font-medium text-gray-500 uppercase tracking-widest", isTV && "text-lg")}>
             Reproduciendo ahora
           </div>
           <div className="w-12" /> {/* Spacer for balance */}
@@ -82,7 +95,10 @@ export const AudioPlayer: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8 space-y-8 mt-12">
           {/* Album Art / Logo */}
-          <div className="w-full max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center animate-spin-slow">
+          <div className={cn(
+            "w-full max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center animate-spin-slow",
+            isTV && "max-w-md shadow-[0_0_50px_rgba(0,0,0,0.2)]"
+          )}>
             {currentRadio.logo_url ? (
               <img
                 src={currentRadio.logo_url}
@@ -98,10 +114,10 @@ export const AudioPlayer: React.FC = () => {
 
           {/* Info */}
           <div className="w-full max-w-sm text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+            <h2 className={cn("text-2xl sm:text-3xl font-bold text-gray-900 leading-tight", isTV && "text-5xl mb-4")}>
               {currentRadio.name}
             </h2>
-            <p className="text-lg text-secondary-600 font-medium">
+            <p className={cn("text-lg text-secondary-600 font-medium", isTV && "text-2xl")}>
               {currentRadio.frequency}
             </p>
             <div className="flex justify-center pt-2">
@@ -111,9 +127,9 @@ export const AudioPlayer: React.FC = () => {
         </div>
 
         {/* Controls */}
-        <div className="px-8 pb-16 w-full max-w-md mx-auto space-y-8">
+        <div className={cn("px-8 pb-16 w-full max-w-md mx-auto space-y-8", isTV && "max-w-2xl pb-24")}>
           {/* Progress / Live Indicator */}
-          <div className="flex items-center justify-between text-xs font-medium text-gray-500">
+          <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500", isTV && "text-lg")}>
              <span className="text-red-500 flex items-center gap-1">
                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                EN VIVO
@@ -122,33 +138,33 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Main Buttons */}
-          <div className="flex items-center justify-center space-x-8">
+          <div className={cn("flex items-center justify-center space-x-8", isTV && "space-x-16")}>
             <button
               onClick={(e) => goPrev(e)}
-              className="p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+              className={cn("p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100")}
             >
-              <SkipBack className="w-7 h-7" />
+              <SkipBack className={cn("w-7 h-7", isTV && "w-12 h-12")} />
             </button>
             
             <button
               onClick={(e) => handleTogglePlay(e)}
-              className="p-5 bg-secondary-500 text-white rounded-full shadow-lg hover:bg-secondary-600 hover:scale-105 transition-all"
+              className={cn("p-5 bg-secondary-500 text-white rounded-full shadow-lg hover:bg-secondary-600 hover:scale-105 transition-all focusable", isTV && "p-8 scale-110")}
             >
-              {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
+              {isPlaying ? <Pause className={cn("w-8 h-8", isTV && "w-16 h-16")} /> : <Play className={cn("w-8 h-8 ml-1", isTV && "w-16 h-16 ml-2")} />}
             </button>
 
             <button
               onClick={(e) => goNext(e)}
-              className="p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+              className={cn("p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100")}
             >
-              <SkipForward className="w-7 h-7" />
+              <SkipForward className={cn("w-7 h-7", isTV && "w-12 h-12")} />
             </button>
           </div>
 
           {/* Volume */}
           <div className="flex items-center space-x-4 mb-8">
-            <button onClick={handleMuteToggle} className="text-gray-500">
-              {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            <button onClick={handleMuteToggle} className="text-gray-500 focusable p-2 rounded-full hover:bg-gray-100">
+              {volume === 0 ? <VolumeX className={cn("w-5 h-5", isTV && "w-8 h-8")} /> : <Volume2 className={cn("w-5 h-5", isTV && "w-8 h-8")} />}
             </button>
             <input
               type="range"
@@ -157,7 +173,7 @@ export const AudioPlayer: React.FC = () => {
               step="0.01"
               value={volume}
               onChange={handleVolumeChange}
-              className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
+              className={cn("flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500 focusable", isTV && "h-3")}
               style={{
                 background: `linear-gradient(to right, #f26968 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
               }}
