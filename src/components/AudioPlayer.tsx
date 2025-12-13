@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown, Users } from 'lucide-react'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { NowPlayingInfo } from '@/components/NowPlayingInfo'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { useRadioListeners, useReportListener } from '@/hooks/useRadioListeners'
 
 export const AudioPlayer: React.FC = () => {
   const { 
@@ -22,6 +23,10 @@ export const AudioPlayer: React.FC = () => {
   const { isTV } = useDeviceStore()
   
   const { togglePlay, setVolume } = useAudioPlayer()
+  
+  // Real-time listener tracking
+  const listenerCount = useRadioListeners(currentRadio?.id)
+  useReportListener(currentRadio?.id, isPlaying)
 
   useEffect(() => {
     // Auto-expand player on TV when playing starts
@@ -135,7 +140,10 @@ export const AudioPlayer: React.FC = () => {
                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                  EN VIVO
                </span>
-               <span>Internet Radio</span>
+               <span className="flex items-center gap-1">
+                 <Users className="w-3 h-3" />
+                 {listenerCount} {listenerCount === 1 ? 'oyente' : 'oyentes'}
+               </span>
             </div>
 
             {/* Main Buttons */}

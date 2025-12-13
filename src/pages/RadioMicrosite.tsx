@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactPlayer from 'react-player'
-import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus, Facebook, Instagram, Twitter } from 'lucide-react'
+import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus, Facebook, Instagram, Twitter, Users } from 'lucide-react'
 import { api } from '@/lib/api'
 import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
 import { ScheduleDisplay } from '@/components/ScheduleDisplay'
@@ -12,6 +12,7 @@ import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
+import { useRadioListeners } from '@/hooks/useRadioListeners'
 
 export const RadioMicrosite: React.FC = () => {
   const { id, idOrSlug } = useParams<{ id?: string, idOrSlug?: string }>()
@@ -38,6 +39,9 @@ export const RadioMicrosite: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'info' | 'chat' | 'reviews'>('info')
   const [playingVideo, setPlayingVideo] = useState(false)
   const [videoMode, setVideoMode] = useState(false)
+
+  // Real-time listener tracking
+  const listenerCount = useRadioListeners(radio?.id)
 
   // Playlist State
   const [showPlaylistModal, setShowPlaylistModal] = useState(false)
@@ -435,6 +439,10 @@ export const RadioMicrosite: React.FC = () => {
                         {radio.category}
                       </span>
                     )}
+                    <div className="flex items-center space-x-1">
+                      <Users className="w-4 h-4" />
+                      <span>{listenerCount} {listenerCount === 1 ? 'oyente' : 'oyentes'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
