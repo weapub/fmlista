@@ -4,6 +4,7 @@ import { ArrowLeft, Users, Clock, Globe, TrendingUp, Activity } from 'lucide-rea
 import { supabase } from '@/lib/supabase'
 import { Radio } from '@/types/database'
 import { Navigation } from '@/components/Navigation'
+import { useRadioListeners } from '@/hooks/useRadioListeners'
 
 interface AnalyticsData {
   totalListenersToday: number
@@ -19,6 +20,9 @@ const RadioAnalytics: React.FC = () => {
   const [radio, setRadio] = useState<Radio | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [data, setData] = useState<AnalyticsData | null>(null)
+
+  // Real-time listeners
+  const realListenerCount = useRadioListeners(id)
 
   useEffect(() => {
     const fetchRadioAndStats = async () => {
@@ -163,9 +167,9 @@ const RadioAnalytics: React.FC = () => {
                 <Activity className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Oyentes Actuales</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Oyentes Actuales (En vivo)</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {data.currentListeners.toLocaleString()}
+              {realListenerCount.toLocaleString()}
             </p>
           </div>
 
