@@ -151,22 +151,45 @@ export const api = {
   
   // Categories and locations for filters
   async getCategories(): Promise<string[]> {
-    const { data, error } = await supabase
-      .from('radios')
-      .select('category')
-      .not('category', 'is', null)
-    
-    if (error) throw error
-    return [...new Set(data?.map(item => item.category) || [])] as string[]
+    const maxRetries = 3
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const { data, error } = await supabase
+        .from('radios')
+        .select('category')
+        .not('category', 'is', null)
+      
+      if (!error) return [...new Set(data?.map(item => item.category) || [])] as string[]
+      
+      // If it's a network error or abort, we might want to retry or just return empty
+      // ERR_ABORTED usually means client cancelled, so maybe retrying isn't helpful if unmounted,
+      // but if it's a network blip, it helps.
+      const msg = (error as any)?.message || ''
+      if (msg.includes('Failed to fetch') || msg.includes('AbortError')) {
+        await new Promise(r => setTimeout(r, 200 * (attempt + 1)))
+        continue
+      }
+      throw error
+    }
+    return []
   },
   
   async getLocations(): Promise<string[]> {
-    const { data, error } = await supabase
-      .from('radios')
-      .select('location')
-      .not('location', 'is', null)
-    
-    if (error) throw error
-    return [...new Set(data?.map(item => item.location) || [])] as string[]
+    const maxRetries = 3
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const { data, error } = await supabase
+        .from('radios')
+        .select('location')
+        .not('location', 'is', null)
+      
+      if (!error) return [...new Set(data?.map(item => item.location) || [])] as string[]
+      
+      const msg = (error as any)?.message || ''
+      if (msg.includes('Failed to fetch') || msg.includes('AbortError')) {
+        await new Promise(r => setTimeout(r, 200 * (attempt + 1)))
+        continue
+      }
+      throw error
+    }
+    return []
   }
 }
