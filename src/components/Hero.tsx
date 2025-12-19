@@ -205,19 +205,19 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link 
             to="/planes" 
-            className="flex items-center gap-2 px-6 py-2.5 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-sm font-medium tracking-wide backdrop-blur-sm"
+            className="flex items-center gap-1.5 px-4 py-2 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-xs font-medium tracking-wide backdrop-blur-sm"
           >
-            <Radio className="w-4 h-4" />
+            <Radio className="w-3.5 h-3.5" />
             PLANES DE STREAMING
           </Link>
           <Link 
-            to="/planes" 
-            className="flex items-center gap-2 px-6 py-2.5 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-sm font-medium tracking-wide backdrop-blur-sm"
+            to="/admin/ads" 
+            className="flex items-center gap-1.5 px-4 py-2 border border-white/40 text-white rounded-full hover:bg-white/10 transition-colors text-xs font-medium tracking-wide backdrop-blur-sm"
           >
-            <Megaphone className="w-4 h-4" />
+            <Megaphone className="w-3.5 h-3.5" />
             PUBLICITAR
           </Link>
         </div>
