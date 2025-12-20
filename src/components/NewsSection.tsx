@@ -15,9 +15,8 @@ const FEEDS = [
 ]
 
 async function fetchTextWithFallback(targetUrl: string): Promise<string> {
-  const originless = targetUrl.replace(/^https?:\/\//, '')
   const candidates = [
-    targetUrl,
+    `/api/rss?url=${encodeURIComponent(targetUrl)}`,
     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
     `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
   ]
