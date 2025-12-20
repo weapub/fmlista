@@ -159,8 +159,8 @@ export default function ProfileEditor() {
 
     try {
       // Validate slug format if present
-      if (formData.slug && !/^[a-z0-9-]+$/.test(formData.slug)) {
-        alert('El identificador (slug) solo puede contener letras minúsculas, números y guiones.');
+      if (formData.slug && !/^[a-z0-9-.]+$/.test(formData.slug)) {
+        alert('El identificador (slug) solo puede contener letras minúsculas, números, guiones y puntos.');
         setSaving(false);
         return;
       }
@@ -358,14 +358,14 @@ export default function ProfileEditor() {
                   Identificador URL (Slug)
                 </label>
                 <p className="text-xs text-gray-500 mb-1">
-                    Ejemplo: "la-docta" para fmlista.com.ar/la-docta (Solo letras, números y guiones)
+                    Ejemplo: "la.docta" para fmlista.com.ar/la.docta (Solo letras, números, guiones y puntos)
                 </p>
                 <input
                   type="text"
                   name="slug"
                   value={formData.slug}
                   onChange={handleInputChange}
-                  placeholder="ej. radio-uno"
+                  placeholder="ej. la.docta"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
                 />
               </div>

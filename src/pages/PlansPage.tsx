@@ -61,6 +61,66 @@ export const PlansPage: React.FC = () => {
         ];
         fetchedPlans = [...fetchedPlans, ...mockMicrositePlans];
       }
+
+      // Check for streaming plans
+      const hasStreamingPlans = fetchedPlans.some(p => p.type === 'streaming');
+      if (!hasStreamingPlans) {
+        const mockStreamingPlans: Plan[] = [
+          {
+            id: 'mock-stream-1',
+            name: 'Streaming Audio SD',
+            type: 'streaming',
+            price: 5000,
+            currency: 'ARS',
+            description: 'Ideal para comenzar. Calidad estándar y estabilidad.',
+            features: ['Calidad 64kbps AAC+', 'Oyentes ilimitados', 'Panel de control Centovacast', 'App genérica incluida'],
+            interval: 'monthly',
+            active: true
+          },
+          {
+            id: 'mock-stream-2',
+            name: 'Streaming Audio HD',
+            type: 'streaming',
+            price: 8500,
+            currency: 'ARS',
+            description: 'La mejor calidad de sonido para tus oyentes.',
+            features: ['Calidad 128kbps AAC+', 'Oyentes ilimitados', 'Panel de control Centovacast', 'App personalizada Android'],
+            interval: 'monthly',
+            active: true
+          }
+        ];
+        fetchedPlans = [...fetchedPlans, ...mockStreamingPlans];
+      }
+
+      // Check for ads plans
+      const hasAdsPlans = fetchedPlans.some(p => p.type === 'ads');
+      if (!hasAdsPlans) {
+        const mockAdsPlans: Plan[] = [
+          {
+            id: 'mock-ads-1',
+            name: 'Banner Principal',
+            type: 'ads',
+            price: 15000,
+            currency: 'ARS',
+            description: 'Máxima visibilidad en la portada de la aplicación.',
+            features: ['Ubicación superior en Home', 'Enlace directo a tu web/WhatsApp', 'Estadísticas de clics', 'Diseño de banner incluido'],
+            interval: 'monthly',
+            active: true
+          },
+          {
+            id: 'mock-ads-2',
+            name: 'Radio Destacada',
+            type: 'ads',
+            price: 10000,
+            currency: 'ARS',
+            description: 'Aparece primero en las búsquedas y listas.',
+            features: ['Posición #1 en tu categoría', 'Distintivo "Destacado"', 'Mayor exposición en sugerencias', 'Reporte mensual de alcance'],
+            interval: 'monthly',
+            active: true
+          }
+        ];
+        fetchedPlans = [...fetchedPlans, ...mockAdsPlans];
+      }
       
       setPlans(fetchedPlans);
       setLoading(false);
