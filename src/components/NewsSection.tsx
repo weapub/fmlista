@@ -18,9 +18,8 @@ async function fetchTextWithFallback(targetUrl: string): Promise<string> {
   const originless = targetUrl.replace(/^https?:\/\//, '')
   const candidates = [
     targetUrl,
-    `https://r.jina.ai/http/${originless}`,
-    `https://r.jina.ai/https/${originless}`,
-    `https://cors.isomorphic-git.org/https://${originless}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
   ]
   for (const u of candidates) {
     try {
