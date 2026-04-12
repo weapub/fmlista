@@ -3,23 +3,40 @@
 @tailwind utilities;
 
 :root {
-  font-family: Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  line-height: 1.5;
+  color-scheme: dark;
+  font-family: Inter, Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.6;
   font-weight: 400;
-
-  font-synthesis: none;
   text-rendering: optimizeLegibility;
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --bg-surface: #0b1226;
+  --bg-panel: rgba(15, 23, 42, 0.92);
+  --text-default: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: rgba(148, 163, 184, 0.16);
+  --shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
 }
 
 body {
   @apply min-h-screen bg-slate-950 text-slate-100;
-  background-image: radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 28%), radial-gradient(circle at 80% 10%, rgba(168,85,247,0.10), transparent 25%), radial-gradient(circle at 50% 100%, rgba(14,165,233,0.08), transparent 20%);
+  background-image: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.16), transparent 24%), radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8), transparent 40%);
+  background-color: #060b1b;
+  color: var(--text-default);
 }
 
 * {
   scroll-behavior: smooth;
+}
+
+body, input, button, textarea, select {
+  font-family: Inter, Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
 }
 
 /* Custom scrollbar */
@@ -28,15 +45,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background: rgba(15, 23, 42, 0.65);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-300 rounded-full;
+  background: rgba(99, 102, 241, 0.6);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary-400;
+  background: rgba(99, 102, 241, 0.85);
 }
 
 /* Custom range input */

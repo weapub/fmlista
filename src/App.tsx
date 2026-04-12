@@ -4,6 +4,7 @@ import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
+const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ default: m.PlansPage })));
 const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
@@ -28,6 +29,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/radio/:id" element={<RadioMicrosite />} />
+          <Route path="/planes" element={<PlansPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/profile/:id" element={<ProfileEditor />} />

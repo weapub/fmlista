@@ -1,39 +1,33 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useRadioStore } from '@/stores/radioStore'
 
-export const useAudioPlayer = () => {
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const { currentRadio, isPlaying, volume, setIsPlaying } = useRadioStore()
-  const candidatesRef = useRef<string[]>([])
-  const candidateIndexRef = useRef<number>(0)
+let audioElement: HTMLAudioElement | null = null
+let candidates: string[] = []
+let candidateIndex = 0
 
-  // Initialize audio element once
+export const useAudioPlayer = () => {
+  const { currentRadio, isPlaying, volume, setIsPlaying } = useRadioStore()
+
+  // Initialize shared audio element once for the whole app
   useEffect(() => {
-    if (!audioRef.current) {
-      const audio = new Audio()
-      audio.preload = 'none'
-      audio.crossOrigin = 'anonymous'
-      audioRef.current = audio
-    }
-    const audio = audioRef.current!
-    return () => {
-      audio.pause()
-      audio.src = ''
+    if (!audioElement) {
+      audioElement = new Audio()
+      audioElement.preload = 'none'
+      audioElement.crossOrigin = 'anonymous'
     }
   }, [])
 
   // Reflect volume changes
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume
+    if (audioElement) {
+      audioElement.volume = volume
     }
   }, [volume])
 
   const safePlay = async () => {
-    const audio = audioRef.current
-    if (!audio) return
+    if (!audioElement) return
     try {
-      await audio.play()
+      await audioElement.play()
     } catch (error) {
       if (error instanceof DOMException) {
         if (error.name === 'AbortError') {
@@ -80,16 +74,18 @@ export const useAudioPlayer = () => {
   }
 
   const tryNextCandidate = () => {
-    const audio = audioRef.current
-    if (!audio) return
-    const list = candidatesRef.current
-    if (!list.length) return
-    candidateIndexRef.current = Math.min(candidateIndexRef.current + 1, list.length)
-    const next = list[candidateIndexRef.current]
+    if (!audioElement) return
+    if (!candidates.length) return
+    if (candidateIndex >= candidates.length - 1) {
+      setIsPlaying(false)
+      return
+    }
+    candidateIndex += 1
+    const next = candidates[candidateIndex]
     if (next) {
-      audio.pause()
-      audio.src = next
-      audio.load()
+      audioElement.pause()
+      audioElement.src = next
+      audioElement.load()
       if (isPlaying) safePlay()
     } else {
       setIsPlaying(false)
@@ -98,52 +94,44 @@ export const useAudioPlayer = () => {
 
   // Update source when stream changes
   useEffect(() => {
-    const audio = audioRef.current
     const src = currentRadio?.stream_url
-    if (!audio) return
+    if (!audioElement) return
     
-    // If stream changed
     if (src) {
-      // Stop any current playback completely first
-      audio.pause()
-      audio.currentTime = 0 // Reset time
-      
-      // Check if it's a new radio or just a re-trigger
-      // Using candidatesRef to check if source is actually new might be safer than direct src comparison if we want to avoid reload
+      audioElement.pause()
+      audioElement.currentTime = 0
+
       const newCandidates = buildCandidates(src)
-      // Simple check: if primary candidate is different
-      if (candidatesRef.current[0] !== newCandidates[0]) {
-         candidatesRef.current = newCandidates
-         candidateIndexRef.current = 0
-         audio.src = candidatesRef.current[0]
-         audio.load()
+      if (candidates[0] !== newCandidates[0]) {
+        candidates = newCandidates
+        candidateIndex = 0
+        audioElement.src = candidates[0]
+        audioElement.load()
       }
     } else {
-      audio.pause()
-      audio.src = ''
+      audioElement.pause()
+      audioElement.src = ''
     }
 
-    audio.onerror = () => {
+    audioElement.onerror = () => {
       tryNextCandidate()
     }
-    
+
     if (isPlaying && src) {
-        // Use a small timeout to allow the load to process before playing
-        const playPromise = setTimeout(() => safePlay(), 10)
-        return () => clearTimeout(playPromise)
+      const playPromise = setTimeout(() => safePlay(), 10)
+      return () => clearTimeout(playPromise)
     }
-  }, [currentRadio?.id, currentRadio?.stream_url]) // Depend on ID to force refresh on radio change
+  }, [currentRadio?.id, currentRadio?.stream_url, isPlaying])
 
   // Control play/pause based on state
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    if (!audioElement) return
     if (isPlaying && currentRadio?.stream_url) {
       safePlay()
     } else {
-      audio.pause()
+      audioElement.pause()
     }
-  }, [isPlaying])
+  }, [isPlaying, currentRadio?.stream_url])
 
   const togglePlay = () => {
     if (currentRadio) {

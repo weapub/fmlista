@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Radio, Mail, Lock, User, LogIn } from 'lucide-react'
+import { Radio, Mail, Lock, User, LogIn, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import { cn } from '@/lib/utils'
 
 export const Login: React.FC = () => {
   const navigate = useNavigate()
@@ -62,22 +63,35 @@ export const Login: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-500 to-primary-600 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Radio className="w-12 h-12 text-white mr-3" />
-            <h1 className="text-3xl font-bold text-white">FM Lista</h1>
+    <div className="min-h-screen bg-[#f5f5f9] relative overflow-hidden flex items-center justify-center px-4">
+      {/* Acentos de fondo estilo Startup */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#696cff]/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 max-w-md w-full">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-[#a1acb8] hover:text-[#696cff] transition-colors mb-8 group">
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          Volver al inicio
+        </Link>
+
+        <div className="text-center mb-10">
+          <div className="flex flex-col items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-[#696cff] rounded-2xl flex items-center justify-center shadow-xl shadow-[#696cff]/30 mb-4">
+              <Radio className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-black text-[#566a7f] tracking-tighter">Radio<span className="text-[#696cff]">Hub</span></h1>
           </div>
-          <p className="text-secondary-100">
-            {isLogin ? 'Ingresa a tu cuenta' : 'Crea una nueva cuenta'}
+          <p className="text-[#a1acb8] font-medium">
+            {isLogin ? 'Bienvenido, por favor ingresa a tu cuenta' : 'Únete a la red de radios más grande'}
           </p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white rounded-[2rem] shadow-2xl shadow-[#696cff]/10 border border-white p-8 sm:p-10">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-xs font-black text-[#566a7f] uppercase tracking-widest mb-2 ml-1">
                 Correo electrónico
               </label>
               <div className="relative">
@@ -91,14 +105,14 @@ export const Login: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500"
+                  className="block w-full pl-12 pr-4 py-4 bg-slate-50 border-gray-100 rounded-xl text-[#566a7f] placeholder:text-[#a1acb8] focus:bg-white focus:ring-4 focus:ring-[#696cff]/10 focus:border-[#696cff] transition-all outline-none font-medium"
                   placeholder="tu@email.com"
                 />
               </div>
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-xs font-black text-[#566a7f] uppercase tracking-widest mb-2 ml-1">
                 Contraseña
               </label>
               <div className="relative">
@@ -112,7 +126,7 @@ export const Login: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500"
+                  className="block w-full pl-12 pr-4 py-4 bg-slate-50 border-gray-100 rounded-xl text-[#566a7f] placeholder:text-[#a1acb8] focus:bg-white focus:ring-4 focus:ring-[#696cff]/10 focus:border-[#696cff] transition-all outline-none font-medium"
                   placeholder="••••••••"
                 />
               </div>
@@ -120,7 +134,7 @@ export const Login: React.FC = () => {
             
             {!isLogin && (
               <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="role" className="block text-xs font-black text-[#566a7f] uppercase tracking-widest mb-2 ml-1">
                   Tipo de cuenta
                 </label>
                 <div className="relative">
@@ -132,7 +146,7 @@ export const Login: React.FC = () => {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500"
+                    className="block w-full pl-12 pr-4 py-4 bg-slate-50 border-gray-100 rounded-xl text-[#566a7f] focus:bg-white focus:ring-4 focus:ring-[#696cff]/10 focus:border-[#696cff] transition-all outline-none font-bold appearance-none"
                   >
                     <option value="listener">Oyente</option>
                     <option value="radio_admin">Administrador de Radio</option>
@@ -142,15 +156,15 @@ export const Login: React.FC = () => {
             )}
             
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="bg-red-50 border border-red-100 rounded-xl p-4">
+                <p className="text-sm text-red-600 font-medium">{error}</p>
               </div>
             )}
             
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary-600 hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#696cff] hover:bg-[#5f61e6] shadow-[#696cff]/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -159,7 +173,7 @@ export const Login: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center">
-                  <LogIn className="h-4 w-4 mr-2" />
+                  <LogIn className="h-5 w-5 mr-2" />
                   {isLogin ? 'Ingresar' : 'Registrarse'}
                 </div>
               )}
@@ -169,7 +183,7 @@ export const Login: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={toggleMode}
-              className="text-sm text-secondary-600 hover:text-secondary-500 font-medium"
+              className="text-sm text-[#696cff] hover:text-[#5f61e6] font-bold transition-colors"
             >
               {isLogin 
                 ? '¿No tienes una cuenta? Regístrate aquí' 

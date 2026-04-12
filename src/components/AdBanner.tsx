@@ -59,10 +59,24 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
     // Increment clicks (fire and forget)
   };
 
-  if (ads.length === 0) return null;
+  if (ads.length === 0) {
+    return (
+      <div className={`w-full flex flex-col items-center space-y-4 my-8 ${className}`}>
+        <div className="w-full max-w-4xl rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center transition-colors hover:bg-[#f5f5f9] group">
+          <span className="inline-flex rounded-full bg-[#696cff]/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#696cff] border border-[#696cff]/20">
+            Publicidad
+          </span>
+          <h3 className="mt-6 text-xl font-bold text-[#566a7f] group-hover:text-[#696cff] transition-colors">Impulsa tu marca aquí</h3>
+          <p className="mt-3 text-sm text-[#a1acb8]">
+            Agrega banners en la administración para comenzar a mostrar publicidad en la app.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className={`w-full flex flex-col items-center space-y-4 my-4 ${className}`}>
+    <div className={`w-full flex flex-col items-center space-y-6 my-6 ${className}`}>
       {ads.map((ad) => (
         <React.Fragment key={ad.id}>
           {ad.link_url ? (
@@ -71,12 +85,12 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
                 target="_blank" 
                 rel="noopener noreferrer" 
                 onClick={() => handleClick(ad)}
-                className="block w-full max-w-4xl transition-opacity duration-500 animate-in fade-in"
+                className="block w-full max-w-4xl transition-all duration-300 hover:scale-[1.01] animate-in fade-in slide-in-from-bottom-2"
             >
               <img 
                 src={ad.image_url} 
                 alt={ad.title} 
-                className="w-full h-auto object-cover rounded-lg shadow-sm hover:opacity-95 transition-opacity"
+                className="w-full h-auto object-cover rounded-xl shadow-lg border border-white/5"
                 style={{ maxHeight: position.includes('sidebar') ? '600px' : '200px' }}
               />
             </a>

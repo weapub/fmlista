@@ -1,14 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Plan } from '@/types/database';
-import { Check, Info } from 'lucide-react';
+import { Check, X, Minus, HelpCircle, ChevronDown } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useRadioStore } from '@/stores/radioStore';
+import { cn } from '@/lib/utils';
+import { AudioPlayer } from '@/components/AudioPlayer';
+
+const PlanCardSkeleton = () => (
+  <div className="bg-white rounded-xl p-8 border border-gray-100 animate-pulse flex flex-col h-full shadow-sm">
+    <div className="h-6 bg-[#696cff]/10 rounded-full w-3/4 mx-auto mb-4" />
+    <div className="h-10 bg-[#696cff]/10 rounded-full w-1/2 mx-auto mb-6" />
+    <div className="h-4 bg-slate-50 rounded-full w-full mb-8" />
+    <div className="space-y-4 flex-grow mb-10">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded-full bg-[#696cff]/10 flex-shrink-0" />
+          <div className="h-4 bg-slate-50 rounded-full w-full" />
+        </div>
+      ))}
+    </div>
+    <div className="h-12 bg-[#696cff]/10 rounded-lg w-full" />
+  </div>
+);
+
+const PlanSectionSkeleton = () => (
+  <div className="mb-20">
+    <div className="border-l-4 border-[#696cff]/20 pl-6 mb-12">
+      <div className="h-8 bg-slate-100 rounded-full w-64 mb-2" />
+      <div className="h-5 bg-slate-50 rounded-full w-96" />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-4">
+      {[...Array(3)].map((_, i) => (
+        <PlanCardSkeleton key={i} />
+      ))}
+    </div>
+  </div>
+);
 
 export const PlansPage: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const { currentRadio } = useRadioStore();
 
   useEffect(() => {
@@ -141,34 +175,41 @@ export const PlansPage: React.FC = () => {
     if (filteredPlans.length === 0) return null;
 
     return (
-      <div className="mb-16">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{description}</p>
+      <div className="mb-20">
+        <div className="text-left mb-12 border-l-4 border-[#696cff] pl-6">
+          <h2 className="text-3xl font-bold text-[#566a7f] mb-2">{title}</h2>
+          <p className="text-lg text-[#a1acb8] max-w-2xl font-normal">{description}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[896px] mx-auto px-4">
-          {filteredPlans.map((plan) => (
-            <div key={plan.id} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:border-secondary-500 transition-all transform hover:-translate-y-1">
-              <div className="p-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
-                <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-bold text-secondary-600">${plan.price}</span>
-                  <span className="text-gray-500 ml-2">/{plan.interval === 'monthly' ? 'mes' : 'año'}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-4">
+          {filteredPlans.map((plan, index) => (
+            <div key={plan.id} className={`group relative bg-white rounded-xl p-8 transition-all duration-300 hover:shadow-lg border ${index === 1 ? 'border-[#696cff] shadow-md shadow-[#696cff]/10 scale-105 z-10' : 'border-gray-100'}`}>
+              {index === 1 && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#696cff] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                  Recomendado
                 </div>
-                <p className="text-gray-600 mb-6">{plan.description}</p>
-                <ul className="space-y-4 mb-8">
+              )}
+              <div className="flex flex-col h-full">
+                <h3 className="text-xl font-bold text-[#566a7f] mb-4 text-center">{plan.name}</h3>
+                <div className="flex items-baseline justify-center mb-6">
+                  <span className="text-4xl font-bold text-[#566a7f] tracking-tight">${plan.price}</span>
+                  <span className="text-[#a1acb8] font-normal ml-1 text-sm">/{plan.interval === 'monthly' ? 'mes' : 'año'}</span>
+                </div>
+                <p className="text-[#a1acb8] mb-8 leading-relaxed text-center text-sm">{plan.description}</p>
+                <ul className="space-y-4 mb-10 flex-grow">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
-                      <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-600">{feature}</span>
+                      <div className="bg-[#696cff]/10 p-1 rounded-full mr-3 group-hover:bg-[#696cff] transition-colors">
+                        <Check className="w-3.5 h-3.5 text-[#696cff] group-hover:text-white" />
+                      </div>
+                      <span className="text-[#697a8d] font-normal text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <button
                   onClick={() => handleSubscribe(plan)}
-                  className="w-full py-3 px-6 bg-secondary-600 text-white rounded-lg font-semibold hover:bg-secondary-700 transition-colors shadow-md hover:shadow-lg"
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all transform active:scale-95 ${index === 1 ? 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20' : 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20'}`}
                 >
-                  Contratar Ahora
+                  {index === 1 ? 'Contratar Ahora' : 'Seleccionar Plan'}
                 </button>
               </div>
             </div>
@@ -178,32 +219,195 @@ export const PlansPage: React.FC = () => {
     );
   };
 
+  const renderFeatureComparator = () => {
+    const micrositePlans = plans.filter(p => p.type === 'microsite');
+    if (micrositePlans.length === 0) return null;
+
+    const comparisonFeatures = [
+      { name: 'Personalización de colores', basic: true, pro: true, full: true },
+      { name: 'Banner de cabecera propio', basic: true, pro: true, full: true },
+      { name: 'Redes sociales destacadas', basic: true, pro: true, full: true },
+      { name: 'Galería de fotos', basic: 'No', pro: 'Hasta 20', full: 'Ilimitada' },
+      { name: 'Programación semanal', basic: false, pro: true, full: true },
+      { name: 'Botón de WhatsApp flotante', basic: false, pro: true, full: true },
+      { name: 'Soporte técnico', basic: 'Email', pro: 'Prioritario', full: '24/7 VIP' },
+      { name: 'Blog de noticias', basic: false, pro: false, full: true },
+      { name: 'Integración chat en vivo', basic: false, pro: false, full: true },
+      { name: 'Analytics de visitas', basic: false, pro: false, full: true },
+      { name: 'Dominio .com.ar', basic: false, pro: false, full: true },
+    ];
+
+    return (
+      <div className="mt-24 max-w-5xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#566a7f] mb-4">Compara las funciones</h2>
+          <p className="text-[#a1acb8] max-w-2xl mx-auto">
+            Analiza en detalle qué incluye cada nivel de personalización para tu emisora.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#f5f5f9]/50">
+                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100">Características</th>
+                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100 text-center">Básico</th>
+                  <th className="p-6 text-sm font-bold text-[#696cff] uppercase tracking-wider border-b border-gray-100 text-center bg-[#696cff]/5">Profesional</th>
+                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100 text-center">Full</th>
+                </tr>
+              </thead>
+              <tbody className="text-[#697a8d]">
+                {comparisonFeatures.map((feature, idx) => (
+                  <tr key={idx} className="hover:bg-[#f5f5f9]/30 transition-colors">
+                    <td className="p-5 border-b border-gray-50 font-medium text-sm">
+                      <div className="flex items-center gap-2">
+                        {feature.name}
+                        <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] cursor-help" />
+                      </div>
+                    </td>
+                    <td className="p-5 border-b border-gray-50 text-center">
+                      {renderValue(feature.basic)}
+                    </td>
+                    <td className="p-5 border-b border-gray-50 text-center bg-[#696cff]/5 font-semibold text-[#696cff]">
+                      {renderValue(feature.pro)}
+                    </td>
+                    <td className="p-5 border-b border-gray-50 text-center">
+                      {renderValue(feature.full)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div className="mt-8 bg-[#696cff]/10 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-[#696cff]/20">
+          <div className="text-center md:text-left">
+            <h4 className="text-[#696cff] font-bold">¿Necesitas algo a medida?</h4>
+            <p className="text-[#697a8d] text-sm">Desarrollamos funciones exclusivas para grupos de radios o cadenas nacionales.</p>
+          </div>
+          <button 
+            onClick={() => window.open('https://wa.me/543704000000', '_blank')}
+            className="bg-[#696cff] text-white px-6 py-2.5 rounded-lg font-medium shadow-md shadow-[#696cff]/20 hover:bg-[#5f61e6] transition-all"
+          >
+            Contactar Ventas
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFAQ = () => {
+    const faqs = [
+      {
+        question: "¿Cómo activo mi micrositio?",
+        answer: "Una vez que elijas tu plan y realices el pago, nos pondremos en contacto contigo para solicitar el logo, portada y el link de streaming de tu radio. El alta definitiva suele realizarse en un plazo de 24 a 48 horas hábiles."
+      },
+      {
+        question: "¿Puedo cambiar de plan en cualquier momento?",
+        answer: "Sí, puedes subir o bajar de categoría de plan cuando lo desees. El cambio se verá reflejado de forma inmediata en las funciones disponibles, y el ajuste de precio se aplicará en tu siguiente ciclo de facturación."
+      },
+      {
+        question: "¿El servicio de streaming es compatible con celulares?",
+        answer: "¡Totalmente! Todos nuestros servicios de streaming utilizan tecnología AAC+ y MP3 de alta eficiencia, lo que garantiza compatibilidad total con navegadores móviles, apps de radio y sistemas Android/iOS."
+      },
+      {
+        question: "¿Qué métodos de pago aceptan?",
+        answer: "Para tu comodidad, aceptamos Transferencias Bancarias, Mercado Pago (incluyendo tarjetas de crédito y débito) y pagos en efectivo a través de redes como RapiPago o PagoFácil."
+      },
+      {
+        question: "¿Hay algún contrato de permanencia mínima?",
+        answer: "No, nuestros planes son mensuales y prepagos. Puedes cancelar tu suscripción en cualquier momento sin cargos adicionales ni penalizaciones."
+      }
+    ];
+
+    return (
+      <div className="mt-24 max-w-3xl mx-auto px-4 mb-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#566a7f] mb-4">Preguntas Frecuentes</h2>
+          <p className="text-[#a1acb8] font-normal">
+            Resolvemos tus dudas sobre nuestros servicios y procesos de contratación.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div 
+              key={idx} 
+              className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm transition-all duration-200"
+            >
+              <button
+                className="w-full p-5 text-left flex items-center justify-between hover:bg-[#f5f5f9]/50 transition-colors group"
+                onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+              >
+                <span className={cn("font-semibold transition-colors", openFaqIndex === idx ? "text-[#696cff]" : "text-[#566a7f] group-hover:text-[#696cff]")}>
+                  {faq.question}
+                </span>
+                <ChevronDown className={cn("w-5 h-5 text-[#a1acb8] transition-transform duration-300", openFaqIndex === idx && "rotate-180 text-[#696cff]")} />
+              </button>
+              <div className={cn("overflow-hidden transition-all duration-300 ease-in-out", openFaqIndex === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0")}>
+                <div className="p-5 pt-0 text-[#697a8d] text-sm leading-relaxed border-t border-gray-50 mt-2">
+                  {faq.answer}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderValue = (val: any) => {
+    if (typeof val === 'boolean') {
+      return val ? (
+        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600">
+          <Check className="w-5 h-5" />
+        </div>
+      ) : (
+        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-[#a1acb8]">
+          <Minus className="w-4 h-4" />
+        </div>
+      );
+    }
+    return <span className="text-sm">{val}</span>;
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f5f5f9]">
         <Navigation />
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-600"></div>
+        {/* Hero Skeleton */}
+        <div className="bg-gradient-to-br from-[#696cff]/80 to-[#5f61e6]/80 py-24 px-4 shadow-lg animate-pulse">
+          <div className="max-w-5xl mx-auto text-center space-y-6">
+            <div className="h-12 bg-white/20 rounded-full w-3/4 mx-auto" />
+            <div className="h-6 bg-white/10 rounded-full w-1/2 mx-auto" />
+          </div>
+        </div>
+
+        <div className="py-16 max-w-6xl mx-auto px-4">
+          <PlanSectionSkeleton />
+          <PlanSectionSkeleton />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f5f5f9]">
       <Navigation />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-secondary-900 to-secondary-800 text-white py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Planes y Servicios</h1>
-          <p className="text-xl text-secondary-100">
+      <div className="bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] text-white py-24 px-4 shadow-lg shadow-[#696cff]/20">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Soluciones para tu Emisora</h1>
+          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium">
             Lleva tu radio al siguiente nivel con nuestras soluciones de streaming y publicidad.
           </p>
         </div>
       </div>
 
-      <div className="py-16">
+      <div className="py-16 max-w-6xl mx-auto px-4">
         {renderPlanSection(
           "Streaming de Audio y Video",
           "streaming",
@@ -228,7 +432,13 @@ export const PlansPage: React.FC = () => {
           "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
         )}
       </div>
+
+      {renderFeatureComparator()}
+      
+      {renderFAQ()}
+
       <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
+      <AudioPlayer />
     </div>
   );
 };

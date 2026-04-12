@@ -84,8 +84,8 @@ export const ScheduleDisplay: React.FC<ScheduleDisplayProps> = ({ schedule, clas
                 </h4>
                 <div className="space-y-2">
                   {daySchedule.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group">
-                      <div className="flex-1 mr-4">
+                    <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group">
+                      <div className="flex-1">
                         <h5 className="font-medium text-gray-900 dark:text-white">
                           {item.program_name}
                         </h5>
@@ -95,16 +95,16 @@ export const ScheduleDisplay: React.FC<ScheduleDisplayProps> = ({ schedule, clas
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center space-x-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                         <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                           {formatTime(item.start_time)} - {formatTime(item.end_time)}
                         </div>
                         <button
                           onClick={() => handleNotify(item)}
                           className={cn(
-                            "p-2 rounded-full transition-all opacity-0 group-hover:opacity-100",
+                            "p-2 rounded-full transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100",
                             notifiedItems.has(item.id) 
-                              ? "opacity-100 text-secondary-500 bg-secondary-50 dark:bg-secondary-900/30" 
+                              ? "text-secondary-500 bg-secondary-50 dark:bg-secondary-900/30" 
                               : "text-gray-400 hover:text-secondary-500 hover:bg-gray-200 dark:hover:bg-gray-600"
                           )}
                           title="Notificarme"

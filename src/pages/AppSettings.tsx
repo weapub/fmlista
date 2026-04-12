@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { ArrowLeft, Save, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, LayoutDashboard, Settings, Users, BarChart3, Globe } from 'lucide-react';
 
 export default function AppSettings() {
   const navigate = useNavigate();
@@ -12,18 +12,29 @@ export default function AppSettings() {
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [appTitle, setAppTitle] = useState('');
+  const [appSlogan, setAppSlogan] = useState('');
   const [appDescription, setAppDescription] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const checkRole = async () => {
-      if (!user || user.role !== 'super_admin') {
+    const checkAccess = async () => {
+      // Si user es null, significa que definitivamente no hay sesión
+      if (user === null) {
         navigate('/admin');
+        setLoading(false);
         return;
       }
-      fetchSettings();
+
+      if (user && user.role === 'super_admin') {
+        await fetchSettings();
+      } else if (user) {
+        // Usuario logueado pero sin permisos de super_admin
+        navigate('/admin');
+        setLoading(false);
+      }
     };
-    checkRole();
+
+    checkAccess();
   }, [user, navigate]);
 
   const fetchSettings = async () => {
@@ -31,7 +42,7 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_description']);
+        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_slogan', 'app_description']);
 
       if (error) throw error;
       
@@ -39,6 +50,7 @@ export default function AppSettings() {
       const footerLogoSetting = data?.find(s => s.key === 'app_footer_logo');
       const heroImageSetting = data?.find(s => s.key === 'app_hero_image');
       const titleSetting = data?.find(s => s.key === 'app_title');
+      const sloganSetting = data?.find(s => s.key === 'app_slogan');
       const descriptionSetting = data?.find(s => s.key === 'app_description');
 
       if (logoSetting) {
@@ -62,6 +74,12 @@ export default function AppSettings() {
         setAppTitle(titleSetting.value);
       } else {
         setAppTitle('FM Lista');
+      }
+
+      if (sloganSetting) {
+        setAppSlogan(sloganSetting.value);
+      } else {
+        setAppSlogan('Todo el aire de Formosa');
       }
 
       if (descriptionSetting) {
@@ -127,54 +145,22 @@ export default function AppSettings() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const { error: logoError } = await supabase
-        .from('app_settings')
-        .upsert({ 
-          key: 'app_logo', 
-          value: logoUrl 
-        });
       
-      if (logoError) throw logoError;
+      const settingsToUpsert = [
+        { key: 'app_logo', value: logoUrl },
+        { key: 'app_title', value: appTitle },
+        { key: 'app_slogan', value: appSlogan },
+        { key: 'app_description', value: appDescription }
+      ];
 
-      if (footerLogoUrl) {
-        const { error: footerLogoError } = await supabase
-          .from('app_settings')
-          .upsert({ 
-            key: 'app_footer_logo', 
-            value: footerLogoUrl 
-          });
-        
-        if (footerLogoError) throw footerLogoError;
-      }
+      if (footerLogoUrl) settingsToUpsert.push({ key: 'app_footer_logo', value: footerLogoUrl });
+      if (heroImageUrl) settingsToUpsert.push({ key: 'app_hero_image', value: heroImageUrl });
 
-      if (heroImageUrl) {
-        const { error: heroImageError } = await supabase
-          .from('app_settings')
-          .upsert({ 
-            key: 'app_hero_image', 
-            value: heroImageUrl 
-          });
-        
-        if (heroImageError) throw heroImageError;
-      }
-
-      const { error: titleError } = await supabase
+      const { error } = await supabase
         .from('app_settings')
-        .upsert({ 
-          key: 'app_title', 
-          value: appTitle 
-        });
+        .upsert(settingsToUpsert, { onConflict: 'key' });
 
-      if (titleError) throw titleError;
-
-      const { error: descriptionError } = await supabase
-        .from('app_settings')
-        .upsert({ 
-          key: 'app_description', 
-          value: appDescription 
-        });
-
-      if (descriptionError) throw descriptionError;
+      if (error) throw error;
 
       alert('Configuración actualizada correctamente. Recarga la página para ver los cambios.');
     } catch (error: any) {
@@ -185,7 +171,24 @@ export default function AppSettings() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f5f9] flex">
+        <aside className="w-64 bg-white hidden lg:flex flex-col border-r border-gray-200 sticky top-0 h-screen" />
+        <div className="flex-1 flex flex-col">
+          <header className="bg-white/80 h-20 border-b border-gray-100" />
+          <main className="p-8 max-w-5xl mx-auto w-full animate-pulse">
+            <div className="bg-white rounded-xl h-[600px] p-8 space-y-8 shadow-sm border border-gray-100">
+              <div className="h-8 bg-slate-100 rounded-full w-48" />
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-24 bg-slate-50 rounded-xl w-full" />
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -309,6 +312,21 @@ export default function AppSettings() {
                 onChange={(e) => setAppTitle(e.target.value)}
                 disabled={saving}
                 placeholder="Ej. FM Lista"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Eslogan de la Aplicación</label>
+              <p className="text-sm text-gray-500 mb-2">
+                Frase corta que aparecerá debajo del logo en la barra de navegación.
+              </p>
+              <input
+                type="text"
+                value={appSlogan}
+                onChange={(e) => setAppSlogan(e.target.value)}
+                disabled={saving}
+                placeholder="Ej. Todo el aire de Formosa"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
               />
             </div>

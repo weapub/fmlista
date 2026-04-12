@@ -13,7 +13,7 @@ interface RadioCardProps {
 
 export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatured }) => {
   const navigate = useNavigate()
-  const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
+  const { currentRadio, setCurrentRadio, isPlaying, setIsPlaying } = useRadioStore()
   const [logoError, setLogoError] = useState(false)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
@@ -42,13 +42,13 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         }
       }}
       className={cn(
-        "group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white dark:bg-gray-900 p-5 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:border-secondary-200/50 hover:shadow-xl focusable focus:outline-none focus:ring-4 focus:ring-secondary-500/20",
+        "group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white dark:bg-gray-900 p-6 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] transition duration-300 hover:-translate-y-1 hover:border-[#696cff]/30 hover:shadow-2xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20",
         isFeatured && "border-yellow-300/50 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-900 dark:to-yellow-950/20",
         className
       )}
       onClick={handleCardClick}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
         <div className="relative flex-shrink-0">
           {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
             <img
@@ -63,21 +63,25 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
               <RadioIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
             </div>
           )}
-          {isCurrentRadio && (
-            <span className="absolute bottom-0 left-0 -translate-y-2 rounded-full bg-secondary-500 px-2 py-1 text-[11px] font-semibold text-white shadow-lg shadow-secondary-500/20">
-              En reproducción
-            </span>
+          {isCurrentRadio && isPlaying && (
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-[#696cff] to-[#5f61e6] rounded-lg flex items-center justify-center border-2 border-white dark:border-gray-900 shadow-md">
+              <div className="flex gap-0.5 items-end h-3">
+                <div className="w-0.5 h-1.5 bg-white animate-pulse" />
+                <div className="w-0.5 h-2.5 bg-white animate-pulse delay-75" />
+                <div className="w-0.5 h-2 bg-white animate-pulse delay-150" />
+              </div>
+            </div>
           )}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white line-clamp-2">{radio.name}</h3>
+          <h3 className="text-lg font-bold text-slate-700 dark:text-white line-clamp-2 group-hover:text-[#696cff] transition-colors">{radio.name}</h3>
           <div className="mt-2 flex flex-wrap gap-2 text-sm">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{radio.frequency}</span>
-            {radio.location && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{radio.location}</span>}
+            <span className="rounded-full bg-slate-50 px-2.5 py-1 text-slate-500 font-medium dark:bg-slate-800 dark:text-slate-300">{radio.frequency}</span>
+            {radio.location && <span className="rounded-full bg-slate-50 px-2.5 py-1 text-slate-500 font-medium dark:bg-slate-800 dark:text-slate-300">{radio.location}</span>}
           </div>
           {radio.category && (
-            <span className="mt-3 inline-flex rounded-full bg-secondary-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-secondary-700 dark:bg-secondary-900 dark:text-secondary-200">
+            <span className="mt-3 inline-flex rounded-full bg-[#696cff]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#696cff] dark:bg-secondary-900 dark:text-secondary-200">
               {radio.category}
             </span>
           )}
@@ -86,10 +90,10 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         <button
           onClick={handlePlay}
           className={cn(
-            "flex h-12 w-12 items-center justify-center rounded-3xl transition-colors duration-200",
+            "self-start flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300 sm:self-center transform active:scale-90",
             isCurrentRadio
-              ? "bg-secondary-500 text-white shadow-lg shadow-secondary-500/20"
-              : "bg-slate-100 text-slate-700 hover:bg-secondary-100 dark:bg-gray-800 dark:text-slate-200 dark:hover:bg-secondary-900"
+              ? "bg-[#696cff] text-white shadow-lg shadow-[#696cff]/30"
+              : "bg-slate-50 text-slate-400 hover:bg-[#696cff] hover:text-white dark:bg-gray-800 dark:text-slate-200 shadow-sm"
           )}
           aria-label={isCurrentRadio ? 'Continuar reproducción' : 'Reproducir radio'}
         >

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense, useDeferredValue } from 'react'
 import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
+import { AdBanner } from '@/components/AdBanner'
+import { NewsSection } from '@/components/NewsSection'
 import { useRadioStore } from '@/stores/radioStore'
 import { supabase } from '@/lib/supabase'
 import { Radio } from '@/types/database'
@@ -8,18 +10,17 @@ import { Radio } from '@/types/database'
 const HomeSections = React.lazy(() => import('./HomeSections'))
 
 const RadioCardSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse border border-gray-100">
-    <div className="w-full h-32 bg-gray-200" />
-    <div className="p-4">
+  <div className="bg-white rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100">
+    <div className="p-5 flex items-center gap-5">
+      <div className="w-20 h-20 bg-slate-100 rounded-2xl flex-shrink-0" />
       <div className="space-y-3">
-        <div className="h-5 bg-gray-200 rounded w-3/4" />
-        <div className="h-4 bg-gray-200 rounded w-1/4" />
+        <div className="h-5 bg-slate-100 rounded-full w-32" />
         <div className="space-y-2 pt-2">
-          <div className="h-3 bg-gray-200 rounded w-full" />
-          <div className="h-3 bg-gray-200 rounded w-5/6" />
+          <div className="h-3 bg-slate-100 rounded-full w-48" />
+          <div className="h-3 bg-slate-100 rounded-full w-24" />
         </div>
-        <div className="h-10 bg-gray-200 rounded-md w-full mt-4" />
       </div>
+      <div className="ml-auto w-12 h-12 bg-slate-50 rounded-2xl" />
     </div>
   </div>
 );
@@ -56,9 +57,7 @@ export const Home: React.FC = () => {
 
       if (data) {
         setRadios(prev => {
-          const newList = pageNum === 0 ? data : [...prev, ...data]
-          setStoreRadios(newList)
-          return newList
+          return pageNum === 0 ? data : [...prev, ...data];
         })
         setHasMore(data.length === PAGE_SIZE)
       }
@@ -68,7 +67,7 @@ export const Home: React.FC = () => {
       setIsLoading(false)
       setIsLoadingMore(false)
     }
-  }, [setStoreRadios])
+  }, [])
 
   const fetchSpecialSections = useCallback(async () => {
     try {
@@ -106,6 +105,11 @@ export const Home: React.FC = () => {
     ])
   }, [fetchRadios, fetchSpecialSections])
 
+  // Sincronizar el store de forma segura fuera del render
+  useEffect(() => {
+    setStoreRadios(radios);
+  }, [radios, setStoreRadios]);
+
   const handleLoadMore = useCallback(() => {
     setPage(prev => {
       const nextPage = prev + 1
@@ -139,12 +143,12 @@ export const Home: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f5f5f9]">
         <Navigation />
         <div className="container mx-auto px-4 py-8">
-          <div className="h-48 bg-gray-200 rounded-xl mb-12 animate-pulse"></div>
+          <div className="h-48 bg-white border border-slate-100 rounded-3xl mb-12 animate-pulse shadow-sm"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {[...Array(6)].map((_, i) => (
               <RadioCardSkeleton key={i} />
             ))}
@@ -155,10 +159,12 @@ export const Home: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-[#f5f5f9] pb-32">
       <Navigation />
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <NewsSection minimal={true} className="mb-10" />
+        <AdBanner position="home_top" className="mb-12" />
         <Suspense fallback={
           <div className="space-y-8 pt-10">
             <div className="h-32 rounded-3xl bg-white animate-pulse" />

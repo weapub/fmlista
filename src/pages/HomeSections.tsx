@@ -54,7 +54,7 @@ export default function HomeSections({
             <Heart className="w-6 h-6 text-red-500 fill-current" />
             <h2 className="text-2xl font-bold text-gray-900">Mis Favoritos</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {favoriteRadios.map(radio => (
               <RadioCard key={`fav-${radio.id}`} radio={radio} />
             ))}
@@ -73,7 +73,7 @@ export default function HomeSections({
         {trendingRadios.length === 0 ? (
           <p className="text-gray-600">Sin emisoras</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {trendingRadios.map(radio => (
               <RadioCard key={radio.id} radio={radio} />
             ))}
@@ -87,7 +87,7 @@ export default function HomeSections({
         {recentRadios.length === 0 ? (
           <p className="text-gray-600">Sin emisoras recientes</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentRadios.map(radio => (
               <RadioCard key={radio.id} radio={radio} />
             ))}
@@ -113,7 +113,7 @@ export default function HomeSections({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBySearch.map((radio) => (
               <RadioCard key={radio.id} radio={radio} />
             ))}

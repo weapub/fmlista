@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown, Users } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown, Users, Radio as RadioIcon } from 'lucide-react'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
@@ -24,9 +24,9 @@ export const AudioPlayer: React.FC = () => {
   
   const { togglePlay, setVolume } = useAudioPlayer()
   
-  // Real-time listener tracking
-  const listenerCount = useRadioListeners(currentRadio?.id)
-  useReportListener(currentRadio?.id, isPlaying)
+  // Real-time listener tracking (Los hooks ahora manejan internamente si el ID es nulo)
+  const listenerCount = useRadioListeners(currentRadio?.id || '')
+  useReportListener(currentRadio?.id || '', isPlaying)
 
   useEffect(() => {
     // Auto-expand player on TV when playing starts
@@ -35,10 +35,11 @@ export const AudioPlayer: React.FC = () => {
     }
   }, [isTV, currentRadio, isPlaying, setIsPlayerExpanded])
   
+  // Checkpoint para evitar renderizar UI si no hay radio, pero después de los hooks
   if (!currentRadio) {
     return null
   }
-  
+
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation()
     setVolume(parseFloat(e.target.value))
@@ -80,10 +81,10 @@ export const AudioPlayer: React.FC = () => {
   if (isPlayerExpanded) {
     return (
       <div className={cn(
-        "fixed inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300 overflow-y-auto",
+        "fixed inset-0 bg-gradient-to-b from-[#f5f5f9] to-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300 overflow-y-auto",
         isTV ? "tv-player-mode" : ""
       )}>
-        <div className="min-h-full flex flex-col">
+        <div className="min-h-full flex flex-col max-h-[95vh]">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-4 flex-shrink-0">
             <button 
@@ -123,7 +124,7 @@ export const AudioPlayer: React.FC = () => {
               <h2 className={cn("text-xl sm:text-3xl font-bold text-gray-900 leading-tight", isTV && "text-5xl mb-4")}>
                 {currentRadio.name}
               </h2>
-              <p className={cn("text-base sm:text-lg text-secondary-600 font-medium", isTV && "text-2xl")}>
+              <p className={cn("text-base sm:text-lg text-[#696cff] font-medium", isTV && "text-2xl")}>
                 {currentRadio.frequency}
               </p>
               <div className="flex justify-center pt-2">
@@ -133,7 +134,7 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className={cn("px-8 pb-8 sm:pb-16 w-full max-w-md mx-auto space-y-6 sm:space-y-8 flex-shrink-0", isTV && "max-w-2xl pb-24")}>
+          <div className={cn("px-4 sm:px-8 pb-8 sm:pb-16 w-full max-w-md mx-auto space-y-6 sm:space-y-8 flex-shrink-0", isTV && "max-w-2xl pb-24")}>
             {/* Progress / Live Indicator */}
             <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500", isTV && "text-lg")}>
                <span className="text-red-500 flex items-center gap-1">
@@ -157,7 +158,7 @@ export const AudioPlayer: React.FC = () => {
               
               <button
                 onClick={(e) => handleTogglePlay(e)}
-                className={cn("p-4 sm:p-5 bg-secondary-500 text-white rounded-full shadow-lg hover:bg-secondary-600 hover:scale-105 transition-all focusable", isTV && "p-8 scale-110")}
+                className={cn("p-4 sm:p-5 bg-[#696cff] text-white rounded-full shadow-lg hover:bg-[#5f61e6] hover:scale-105 transition-all focusable", isTV && "p-8 scale-110")}
               >
                 {isPlaying ? <Pause className={cn("w-6 h-6 sm:w-8 sm:h-8", isTV && "w-16 h-16")} /> : <Play className={cn("w-6 h-6 sm:w-8 sm:h-8 ml-1", isTV && "w-16 h-16 ml-2")} />}
               </button>
@@ -182,9 +183,9 @@ export const AudioPlayer: React.FC = () => {
                 step="0.01"
                 value={volume}
                 onChange={handleVolumeChange}
-                className={cn("flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500 focusable", isTV && "h-3")}
+                className={cn("flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#696cff] focusable", isTV && "h-3")}
                 style={{
-                  background: `linear-gradient(to right, #f26968 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+                  background: `linear-gradient(to right, #696cff ${volume * 100}%, #e5e7eb ${volume * 100}%)`
                 }}
               />
             </div>
@@ -196,13 +197,13 @@ export const AudioPlayer: React.FC = () => {
 
   // Mini Player UI
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 cursor-pointer hover:bg-gray-50 transition-colors"
+    <div
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl bg-white/90 backdrop-blur-lg border border-white/20 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] z-50 cursor-pointer hover:bg-white transition-all rounded-[1.75rem] hover:shadow-2xl hover:shadow-[#696cff]/10 p-1.5"
       onClick={handleMiniPlayerClick}
       style={{ display: isPlayerExpanded ? 'none' : 'block' }}
     >
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
+      <div className="px-4 py-2">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
             {/* Controls (Mini) */}
             <div className="flex items-center space-x-1 sm:space-x-2">
@@ -215,9 +216,9 @@ export const AudioPlayer: React.FC = () => {
               </button>
               <button
                 onClick={handleTogglePlay}
-                className="p-2 bg-secondary-500 text-white rounded-full hover:bg-secondary-600 transition-colors flex-shrink-0 z-10"
+                className="p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
               >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
               </button>
               <button
                 onClick={goNext}
@@ -230,13 +231,28 @@ export const AudioPlayer: React.FC = () => {
             
             {/* Info (Mini) */}
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {currentRadio.logo_url && (
-                <img
-                  src={currentRadio.logo_url}
-                  alt={currentRadio.name}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover flex-shrink-0 shadow-sm"
-                />
-              )}
+              <div className="relative flex-shrink-0">
+                {currentRadio.logo_url ? (
+                  <img
+                    src={currentRadio.logo_url}
+                    alt={currentRadio.name}
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-gray-100 shadow-sm"
+                  />
+                ) : (
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                    <RadioIcon className="w-5 h-5 text-gray-400" />
+                  </div>
+                )}
+                {isPlaying && (
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-br from-[#696cff] to-[#5f61e6] rounded-lg flex items-center justify-center border-2 border-white shadow-md">
+                    <div className="flex gap-0.5 items-end h-2.5">
+                      <div className="w-0.5 h-1.5 bg-white animate-pulse" />
+                      <div className="w-0.5 h-2.5 bg-white animate-pulse delay-75" />
+                      <div className="w-0.5 h-2 bg-white animate-pulse delay-150" />
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">
                   {currentRadio.name}
@@ -264,9 +280,9 @@ export const AudioPlayer: React.FC = () => {
                 step="0.1"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-16 sm:w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary-500"
+                className="w-16 sm:w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#696cff]"
                 style={{
-                background: `linear-gradient(to right, #f26968 ${volume * 100}%, #e5e7eb ${volume * 100}%)`
+                background: `linear-gradient(to right, #696cff ${volume * 100}%, #e5e7eb ${volume * 100}%)`
               }}
               />
             </div>

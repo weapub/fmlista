@@ -58,9 +58,7 @@ export const Home: React.FC = () => {
 
       if (data) {
         setRadios(prev => {
-          const newList = pageNum === 0 ? data : [...prev, ...data]
-          setStoreRadios(newList)
-          return newList
+          return pageNum === 0 ? data : [...prev, ...data];
         })
         setHasMore(data.length === PAGE_SIZE)
       }
@@ -107,6 +105,11 @@ export const Home: React.FC = () => {
       fetchSpecialSections()
     ])
   }, [fetchRadios, fetchSpecialSections])
+
+  // Sincronizar el store de forma segura fuera del render para evitar errores de carga
+  useEffect(() => {
+    setStoreRadios(radios);
+  }, [radios, setStoreRadios]);
 
   const handleLoadMore = useCallback(() => {
     setPage(prev => {
@@ -175,7 +178,7 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="h-48 bg-gray-200 rounded-xl mb-12 animate-pulse"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(6)].map((_, i) => (
               <RadioCardSkeleton key={i} />
             ))}
@@ -202,9 +205,9 @@ export const Home: React.FC = () => {
           <div className="mb-12">
             <div className="flex items-center space-x-2 mb-4">
               <Heart className="w-6 h-6 text-red-500 fill-current" />
-              <h2 className="text-2xl font-bold text-gray-900">Mis Favoritos</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Tu Selección Personal</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {favoriteRadios.map(radio => (
                 <RadioCard key={`fav-${radio.id}`} radio={radio} />
               ))}
@@ -215,15 +218,15 @@ export const Home: React.FC = () => {
         {/* Tendencias */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xl font-semibold text-gray-900">Tendencias</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Lo más Escuchado</h2>
             {trendingCategory && (
-              <span className="text-sm text-gray-500">Categor+�a: {trendingCategory}</span>
+              <span className="text-sm text-[#696cff] font-bold">Top: {trendingCategory}</span>
             )}
           </div>
           {trendingRadios.length === 0 ? (
             <p className="text-gray-600">Sin emisoras</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {trendingRadios.map(radio => (
                 <RadioCard key={radio.id} radio={radio} />
               ))}
@@ -233,11 +236,11 @@ export const Home: React.FC = () => {
 
         {/* Agregadas recientemente */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">Agregadas recientemente</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Recién Llegadas</h2>
           {recentRadios.length === 0 ? (
             <p className="text-gray-600">Sin emisoras recientes</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recentRadios.map(radio => (
                 <RadioCard key={radio.id} radio={radio} />
               ))}
@@ -263,7 +266,7 @@ export const Home: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredBySearch.map((radio) => (
                 <RadioCard key={radio.id} radio={radio} />
               ))}
@@ -272,8 +275,8 @@ export const Home: React.FC = () => {
             {hasMore && (
               <div ref={loaderRef} className="mt-12 pb-12">
                 {isLoadingMore && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(3)].map((_, i) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(4)].map((_, i) => (
                       <RadioCardSkeleton key={`more-${i}`} />
                     ))}
                   </div>
