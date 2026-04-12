@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+<<<<<<< HEAD
 import ReactPlayer from 'react-player'
 import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, MessageCircle, Star, Send, Phone, ListMusic, Plus, Facebook, Instagram, Twitter, Users } from 'lucide-react'
+=======
+import { Play, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2 } from 'lucide-react'
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
 import { api } from '@/lib/api'
 import { RadioWithSchedule, Review, ChatMessage } from '@/types/database'
 import { ScheduleDisplay } from '@/components/ScheduleDisplay'
@@ -22,6 +26,7 @@ export const RadioMicrosite: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [coverError, setCoverError] = useState(false)
   const [logoError, setLogoError] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
   const { currentRadio, setCurrentRadio, setIsPlaying, isPlaying } = useRadioStore()
@@ -84,6 +89,7 @@ export const RadioMicrosite: React.FC = () => {
       
       try {
         setIsLoading(true)
+<<<<<<< HEAD
         
         let data: RadioWithSchedule | null = null;
         
@@ -133,6 +139,14 @@ export const RadioMicrosite: React.FC = () => {
           .limit(50)
         setChatMessages(chatData || [])
 
+=======
+        const data = await api.getRadioById(id)
+        setRadio(data)
+
+        // Verificar si es favorita
+        const favorites = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
+        setIsFavorite(favorites.includes(id))
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
       } catch (error) {
         console.error('Error fetching radio data:', error)
       } finally {
@@ -259,6 +273,7 @@ export const RadioMicrosite: React.FC = () => {
     }
   }
   
+<<<<<<< HEAD
   const handleVideoStart = () => {
     setVideoMode(true)
     setPlayingVideo(true)
@@ -276,6 +291,41 @@ export const RadioMicrosite: React.FC = () => {
     setPlayingVideo(false)
   }
   
+=======
+  const toggleFavorite = () => {
+    if (!id) return
+    const favorites = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
+    let newFavorites
+    if (isFavorite) {
+      newFavorites = favorites.filter((favId: string) => favId !== id)
+    } else {
+      newFavorites = [...favorites, id]
+    }
+    localStorage.setItem('radio_favorites', JSON.stringify(newFavorites))
+    setIsFavorite(!isFavorite)
+  }
+
+  const handleShare = async () => {
+    if (!radio) return
+    const shareData = {
+      title: radio.name,
+      text: `Escucha ${radio.name} (${radio.frequency}) en vivo a través de FM Lista`,
+      url: window.location.href,
+    }
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData)
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') console.error('Error sharing:', err)
+      }
+    } else {
+      // Si no hay API nativa (escritorio), hacemos scroll a los botones de abajo
+      document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
   const isCurrentRadio = currentRadio?.id === radio?.id
   const Player = ReactPlayer as any
   
@@ -327,6 +377,7 @@ export const RadioMicrosite: React.FC = () => {
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${currentRadio ? 'pb-32' : 'pb-8'}`}>
       <Navigation />
       
+<<<<<<< HEAD
       {/* Video or Cover Image */}
       <div className={`relative ${radio.video_stream_url ? 'h-64 md:h-96' : 'h-64'} bg-black group`}>
         {radio.video_stream_url ? (
@@ -371,6 +422,21 @@ export const RadioMicrosite: React.FC = () => {
                  }}
                />
             )}
+=======
+      {/* Cover Image */}
+      <div className="relative h-64 bg-gradient-to-r from-secondary-500 to-secondary-700">
+        {radio.cover_url && !isPlaceholderUrl(radio.cover_url) && !coverError ? (
+          <img
+            src={radio.cover_url}
+            alt={radio.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setCoverError(true)}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-secondary-500 to-secondary-700 flex items-center justify-center">
+            <RadioIcon className="w-24 h-24 text-white opacity-50" />
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
           </div>
         ) : (
           <>
@@ -414,7 +480,12 @@ export const RadioMicrosite: React.FC = () => {
                   <img
                     src={radio.logo_url}
                     alt={radio.name}
+<<<<<<< HEAD
                     className="w-24 h-24 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
+=======
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    loading="lazy"
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
                     onError={() => setLogoError(true)}
                   />
                 ) : (
@@ -447,6 +518,7 @@ export const RadioMicrosite: React.FC = () => {
                 </div>
               </div>
               
+<<<<<<< HEAD
               <button
                 onClick={handlePlay}
                 className={`p-4 rounded-full transition-colors flex-shrink-0 ${
@@ -464,6 +536,37 @@ export const RadioMicrosite: React.FC = () => {
                   <Play className="w-6 h-6 ml-1" />
                 )}
               </button>
+=======
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={toggleFavorite}
+                  className={`p-3 rounded-full border transition-all ${
+                    isFavorite 
+                      ? 'bg-red-50 border-red-200 text-red-500' 
+                      : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-red-500'
+                  }`}
+                >
+                  <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="p-3 rounded-full border bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 transition-all"
+                  title="Compartir"
+                >
+                  <Share2 className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={handlePlay}
+                  className={`p-4 rounded-full transition-colors ${
+                    isCurrentRadio && isPlaying
+                      ? 'bg-secondary-500 text-white'
+                      : 'bg-secondary-500 text-white hover:bg-secondary-600'
+                  }`}
+                >
+                  <Play className="w-6 h-6" />
+                </button>
+              </div>
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
             </div>
 
             {/* Actions Bar */}
@@ -681,6 +784,21 @@ export const RadioMicrosite: React.FC = () => {
                     <p className="text-center text-gray-500 dark:text-gray-400 py-8">Aún no hay reseñas. ¡Sé el primero!</p>
                   )}
                 </div>
+<<<<<<< HEAD
+=======
+              )}
+              
+              {/* Share Buttons */}
+              <div id="share-section" className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Compartir esta emisora
+                </h3>
+                <ShareButtons
+                  url={shareUrl}
+                  title={radio.name}
+                  description={radio.description || `Escucha ${radio.name} en ${radio.frequency}`}
+                />
+>>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
               </div>
             )}
 

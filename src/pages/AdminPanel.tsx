@@ -6,6 +6,27 @@ import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
 
+const RadioCardSkeleton = () => (
+  <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse border border-gray-100">
+    <div className="w-full h-32 bg-gray-200" />
+    <div className="p-4">
+      <div className="space-y-3">
+        <div className="h-5 bg-gray-200 rounded w-3/4" />
+        <div className="h-4 bg-gray-200 rounded w-1/4" />
+        <div className="space-y-2 pt-2">
+          <div className="h-3 bg-gray-200 rounded w-full" />
+          <div className="h-3 bg-gray-200 rounded w-5/6" />
+        </div>
+        <div className="flex space-x-2 mt-4">
+          <div className="h-9 bg-gray-200 rounded-md flex-1" />
+          <div className="h-9 bg-gray-200 rounded-md flex-1" />
+          <div className="h-9 bg-gray-200 rounded-md w-10" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
@@ -73,13 +94,11 @@ const AdminPanel: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 w-64 bg-gray-200 rounded mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-48 bg-white rounded-lg shadow-sm"></div>
-              ))}
-            </div>
+          <div className="h-8 w-64 bg-gray-200 rounded mb-8 animate-pulse"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <RadioCardSkeleton key={i} />
+            ))}
           </div>
         </div>
       </div>
@@ -206,6 +225,7 @@ const AdminPanel: React.FC = () => {
                       src={radio.cover_url}
                       alt={radio.name}
                       className="w-full h-32 object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-32 bg-gradient-to-r from-secondary-400 to-secondary-600 flex items-center justify-center">

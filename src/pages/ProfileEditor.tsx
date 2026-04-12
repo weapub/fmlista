@@ -116,6 +116,44 @@ export default function ProfileEditor() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Error procesando imagen'));
+          }, 'image/jpeg', 0.85);
+        };
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleImageUpload = async (type: 'logo' | 'cover') => {
     if (!user?.id) {
       alert('Debes ingresar para subir imágenes.');
@@ -129,11 +167,17 @@ export default function ProfileEditor() {
       if (!file) return;
 
       try {
+        // Optimizamos la imagen según el tipo (logo pequeño, portada grande)
+        const maxWidth = type === 'logo' ? 400 : 1200;
+        const maxHeight = type === 'logo' ? 400 : 600;
+        const optimizedBlob = await resizeImage(file, maxWidth, maxHeight);
+        const optimizedFile = new File([optimizedBlob], file.name, { type: 'image/jpeg' });
+
         const radioFolder = radio?.id ?? 'new';
-        const fileName = `${user?.id}/${radioFolder}/${type}_${Date.now()}.${file.name.split('.').pop()}`;
+        const fileName = `${user?.id}/${radioFolder}/${type}_${Date.now()}.jpg`;
         const { error: uploadError } = await supabase.storage
           .from('radio-images')
-          .upload(fileName, file);
+          .upload(fileName, optimizedFile);
 
         if (uploadError) throw uploadError;
 
