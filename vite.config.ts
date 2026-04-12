@@ -81,6 +81,8 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Allow precaching larger bundles (vendor chunk can exceed 2 MiB)
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {

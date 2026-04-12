@@ -22,6 +22,8 @@ export const RadioMicrosite: React.FC = () => {
   const [logoError, setLogoError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [isTheaterMode, setIsTheaterMode] = useState(false)
+  // ReactPlayer's type definitions can conflict with our setup; cast to any for JSX usage
+  const RP: any = ReactPlayer as any;
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
   const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
@@ -156,7 +158,7 @@ export const RadioMicrosite: React.FC = () => {
       )}>
         {isTheaterMode && radio.video_stream_url ? (
           <div className="w-full h-full bg-black flex items-center justify-center">
-            <ReactPlayer
+            <RP
               url={radio.video_stream_url}
               width="100%"
               height="100%"
