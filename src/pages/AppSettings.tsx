@@ -191,7 +191,7 @@ export default function AppSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-[#f5f5f9] p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center space-x-4 mb-8">
           <button onClick={() => navigate('/admin')} className="text-gray-600 hover:text-gray-900">

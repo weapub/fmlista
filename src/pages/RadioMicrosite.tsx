@@ -154,10 +154,10 @@ export const RadioMicrosite: React.FC = () => {
         "relative transition-all duration-500 ease-in-out bg-black overflow-hidden shadow-2xl",
         isTheaterMode ? "h-[60vh] md:h-[75vh]" : "h-64"
       )}>
-        {isTheaterMode && radio.video_url ? (
+        {isTheaterMode && radio.video_stream_url ? (
           <div className="w-full h-full bg-black flex items-center justify-center">
             <ReactPlayer
-              url={radio.video_url}
+              url={radio.video_stream_url}
               width="100%"
               height="100%"
               playing={isPlaying}
@@ -238,7 +238,7 @@ export const RadioMicrosite: React.FC = () => {
               </div>
               
               <div className="flex flex-wrap items-center gap-3">
-                {radio.video_url && (
+                {radio.video_stream_url && (
                   <button
                     onClick={() => setIsTheaterMode(!isTheaterMode)}
                     className={cn(
