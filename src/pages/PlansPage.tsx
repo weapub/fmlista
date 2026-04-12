@@ -176,32 +176,32 @@ export const PlansPage: React.FC = () => {
 
     return (
       <div className="mb-20">
-        <div className="text-left mb-12 border-l-4 border-[#696cff] pl-6">
-          <h2 className="text-3xl font-bold text-[#566a7f] mb-2">{title}</h2>
-          <p className="text-lg text-[#a1acb8] max-w-2xl font-normal">{description}</p>
+        <div className="text-left mb-12 border-l-4 border-[#696cff] pl-6 transition-colors">
+          <h2 className="text-3xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-2">{title}</h2>
+          <p className="text-lg text-[#a1acb8] dark:text-[#7e7e9a] max-w-2xl font-normal">{description}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-4">
           {filteredPlans.map((plan, index) => (
-            <div key={plan.id} className={`group relative bg-white rounded-xl p-8 transition-all duration-300 hover:shadow-lg border ${index === 1 ? 'border-[#696cff] shadow-md shadow-[#696cff]/10 scale-105 z-10' : 'border-gray-100'}`}>
+            <div key={plan.id} className={`group relative bg-white dark:bg-[#2b2c40] rounded-xl p-8 transition-all duration-300 hover:shadow-lg border ${index === 1 ? 'border-[#696cff] shadow-md shadow-[#696cff]/10 scale-105 z-10' : 'border-gray-100 dark:border-transparent'}`}>
               {index === 1 && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#696cff] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
                   Recomendado
                 </div>
               )}
               <div className="flex flex-col h-full">
-                <h3 className="text-xl font-bold text-[#566a7f] mb-4 text-center">{plan.name}</h3>
+                <h3 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4 text-center">{plan.name}</h3>
                 <div className="flex items-baseline justify-center mb-6">
-                  <span className="text-4xl font-bold text-[#566a7f] tracking-tight">${plan.price}</span>
-                  <span className="text-[#a1acb8] font-normal ml-1 text-sm">/{plan.interval === 'monthly' ? 'mes' : 'año'}</span>
+                  <span className="text-4xl font-bold text-[#566a7f] dark:text-[#cbcbe2] tracking-tight">${plan.price}</span>
+                  <span className="text-[#a1acb8] dark:text-[#7e7e9a] font-normal ml-1 text-sm">/{plan.interval === 'monthly' ? 'mes' : 'año'}</span>
                 </div>
-                <p className="text-[#a1acb8] mb-8 leading-relaxed text-center text-sm">{plan.description}</p>
+                <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-8 leading-relaxed text-center text-sm">{plan.description}</p>
                 <ul className="space-y-4 mb-10 flex-grow">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
                       <div className="bg-[#696cff]/10 p-1 rounded-full mr-3 group-hover:bg-[#696cff] transition-colors">
                         <Check className="w-3.5 h-3.5 text-[#696cff] group-hover:text-white" />
                       </div>
-                      <span className="text-[#697a8d] font-normal text-sm">{feature}</span>
+                      <span className="text-[#697a8d] dark:text-[#a3a4cc] font-normal text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -240,39 +240,39 @@ export const PlansPage: React.FC = () => {
     return (
       <div className="mt-24 max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-[#566a7f] mb-4">Compara las funciones</h2>
-          <p className="text-[#a1acb8] max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Compara las funciones</h2>
+          <p className="text-[#a1acb8] dark:text-[#7e7e9a] max-w-2xl mx-auto">
             Analiza en detalle qué incluye cada nivel de personalización para tu emisora.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f5f5f9]/50">
-                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100">Características</th>
-                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100 text-center">Básico</th>
-                  <th className="p-6 text-sm font-bold text-[#696cff] uppercase tracking-wider border-b border-gray-100 text-center bg-[#696cff]/5">Profesional</th>
-                  <th className="p-6 text-sm font-bold text-[#566a7f] uppercase tracking-wider border-b border-gray-100 text-center">Full</th>
+                <tr className="bg-[#f5f5f9]/50 dark:bg-[#232333]/50">
+                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564]">Características</th>
+                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Básico</th>
+                  <th className="p-6 text-sm font-bold text-[#696cff] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10">Profesional</th>
+                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Full</th>
                 </tr>
               </thead>
-              <tbody className="text-[#697a8d]">
+              <tbody className="text-[#697a8d] dark:text-[#a3a4cc]">
                 {comparisonFeatures.map((feature, idx) => (
-                  <tr key={idx} className="hover:bg-[#f5f5f9]/30 transition-colors">
-                    <td className="p-5 border-b border-gray-50 font-medium text-sm">
+                  <tr key={idx} className="hover:bg-[#f5f5f9]/30 dark:hover:bg-[#323249] transition-colors">
+                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] font-medium text-sm">
                       <div className="flex items-center gap-2">
                         {feature.name}
-                        <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] cursor-help" />
+                        <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] dark:text-[#7e7e9a] cursor-help" />
                       </div>
                     </td>
-                    <td className="p-5 border-b border-gray-50 text-center">
+                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
                       {renderValue(feature.basic)}
                     </td>
-                    <td className="p-5 border-b border-gray-50 text-center bg-[#696cff]/5 font-semibold text-[#696cff]">
+                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10 font-semibold text-[#696cff]">
                       {renderValue(feature.pro)}
                     </td>
-                    <td className="p-5 border-b border-gray-50 text-center">
+                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
                       {renderValue(feature.full)}
                     </td>
                   </tr>
@@ -282,10 +282,10 @@ export const PlansPage: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-8 bg-[#696cff]/10 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-[#696cff]/20">
+        <div className="mt-8 bg-[#696cff]/10 dark:bg-[#696cff]/20 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-[#696cff]/20">
           <div className="text-center md:text-left">
             <h4 className="text-[#696cff] font-bold">¿Necesitas algo a medida?</h4>
-            <p className="text-[#697a8d] text-sm">Desarrollamos funciones exclusivas para grupos de radios o cadenas nacionales.</p>
+            <p className="text-[#697a8d] dark:text-[#a3a4cc] text-sm">Desarrollamos funciones exclusivas para grupos de radios o cadenas nacionales.</p>
           </div>
           <button 
             onClick={() => window.open('https://wa.me/543704000000', '_blank')}
@@ -325,8 +325,8 @@ export const PlansPage: React.FC = () => {
     return (
       <div className="mt-24 max-w-3xl mx-auto px-4 mb-20">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-[#566a7f] mb-4">Preguntas Frecuentes</h2>
-          <p className="text-[#a1acb8] font-normal">
+          <h2 className="text-3xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Preguntas Frecuentes</h2>
+          <p className="text-[#a1acb8] dark:text-[#7e7e9a] font-normal">
             Resolvemos tus dudas sobre nuestros servicios y procesos de contratación.
           </p>
         </div>
@@ -335,19 +335,19 @@ export const PlansPage: React.FC = () => {
           {faqs.map((faq, idx) => (
             <div 
               key={idx} 
-              className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm transition-all duration-200"
+              className="bg-white dark:bg-[#2b2c40] rounded-xl border border-gray-100 dark:border-transparent overflow-hidden shadow-sm transition-all duration-200"
             >
               <button
-                className="w-full p-5 text-left flex items-center justify-between hover:bg-[#f5f5f9]/50 transition-colors group"
+                className="w-full p-5 text-left flex items-center justify-between hover:bg-[#f5f5f9]/50 dark:hover:bg-[#323249] transition-colors group"
                 onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
               >
-                <span className={cn("font-semibold transition-colors", openFaqIndex === idx ? "text-[#696cff]" : "text-[#566a7f] group-hover:text-[#696cff]")}>
+                <span className={cn("font-semibold transition-colors", openFaqIndex === idx ? "text-[#696cff]" : "text-[#566a7f] dark:text-[#cbcbe2] group-hover:text-[#696cff]")}>
                   {faq.question}
                 </span>
-                <ChevronDown className={cn("w-5 h-5 text-[#a1acb8] transition-transform duration-300", openFaqIndex === idx && "rotate-180 text-[#696cff]")} />
+                <ChevronDown className={cn("w-5 h-5 text-[#a1acb8] dark:text-[#7e7e9a] transition-transform duration-300", openFaqIndex === idx && "rotate-180 text-[#696cff]")} />
               </button>
               <div className={cn("overflow-hidden transition-all duration-300 ease-in-out", openFaqIndex === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0")}>
-                <div className="p-5 pt-0 text-[#697a8d] text-sm leading-relaxed border-t border-gray-50 mt-2">
+                <div className="p-5 pt-0 text-[#697a8d] dark:text-[#a3a4cc] text-sm leading-relaxed border-t border-gray-50 dark:border-[#444564] mt-2">
                   {faq.answer}
                 </div>
               </div>
@@ -361,11 +361,11 @@ export const PlansPage: React.FC = () => {
   const renderValue = (val: any) => {
     if (typeof val === 'boolean') {
       return val ? (
-        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600">
+        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
           <Check className="w-5 h-5" />
         </div>
       ) : (
-        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-[#a1acb8]">
+        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-[#a1acb8] dark:text-[#7e7e9a]">
           <Minus className="w-4 h-4" />
         </div>
       );
@@ -375,7 +375,7 @@ export const PlansPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f9]">
+      <div className="min-h-screen bg-[#f5f5f9] dark:bg-[#232333]">
         <Navigation />
         {/* Hero Skeleton */}
         <div className="bg-gradient-to-br from-[#696cff]/80 to-[#5f61e6]/80 py-24 px-4 shadow-lg animate-pulse">
@@ -394,7 +394,7 @@ export const PlansPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f9]">
+    <div className="min-h-screen bg-[#f5f5f9] dark:bg-[#232333] transition-colors duration-300">
       <Navigation />
       
       {/* Hero Section */}

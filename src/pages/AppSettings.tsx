@@ -193,31 +193,31 @@ export default function AppSettings() {
       subtitle="Administración / Apariencia"
     >
       <div className="max-w-5xl mx-auto w-full">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-8 border-b border-gray-50 bg-white">
+          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
+            <div className="p-8 border-b border-gray-50 dark:border-[#444564]">
               <div className="flex items-center space-x-4 mb-2">
-                <button onClick={() => navigate('/admin')} className="text-[#566a7f] hover:text-[#696cff] transition-colors">
+                <button onClick={() => navigate('/admin')} className="text-[#566a7f] dark:text-[#cbcbe2] hover:text-[#696cff] transition-colors">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-xl font-bold text-[#566a7f]">Apariencia General</h2>
+                <h2 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Apariencia General</h2>
               </div>
-              <p className="text-[#a1acb8] text-sm mt-1">Configura la identidad visual y los textos principales de la plataforma.</p>
+              <p className="text-[#a1acb8] dark:text-[#7e7e9a] text-sm mt-1">Configura la identidad visual y los textos principales de la plataforma.</p>
             </div>
           
             <div className="p-8 space-y-10">
               {/* Main Logo */}
               <div>
-                <label className="block text-sm font-semibold text-[#566a7f] mb-4">Logo de la Aplicación</label>
+                <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Logo de la Aplicación</label>
                 <div className="flex items-start space-x-8">
                   <div className="flex-shrink-0">
                     {logoUrl ? (
                       <img 
                         src={logoUrl} 
                         alt="App Logo" 
-                        className="h-28 w-28 object-contain border border-gray-100 rounded-xl p-3 bg-gray-50 shadow-sm" 
+                        className="h-28 w-28 object-contain border border-gray-100 dark:border-[#444564] rounded-xl p-3 bg-gray-50 dark:bg-[#232333] shadow-sm" 
                       />
                     ) : (
-                      <div className="h-28 w-28 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-[#a1acb8]">
+                      <div className="h-28 w-28 border-2 border-dashed border-gray-200 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] flex items-center justify-center text-[#a1acb8]">
                         <ImageIcon className="w-10 h-10" />
                       </div>
                     )}
@@ -233,25 +233,25 @@ export default function AppSettings() {
                       accept="image/*,image/svg+xml"
                       onChange={(e) => handleLogoUpload(e, 'main')}
                       disabled={saving}
-                      className="block w-full text-sm text-[#a1acb8] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#696cff]/10 file:text-[#696cff] hover:file:bg-[#696cff]/20 transition-all cursor-pointer"
+                      className="block w-full text-sm text-[#a1acb8] dark:text-[#7e7e9a] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#696cff]/10 file:text-[#696cff] hover:file:bg-[#696cff]/20 transition-all cursor-pointer"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Footer Logo */}
-              <div className="border-t border-gray-50 pt-10">
-                <label className="block text-sm font-semibold text-[#566a7f] mb-4">Logo del Pie de Página (Footer)</label>
+              <div className="border-t border-gray-50 dark:border-[#444564] pt-10">
+                <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Logo del Pie de Página (Footer)</label>
                 <div className="flex items-start space-x-8">
                   <div className="flex-shrink-0">
                     {footerLogoUrl ? (
                       <img 
                         src={footerLogoUrl} 
                         alt="Footer Logo" 
-                        className="h-28 w-28 object-contain border border-gray-100 rounded-xl p-3 bg-gray-50 shadow-sm" 
+                        className="h-28 w-28 object-contain border border-gray-100 dark:border-[#444564] rounded-xl p-3 bg-gray-50 dark:bg-[#232333] shadow-sm" 
                       />
                     ) : (
-                      <div className="h-28 w-28 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-[#a1acb8]">
+                      <div className="h-28 w-28 border-2 border-dashed border-gray-200 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] flex items-center justify-center text-[#a1acb8]">
                         <ImageIcon className="w-10 h-10" />
                       </div>
                     )}
@@ -273,18 +273,18 @@ export default function AppSettings() {
               </div>
 
               {/* Hero Image */}
-              <div className="border-t border-gray-50 pt-10">
-                <label className="block text-sm font-semibold text-[#566a7f] mb-4">Imagen del Hero (Inicio)</label>
+              <div className="border-t border-gray-50 dark:border-[#444564] pt-10">
+                <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Imagen del Hero (Inicio)</label>
                 <div className="flex items-start space-x-8">
                   <div className="flex-shrink-0">
                     {heroImageUrl ? (
                       <img 
                         src={heroImageUrl} 
                         alt="Hero Image" 
-                        className="h-28 w-48 object-cover border border-gray-100 rounded-xl bg-gray-50 shadow-sm" 
+                        className="h-28 w-48 object-cover border border-gray-100 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] shadow-sm" 
                       />
                     ) : (
-                      <div className="h-28 w-48 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center text-[#a1acb8]">
+                      <div className="h-28 w-48 border-2 border-dashed border-gray-200 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] flex items-center justify-center text-[#a1acb8]">
                         <ImageIcon className="w-10 h-10" />
                       </div>
                     )}
@@ -307,46 +307,46 @@ export default function AppSettings() {
               </div>
 
               {/* Text Settings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-50 pt-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-50 dark:border-[#444564] pt-10">
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-[#566a7f]">Nombre de la Aplicación</label>
+                  <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2]">Nombre de la Aplicación</label>
                   <input
                     type="text"
                     value={appTitle}
                     onChange={(e) => setAppTitle(e.target.value)}
                     disabled={saving}
                     placeholder="Ej. FM Lista"
-                    className="w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]"
+                    className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-[#566a7f]">Eslogan de la Aplicación</label>
+                  <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2]">Eslogan de la Aplicación</label>
                   <input
                     type="text"
                     value={appSlogan}
                     onChange={(e) => setAppSlogan(e.target.value)}
                     disabled={saving}
                     placeholder="Ej. Todo el aire de Formosa"
-                    className="w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]"
+                    className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a]"
                   />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
-                  <label className="block text-sm font-semibold text-[#566a7f]">Descripción (Footer)</label>
+                  <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2]">Descripción (Footer)</label>
                   <textarea
                     value={appDescription}
                     onChange={(e) => setAppDescription(e.target.value)}
                     disabled={saving}
                     placeholder="Breve descripción de la plataforma..."
                     rows={3}
-                    className="w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6] resize-none"
+                    className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a] resize-none"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50/50 p-8 border-t border-gray-100 flex justify-end">
+            <div className="bg-gray-50/50 dark:bg-[#232333]/50 p-8 border-t border-gray-100 dark:border-[#444564] flex justify-end">
               <button
                 onClick={handleSave}
                 disabled={saving}
