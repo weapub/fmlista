@@ -8,6 +8,19 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   build: {
     sourcemap: 'hidden',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('lucide-react')) return 'vendor-icons'
+            if (id.includes('@supabase/supabase-js')) return 'vendor-supabase'
+            if (id.includes('react-router-dom')) return 'vendor-router'
+            if (id.includes('react') || id.includes('react-dom')) return 'vendor-react'
+            return 'vendor'
+          }
+        }
+      }
+    }
   },
   plugins: [
     react({

@@ -69,7 +69,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       {heroImage ? (
         <>
           <div className="absolute inset-0">
-            <img src={heroImage} alt="Hero Background" className="w-full h-full object-cover" />
+            <img src={heroImage} alt="Hero Background" loading="lazy" className="w-full h-full object-cover" />
           </div>
           {/* Overlay to ensure text readability */}
           <div className="absolute inset-0 bg-black/50" />

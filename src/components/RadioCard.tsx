@@ -61,6 +61,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
             <img
               src={radio.logo_url}
               alt={radio.name}
+              loading="lazy"
               className="w-16 h-16 rounded-full object-cover"
               onError={() => setLogoError(true)}
             />
