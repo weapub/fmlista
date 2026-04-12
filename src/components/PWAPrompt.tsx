@@ -13,6 +13,13 @@ export const PWAPrompt: React.FC = () => {
   const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop');
   const { isTV } = useDeviceStore();
 
+  const isDismissed = () => {
+    const dismissedUntil = localStorage.getItem('pwa_prompt_dismissed_until');
+    if (!dismissedUntil) return false;
+    // Si la fecha actual es menor a la fecha de expiración, sigue oculto
+    return Date.now() < parseInt(dismissedUntil, 10);
+  };
+
   useEffect(() => {
     // Don't show on TV
     if (isTV) return;
@@ -23,6 +30,9 @@ export const PWAPrompt: React.FC = () => {
                          document.referrer.includes('android-app://');
 
     if (isStandalone) return;
+    
+    // Si el usuario lo cerró recientemente, no hacer nada
+    if (isDismissed()) return;
 
     // Detect Platform
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -32,10 +42,7 @@ export const PWAPrompt: React.FC = () => {
     if (isIOS) {
       setPlatform('ios');
       // Show prompt for iOS after a small delay
-      const hasSeenPrompt = localStorage.getItem('pwa_prompt_dismissed');
-      if (!hasSeenPrompt) {
-        setTimeout(() => setShowPrompt(true), 3000);
-      }
+      setTimeout(() => setShowPrompt(true), 3000);
     } else if (isAndroid) {
       setPlatform('android');
     } else {
@@ -46,11 +53,7 @@ export const PWAPrompt: React.FC = () => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
-      const hasSeenPrompt = localStorage.getItem('pwa_prompt_dismissed');
-      if (!hasSeenPrompt) {
-        setShowPrompt(true);
-      }
+      setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -74,11 +77,9 @@ export const PWAPrompt: React.FC = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Remember dismissal for 7 days
-    localStorage.setItem('pwa_prompt_dismissed', 'true');
-    setTimeout(() => {
-      localStorage.removeItem('pwa_prompt_dismissed');
-    }, 7 * 24 * 60 * 60 * 1000);
+    // Guardar timestamp de expiración (7 días desde ahora)
+    const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    localStorage.setItem('pwa_prompt_dismissed_until', expiry.toString());
   };
 
   if (!showPrompt) return null;
@@ -89,6 +90,7 @@ export const PWAPrompt: React.FC = () => {
         <button 
           onClick={handleDismiss}
           className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          aria-label="Cerrar aviso de instalación"
         >
           <X className="w-5 h-5" />
         </button>

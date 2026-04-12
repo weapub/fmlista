@@ -9,10 +9,13 @@ const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.L
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
+const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'));
+const AppSettings = React.lazy(() => import('@/pages/AppSettings'));
+const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#696cff]"></div>
   </div>
 );
 
@@ -35,6 +38,9 @@ export default function App() {
           <Route path="/admin/profile/:id" element={<ProfileEditor />} />
           <Route path="/admin/profile/new" element={<ProfileEditor />} />
           <Route path="/admin/schedule/:id" element={<ScheduleManager />} />
+          <Route path="/admin/settings" element={<AppSettings />} />
+          <Route path="/library" element={<UserLibrary />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>

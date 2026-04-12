@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Radio } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { Upload, Save, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info } from 'lucide-react';
+import { AdminLayout } from '@/components/AdminLayout';
 
 export default function ProfileEditor() {
   const { id } = useParams<{ id: string }>();
@@ -283,164 +284,102 @@ export default function ProfileEditor() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500"></div>
-      </div>
+      <AdminLayout title="Editor de Perfil" subtitle="Cargando datos...">
+        <div className="max-w-5xl mx-auto w-full animate-pulse">
+          <div className="bg-white rounded-xl h-[600px] p-8 space-y-8 shadow-sm border border-gray-100">
+            <div className="h-8 bg-slate-50 rounded-full w-48" />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="h-12 bg-slate-50 rounded-lg" />
+              <div className="h-12 bg-slate-50 rounded-lg" />
+            </div>
+            <div className="h-32 bg-slate-50 rounded-lg" />
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
+  const inputClasses = "w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]";
+  const labelClasses = "block text-sm font-semibold text-[#566a7f] mb-2";
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-primary-500">
-              {id === 'new' ? 'Create Radio Profile' : 'Edit Radio Profile'}
-            </h1>
-            <button
-              onClick={() => navigate('/admin')}
-              className="p-2 text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+    <AdminLayout 
+      title={id === 'new' ? 'Crear Emisora' : 'Editar Emisora'} 
+      subtitle={formData.name || 'Nueva Radio'}
+    >
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={() => navigate('/admin')}
+            className="flex items-center space-x-2 text-[#697a8d] hover:text-[#696cff] transition-colors font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Volver al Panel</span>
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Contact & Social Media */}
-            <div className="border-t border-gray-200 pt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Información de Contacto y Redes Sociales</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    WhatsApp (Número con código de país)
-                  </label>
-                  <input
-                    type="text"
-                    name="whatsapp"
-                    value={formData.whatsapp}
-                    onChange={handleInputChange}
-                    placeholder="Ej. 5491112345678"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dirección Física
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Av. Siempre Viva 123"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Facebook URL
-                  </label>
-                  <input
-                    type="url"
-                    name="social_facebook"
-                    value={formData.social_facebook}
-                    onChange={handleInputChange}
-                    placeholder="https://facebook.com/turadio"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Instagram URL
-                  </label>
-                  <input
-                    type="url"
-                    name="social_instagram"
-                    value={formData.social_instagram}
-                    onChange={handleInputChange}
-                    placeholder="https://instagram.com/turadio"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Twitter / X URL
-                  </label>
-                  <input
-                    type="url"
-                    name="social_twitter"
-                    value={formData.social_twitter}
-                    onChange={handleInputChange}
-                    placeholder="https://twitter.com/turadio"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-                  />
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Card: Información Básica */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+              <div className="p-2 bg-[#696cff]/10 rounded-lg">
+                <Info className="w-5 h-5 text-[#696cff]" />
               </div>
+              <h2 className="text-lg font-bold text-[#566a7f]">Información General</h2>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Station Name *
-                </label>
+            
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className={labelClasses}>Nombre de la Emisora *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="Ej. Radio Formosa"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Identificador URL (Slug)
-                </label>
-                <p className="text-xs text-gray-500 mb-1">
-                    Ejemplo: "la.docta" para fmlista.com.ar/la.docta (Solo letras, números, guiones y puntos)
-                </p>
+                <label className={labelClasses}>Identificador URL (Slug)</label>
                 <input
                   type="text"
                   name="slug"
                   value={formData.slug}
                   onChange={handleInputChange}
-                  placeholder="ej. la.docta"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="ej. radio.formosa"
+                  className={inputClasses}
                 />
+                <p className="text-[10px] text-[#a1acb8] mt-1 italic">
+                  Solo minúsculas, números, puntos y guiones.
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Frequency (FM) *
-                </label>
+                <label className={labelClasses}>Frecuencia *</label>
                 <input
                   type="text"
                   name="frequency"
                   value={formData.frequency}
                   onChange={handleInputChange}
                   required
-                  placeholder="Ej. 95.5"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="Ej. 95.5 FM"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category *
-                </label>
+                <label className={labelClasses}>Categoría *</label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  className={inputClasses}
                 >
-                  <option value="">Select a category</option>
+                  <option value="">Seleccionar categoría</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -448,159 +387,171 @@ export default function ProfileEditor() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location *
-                </label>
+                <label className={labelClasses}>Ubicación *</label>
                 <input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="Ej. Formosa Capital"
+                  className={inputClasses}
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <label className={labelClasses}>Descripción</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="Breve historia o eslogan de la radio..."
+                  className={`${inputClasses} resize-none`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Streaming */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+              <div className="p-2 bg-[#03c3ec]/10 rounded-lg">
+                <Globe className="w-5 h-5 text-[#03c3ec]" />
+              </div>
+              <h2 className="text-lg font-bold text-[#566a7f]">Transmisión</h2>
+            </div>
+            <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Stream URL *
-                </label>
+                <label className={labelClasses}>URL de Streaming (Audio) *</label>
                 <input
                   type="url"
                   name="stream_url"
                   value={formData.stream_url}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="https://servidor.com/stream"
+                  className={inputClasses}
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Video Stream URL (Optional)
-                </label>
+                <label className={labelClasses}>URL de Video (Opcional)</label>
                 <input
                   type="url"
                   name="video_stream_url"
                   value={formData.video_stream_url}
                   onChange={handleInputChange}
-                  placeholder="Ej. https://www.youtube.com/watch?v=..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="https://youtube.com/live/..."
+                  className={inputClasses}
                 />
               </div>
-
-              {/* Campos extra removidos para alinearse al esquema */}
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
-              />
+          {/* Card: Redes Sociales */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+              <div className="p-2 bg-[#71dd37]/10 rounded-lg">
+                <Share2 className="w-5 h-5 text-[#71dd37]" />
+              </div>
+              <h2 className="text-lg font-bold text-[#566a7f]">Contacto y Redes</h2>
             </div>
-
-            {/* Campos de redes sociales removidos para alinearse al esquema */}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Logo Image
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <label className={labelClasses}>WhatsApp</label>
+                <div className="relative">
+                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8]" />
+                  <input
+                    type="text"
+                    name="whatsapp"
+                    value={formData.whatsapp}
+                    onChange={handleInputChange}
+                    placeholder="543704..."
+                    className={`${inputClasses} pl-10`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={labelClasses}>Dirección</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Calle y número"
+                  className={inputClasses}
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>Facebook URL</label>
+                <input
+                  type="url"
+                  name="social_facebook"
+                  value={formData.social_facebook}
+                  onChange={handleInputChange}
+                  className={inputClasses}
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>Instagram URL</label>
+                <input
+                  type="url"
+                  name="social_instagram"
+                  value={formData.social_instagram}
+                  onChange={handleInputChange}
+                  className={inputClasses}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Imágenes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <label className={labelClasses}>Logo de la Emisora</label>
+              <div className="mt-2 flex flex-col items-center p-6 border-2 border-dashed border-[#d9dee3] rounded-xl hover:border-[#696cff] transition-colors group cursor-pointer" onClick={() => handleImageUpload('logo')}>
                   {formData.logo_url ? (
-                    <div className="space-y-2">
-                      <img
-                        src={formData.logo_url}
-                        alt="Logo"
-                        className="w-24 h-24 object-cover rounded-lg mx-auto"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload('logo')}
-                        className="text-sm text-secondary-600 hover:text-secondary-700"
-                      >
-                        Change Logo
-                      </button>
-                    </div>
+                    <img src={formData.logo_url} alt="Logo" className="w-24 h-24 object-contain rounded-lg shadow-sm" />
                   ) : (
-                    <div className="space-y-2">
-                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto" />
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload('logo')}
-                        className="flex items-center justify-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 mx-auto"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Upload Logo</span>
-                      </button>
-                    </div>
+                    <ImageIcon className="w-12 h-12 text-[#a1acb8] group-hover:text-[#696cff]" />
                   )}
-                </div>
+                <span className="mt-3 text-xs font-bold text-[#696cff] uppercase">Cambiar Logo</span>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cover Image
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <label className={labelClasses}>Imagen de Portada</label>
+              <div className="mt-2 flex flex-col items-center p-6 border-2 border-dashed border-[#d9dee3] rounded-xl hover:border-[#696cff] transition-colors group cursor-pointer" onClick={() => handleImageUpload('cover')}>
                   {formData.cover_url ? (
-                    <div className="space-y-2">
-                      <img
-                        src={formData.cover_url}
-                        alt="Cover"
-                        className="w-32 h-20 object-cover rounded-lg mx-auto"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload('cover')}
-                        className="text-sm text-secondary-600 hover:text-secondary-700"
-                      >
-                        Change Cover
-                      </button>
-                    </div>
+                    <img src={formData.cover_url} alt="Portada" className="w-full h-24 object-cover rounded-lg shadow-sm" />
                   ) : (
-                    <div className="space-y-2">
-                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto" />
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload('cover')}
-                        className="flex items-center justify-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 mx-auto"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Upload Cover</span>
-                      </button>
-                    </div>
+                    <ImageIcon className="w-12 h-12 text-[#a1acb8] group-hover:text-[#696cff]" />
                   )}
-                </div>
+                <span className="mt-3 text-xs font-bold text-[#696cff] uppercase">Cambiar Portada</span>
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => navigate('/admin')}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center space-x-2 px-6 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-              </button>
-            </div>
-          </form>
-        </div>
+          {/* Barra de Acciones Fija Inferior o al final */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="px-6 py-2.5 border border-[#d9dee3] text-[#697a8d] rounded-lg hover:bg-gray-50 transition-all font-semibold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center space-x-2 px-8 py-2.5 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20 disabled:opacity-50 transition-all transform active:scale-95 font-bold"
+            >
+              <Save className="w-4 h-4" />
+              <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
+            </button>
+          </div>
+        </form>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ScheduleItem } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { Plus, Edit, Trash2, Clock, Calendar, X, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, Calendar, X, Save, ArrowLeft } from 'lucide-react';
+import { AdminLayout } from '@/components/AdminLayout';
 
 export default function ScheduleManager() {
   const { id } = useParams<{ id: string }>();
@@ -227,46 +228,61 @@ export default function ScheduleManager() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500"></div>
-      </div>
+      <AdminLayout title="Configuración de Programación" subtitle="Cargando horarios...">
+        <div className="max-w-6xl mx-auto w-full animate-pulse">
+          <div className="bg-white rounded-xl h-[400px] p-8 space-y-8 shadow-sm border border-gray-100">
+            <div className="h-8 bg-slate-50 rounded-full w-48" />
+            <div className="space-y-4">
+              <div className="h-12 bg-slate-50 rounded-lg w-full" />
+              <div className="h-12 bg-slate-50 rounded-lg w-full" />
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-primary-500">Configuración de Programación</h1>
-            <button
-              onClick={() => navigate('/admin')}
-              className="p-2 text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+  const inputClasses = "w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]";
+  const labelClasses = "block text-sm font-semibold text-[#566a7f] mb-1";
 
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">Programación</h2>
+  return (
+    <AdminLayout 
+      title="Gestión de Programación" 
+      subtitle="Horarios y programas de la emisora"
+    >
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={() => navigate('/admin')}
+            className="flex items-center space-x-2 text-[#697a8d] hover:text-[#696cff] transition-colors font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Volver al Panel</span>
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-[#566a7f]">Programas Registrados</h2>
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600"
+              className="flex items-center space-x-2 px-4 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] shadow-sm shadow-[#696cff]/20 transition-all font-bold text-sm"
             >
               <Plus className="w-4 h-4" />
-              <span>Agregar</span>
+              <span>Nuevo Programa</span>
             </button>
           </div>
 
           {showForm && (
-            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-              <h3 className="text-lg font-semibold mb-4">
-                {editingItem ? 'Edit Program' : 'Agregar nuevo programa'}
+            <div className="m-6 p-6 border border-[#d9dee3] rounded-xl bg-[#f5f5f9]/30">
+              <h3 className="text-lg font-bold text-[#566a7f] mb-6 flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-[#696cff]" />
+                {editingItem ? 'Editar Programa' : 'Agregar nuevo programa'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={labelClasses}>
                       Nombre del programa *
                     </label>
                     <input
@@ -275,147 +291,148 @@ export default function ScheduleManager() {
                       value={formData.program_name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                      placeholder="Ej. La Mañana de la Radio"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Días de la semana *</label>
+                    <label className={labelClasses}>Días de la semana *</label>
                     <div className="flex flex-wrap gap-2">
                       {daysOfWeek.map((day) => (
                         <button
                           key={day}
                           type="button"
                           onClick={() => handleDayChange(day)}
-                          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                             formData.days_of_week.includes(day)
-                              ? 'bg-secondary-500 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-[#696cff] text-white shadow-sm shadow-[#696cff]/20'
+                              : 'bg-white text-[#697a8d] border border-[#d9dee3] hover:bg-gray-50'
                           }`}
                         >
                           {day.substring(0, 3)}
                         </button>
                       ))}
                     </div>
-                    {formData.days_of_week.length === 0 && (
-                      <p className="text-xs text-red-500 mt-1">Selecciona al menos un día</p>
-                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Hora de Inicio *</label>
+                    <label className={labelClasses}>Hora de Inicio *</label>
                     <input
                       type="time"
                       name="start_time"
                       value={formData.start_time}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Hora de Cierre *</label>
+                    <label className={labelClasses}>Hora de Cierre *</label>
                     <input
                       type="time"
                       name="end_time"
                       value={formData.end_time}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                      className={inputClasses}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className={labelClasses}>
                     Descripción
                   </label>
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                    rows={2}
+                    placeholder="Breve descripción del programa..."
+                    className={`${inputClasses} resize-none`}
                   />
                 </div>
 
-                <div className="flex items-center">
-                  {/* Campo de recurrencia eliminado para ajustarse al modelo de datos */}
-                </div>
-
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end space-x-3 pt-2">
                   <button
                     type="button"
                     onClick={cancelForm}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 text-[#697a8d] hover:bg-gray-100 rounded-lg transition-colors font-semibold text-sm"
                   >
-                    Cancel
+                    Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex items-center space-x-2 px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 disabled:opacity-50"
+                    className="flex items-center space-x-2 px-6 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20 disabled:opacity-50 transition-all font-bold text-sm"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>{saving ? 'Saving...' : (editingItem ? 'Actualizar' : 'Guardar')}</span>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>{saving ? 'Guardando...' : (editingItem ? 'Actualizar' : 'Guardar')}</span>
                   </button>
                 </div>
               </form>
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
             {daysOfWeek.map((day) => {
               const daySchedule = groupScheduleByDay()[day] || [];
               return (
-                <div key={day} className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                    <Calendar className="w-5 h-5 mr-2" />
+                <div key={day} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                  <h3 className="text-sm font-bold text-[#566a7f] bg-gray-50/50 px-4 py-3 border-b border-gray-100 flex items-center uppercase tracking-wider">
+                    <Calendar className="w-4 h-4 mr-2 text-[#696cff]" />
                     {day}
                   </h3>
-                  {daySchedule.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Sin programas</p>
-                  ) : (
-                    <div className="space-y-2">
+                  <div className="p-4 flex-1">
+                    {daySchedule.length === 0 ? (
+                      <p className="text-[#a1acb8] text-sm italic py-2">Sin programas asignados</p>
+                    ) : (
+                      <div className="space-y-3">
                       {daySchedule.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                          <div className="flex items-center space-x-4">
-                            <Clock className="w-4 h-4 text-gray-500" />
+                        <div key={item.id} className="group flex items-center justify-between p-3 bg-[#f5f5f9]/50 rounded-lg border border-transparent hover:border-[#696cff]/30 transition-all">
+                          <div className="flex items-start space-x-3">
+                            <div className="mt-1 bg-white p-1.5 rounded-md shadow-sm">
+                              <Clock className="w-3.5 h-3.5 text-[#696cff]" />
+                            </div>
                             <div>
-                              <div className="font-medium text-gray-900">
+                              <div className="text-xs font-bold text-[#696cff] mb-0.5">
                                 {formatTime(item.start_time)} - {formatTime(item.end_time)}
                               </div>
-                              <div className="text-sm text-gray-600">{item.program_name}</div>
+                              <div className="text-sm font-bold text-[#566a7f] leading-tight">{item.program_name}</div>
                               {item.description && (
-                                <div className="text-xs text-gray-500">{item.description}</div>
+                                <div className="text-[11px] text-[#a1acb8] mt-1 line-clamp-1">{item.description}</div>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleEdit(item)}
-                              className="p-1 text-gray-500 hover:text-secondary-600"
+                              className="p-1.5 text-[#697a8d] hover:text-[#696cff] hover:bg-white rounded-md transition-all"
+                              title="Editar"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="p-1 text-gray-500 hover:text-red-600"
+                              className="p-1.5 text-[#697a8d] hover:text-[#ff3e1d] hover:bg-white rounded-md transition-all"
+                              title="Eliminar"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
                       ))}
                     </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
