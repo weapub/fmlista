@@ -40,29 +40,54 @@ export const Footer: React.FC<{ className?: string }> = ({ className }) => {
   }, []);
 
   return (
-    <footer className={`bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto transition-colors ${className || ''}`}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <Link to="/" className="flex items-center space-x-2 mb-2">
-              <img src={appLogo} alt="Logo" className="w-10 h-10 object-contain" />
-              {appTitle && <span className="text-lg font-bold text-primary-500 dark:text-white">{appTitle}</span>}
+    <footer className={`bg-slate-950 text-slate-100 border-t border-slate-800 mt-auto transition-colors ${className || ''}`}>
+      <div className="container mx-auto px-4 py-10">
+        <div className="grid gap-10 md:grid-cols-[1.8fr_1fr] lg:grid-cols-[2.2fr_1fr]">
+          <div className="space-y-4">
+            <Link to="/" className="flex items-center gap-3">
+              <img src={appLogo} alt="Logo" className="w-11 h-11 object-contain" />
+              {appTitle && <span className="text-xl font-semibold text-white">{appTitle}</span>}
             </Link>
-            <p className="text-gray-500 dark:text-gray-400 text-sm text-center md:text-left max-w-xs">
-              {appDescription}
-            </p>
+            <p className="max-w-2xl text-sm text-slate-400">{appDescription}</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Servicio</p>
+                <p className="mt-2 text-sm text-white">Radios locales, categorías y streaming en vivo.</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Diseño</p>
+                <p className="mt-2 text-sm text-white">Interfaz moderna, responsive y accesible.</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Soporte</p>
+                <p className="mt-2 text-sm text-white">Escucha tu emisora favorita sin interrupciones.</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="flex flex-col items-center md:items-end">
-             <div className="flex items-center space-x-2 mb-2 md:mb-0">
-               {footerLogo && (
-                 <img src={footerLogo} alt="Footer Logo" className="w-12 h-12 object-contain" />
-               )}
-               <div className="text-sm text-gray-400 dark:text-gray-500">
-                 &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
-               </div>
-             </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Enlaces rápidos</h3>
+              <ul className="mt-4 space-y-3 text-sm text-slate-300">
+                <li><Link to="/" className="transition hover:text-white">Inicio</Link></li>
+                <li><Link to="/login" className="transition hover:text-white">Ingresar</Link></li>
+                <li><Link to="/planes" className="transition hover:text-white">Planes</Link></li>
+                <li><Link to="/admin" className="transition hover:text-white">Panel</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Contacto</h3>
+              <div className="mt-4 space-y-3 text-sm text-slate-300">
+                <p>Formosa, Argentina</p>
+                <p>info@fmlista.com</p>
+                <p>Tel: +54 371 123 4567</p>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div className="mt-10 border-t border-slate-800 pt-6 text-center text-sm text-slate-500">
+          &copy; {new Date().getFullYear()} {appTitle}. Todos los derechos reservados.
         </div>
       </div>
     </footer>
