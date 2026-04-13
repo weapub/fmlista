@@ -643,13 +643,61 @@ export const PlansPage: React.FC = () => {
           </div>
         </div>
         <div className="mt-8 flex justify-center gap-4">
-          <img src="https://logotipous.com/wp-content/uploads/2019/02/mercado-pago-logo.png" alt="Mercado Pago" className="h-8 object-contain dark:brightness-200" />
+          <img src="https://www.mercadopago.com/org-img/MP3/home/logomp3.gif" alt="Mercado Pago" className="h-8 object-contain dark:brightness-200" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 80%22%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2224%22 fill=%22%23009EDF%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EMercado Pago%3C/text%3E%3C/svg%3E'" />
         </div>
       </div>
 
       {renderTestimonialsSection()}
       
       {renderFAQ()}
+
+      {/* AFIP Data Fiscal Section */}
+      <div className="bg-gradient-to-br from-[#f5f5f9] to-[#e8e8f0] dark:from-[#232333] dark:to-[#1a1b2e] py-16 border-t border-gray-100 dark:border-[#444564] mb-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-2">Datos Fiscales - AFIP</h3>
+            <p className="text-[#a1acb8] dark:text-[#7e7e9a]">Información tributaria de FM Lista</p>
+          </div>
+
+          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-8 md:p-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex-1">
+                <h4 className="text-lg font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Consultar Datos Fiscales</h4>
+                <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-6">
+                  Podés verificar nuestros datos fiscales registrados ante AFIP escaneando el código QR o haciendo click en el botón. 
+                </p>
+                <a 
+                  href="http://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,," 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#696cff] text-white px-6 py-3 rounded-lg hover:bg-[#5f61e6] transition-colors font-bold"
+                >
+                  Ver Datos Fiscales AFIP
+                </a>
+              </div>
+
+              <div className="flex-shrink-0 bg-white p-4 rounded-lg border border-gray-100 dark:border-[#444564]">
+                <a 
+                  href="http://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,," 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Datos Fiscales - AFIP"
+                >
+                  <img 
+                    src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg" 
+                    alt="Datos Fiscales AFIP" 
+                    className="w-32 h-32 object-cover hover:scale-105 transition-transform cursor-pointer"
+                  />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-[#a1acb8] dark:text-[#7e7e9a] mt-8">
+            Código de Verificación AFIP - Consultas v2.0
+          </p>
+        </div>
+      </div>
 
       {/* Proactive WhatsApp Help Button */}
       {showWhatsApp && (
