@@ -219,17 +219,18 @@ export const PlansPage: React.FC = () => {
     const micrositePlans = plans.filter(p => p.type === 'microsite');
     if (micrositePlans.length === 0) return null;
 
+    // Actualizado para reflejar los nuevos tiers de Micrositios
     const comparisonFeatures = [
       { name: 'Personalización de colores', basic: true, pro: true, full: true },
       { name: 'Banner de cabecera propio', basic: true, pro: true, full: true },
       { name: 'Redes sociales destacadas', basic: true, pro: true, full: true },
       { name: 'Galería de fotos', basic: 'No', pro: 'Hasta 20', full: 'Ilimitada' },
-      { name: 'Programación semanal', basic: false, pro: true, full: true },
-      { name: 'Botón de WhatsApp flotante', basic: false, pro: true, full: true },
+      { name: 'Programación semanal', basic: 'No', pro: true, full: true },
+      { name: 'Botón de WhatsApp flotante', basic: 'No', pro: true, full: true },
       { name: 'Soporte técnico', basic: 'Email', pro: 'Prioritario', full: '24/7 VIP' },
-      { name: 'Blog de noticias', basic: false, pro: false, full: true },
-      { name: 'Integración chat en vivo', basic: false, pro: false, full: true },
-      { name: 'Analytics de visitas', basic: false, pro: false, full: true },
+      { name: 'Blog de noticias', basic: 'No', pro: 'No', full: true },
+      { name: 'Integración chat en vivo', basic: 'No', pro: 'No', full: true },
+      { name: 'Analytics de visitas', basic: 'No', pro: 'No', full: true },
       { name: 'Dominio .com.ar', basic: false, pro: false, full: true },
     ];
 
@@ -616,6 +617,10 @@ export const PlansPage: React.FC = () => {
                 "microsite",
                 "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
               )}
+
+              {renderFeatureComparator()}
+
+              {renderGuaranteeSection()}
             </>
           )}
         </div>
@@ -641,10 +646,6 @@ export const PlansPage: React.FC = () => {
           <img src="https://logotipous.com/wp-content/uploads/2019/02/mercado-pago-logo.png" alt="Mercado Pago" className="h-8 object-contain dark:brightness-200" />
         </div>
       </div>
-
-      {renderFeatureComparator()}
-      
-      {renderGuaranteeSection()}
 
       {renderTestimonialsSection()}
       
