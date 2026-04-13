@@ -7,6 +7,7 @@ const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ default: m.PlansPage })));
 const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
+const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
 const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'));
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/planes" element={<AdminPlans />} />
           <Route path="/admin/profile/:id" element={<ProfileEditor />} />
           <Route path="/admin/profile/new" element={<ProfileEditor />} />
           <Route path="/admin/schedule/:id" element={<ScheduleManager />} />

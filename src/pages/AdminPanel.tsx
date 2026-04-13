@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, Tag } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -200,13 +200,22 @@ const AdminPanel: React.FC = () => {
             <h2 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Mis Emisoras</h2>
             <div className="flex flex-wrap gap-3">
               {user?.role === 'super_admin' && (
-                <button
-                  onClick={() => navigate('/admin/settings')}
-                  className="bg-[#697a8d]/10 text-[#697a8d] dark:text-[#a3a4cc] px-4 py-2 rounded-lg hover:bg-[#697a8d]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>Configuración Global</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate('/admin/planes')}
+                    className="bg-[#03c3ec]/10 text-[#03c3ec] px-4 py-2 rounded-lg hover:bg-[#03c3ec]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+                  >
+                    <Tag className="w-4 h-4" />
+                    <span>Gestionar Planes</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/admin/settings')}
+                    className="bg-[#697a8d]/10 text-[#697a8d] dark:text-[#a3a4cc] px-4 py-2 rounded-lg hover:bg-[#697a8d]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Configuración Global</span>
+                  </button>
+                </>
               )}
               <button
                 onClick={() => navigate('/admin/profile/new')}
