@@ -64,7 +64,7 @@ serve(async (req) => {
           email: user.email,
         },
         back_urls: {
-          success: `${req.headers.get('origin')}/admin?status=payment_success`,
+          success: `${req.headers.get('origin')}/planes?status=payment_success`,
           failure: `${req.headers.get('origin')}/planes?status=payment_error`,
           pending: `${req.headers.get('origin')}/admin?status=payment_pending`,
         },

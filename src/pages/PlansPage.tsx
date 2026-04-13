@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Plan } from '@/types/database';
-import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle, Calendar, Layout, Megaphone, Radio } from 'lucide-react';
+import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle, Calendar, Layout, Megaphone, Radio, Star, Quote, MessageCircle } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useRadioStore } from '@/stores/radioStore';
@@ -46,9 +46,12 @@ export const PlansPage: React.FC = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorNotification, setErrorNotification] = useState<string | null>(null);
+  const [successNotification, setSuccessNotification] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [activeTab, setActiveTab] = useState('streaming');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const plansSectionRef = useRef<HTMLDivElement>(null);
   const { currentRadio } = useRadioStore();
 
   useEffect(() => {
@@ -56,6 +59,25 @@ export const PlansPage: React.FC = () => {
     if (status === 'payment_error') {
       setErrorNotification('Hubo un problema al procesar tu pago. Por favor, intenta nuevamente o contacta a nuestro equipo de soporte.');
       // Limpiar URL
+      searchParams.delete('status');
+      setSearchParams(searchParams, { replace: true });
+    }
+
+    if (status === 'payment_success') {
+      setSuccessNotification('¡Gracias por tu suscripción! Tu pago ha sido procesado con éxito y tu servicio se activará en breve.');
+      
+      // Efecto de Confeti (Carga dinámica para optimizar rendimiento)
+      // @ts-ignore
+      import('canvas-confetti').then((confetti) => {
+        confetti.default({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#696cff', '#71dd37', '#03c3ec', '#ffab00'],
+          zIndex: 1000
+        });
+      }).catch(err => console.error('Error al cargar confeti:', err));
+
       searchParams.delete('status');
       setSearchParams(searchParams, { replace: true });
     }
@@ -75,6 +97,19 @@ export const PlansPage: React.FC = () => {
 
     fetchPlans();
   }, []);
+
+  useEffect(() => {
+    // Mostrar el botón de ayuda proactiva después de 30 segundos
+    const timer = setTimeout(() => setShowWhatsApp(true), 30000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (plansSectionRef.current) {
+      plansSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const handleSubscribe = async (plan: Plan) => {
     setProcessingId(plan.id);
@@ -273,6 +308,78 @@ export const PlansPage: React.FC = () => {
     );
   };
 
+  const renderGuaranteeSection = () => {
+    return (
+      <div className="mt-16 max-w-5xl mx-auto px-4">
+        <div className="bg-white dark:bg-[#2b2c40] rounded-2xl p-8 md:p-10 border border-emerald-100 dark:border-emerald-900/20 shadow-sm relative overflow-hidden transition-colors">
+          <div className="absolute -right-8 -bottom-8 opacity-5">
+            <ShieldCheck className="w-48 h-48 text-emerald-500" />
+          </div>
+          <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+            <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/30">
+              <ShieldCheck className="w-10 h-10 text-emerald-500" />
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl font-black text-[#566a7f] dark:text-[#cbcbe2] mb-3 uppercase tracking-tighter italic">Garantía de Satisfacción</h3>
+              <p className="text-[#697a8d] dark:text-[#a3a4cc] leading-relaxed max-w-2xl">
+                Probá nuestro servicio sin riesgos. Si durante los primeros <strong>7 días</strong> considerás que la plataforma no es lo que buscabas, te devolvemos el <strong>100% de tu dinero</strong>. Sin preguntas, sin demoras.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTestimonialsSection = () => {
+    const testimonials = [
+      {
+        name: "Juan Pérez",
+        radio: "Director de Radio Formosa",
+        text: "Desde que nos unimos a FM Lista, nuestra audiencia online creció un 40%. El micrositio es profesional y muy fácil de usar.",
+        stars: 5
+      },
+      {
+        name: "María García",
+        radio: "Propietaria de La Voz FM",
+        text: "La calidad del streaming es excelente. El soporte técnico siempre responde al toque, algo vital para nosotros.",
+        stars: 5
+      },
+      {
+        name: "Roberto Martínez",
+        radio: "Gerente de Radio Mix",
+        text: "Contratamos el plan de publicidad y los resultados fueron inmediatos. Altamente recomendado para cualquier comercio local.",
+        stars: 5
+      }
+    ];
+
+    return (
+      <div className="mt-24 max-w-6xl mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Lo que dicen nuestros clientes</h2>
+          <p className="text-[#a1acb8] dark:text-[#7e7e9a] max-w-2xl mx-auto">
+            Radios líderes de toda la provincia confían en nosotros para su presencia digital.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((t, idx) => (
+            <div key={idx} className="bg-white dark:bg-[#2b2c40] p-8 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm hover:shadow-md transition-all relative">
+              <Quote className="absolute top-6 right-8 w-8 h-8 text-[#696cff]/10" />
+              <div className="flex gap-1 mb-4">
+                {[...Array(t.stars)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
+              </div>
+              <p className="text-[#697a8d] dark:text-[#a3a4cc] italic mb-6 leading-relaxed">"{t.text}"</p>
+              <div>
+                <h4 className="font-bold text-[#566a7f] dark:text-[#cbcbe2]">{t.name}</h4>
+                <p className="text-sm text-[#a1acb8] dark:text-[#7e7e9a]">{t.radio}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderFAQ = () => {
     const faqs = [
       {
@@ -402,7 +509,7 @@ export const PlansPage: React.FC = () => {
           </div>
 
           {/* Tabs Navigation */}
-          <div className="mt-12 flex flex-wrap justify-center gap-3">
+          <div className="mt-12 flex flex-wrap justify-center gap-3" role="tablist">
             {[
               { id: 'streaming', label: 'Streaming', icon: Radio },
               { id: 'microsite', label: 'Micrositios', icon: Layout },
@@ -410,7 +517,11 @@ export const PlansPage: React.FC = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                id={`tab-${tab.id}`}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
+                onClick={() => handleTabChange(tab.id)}
                 className={cn(
                   "flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black transition-all duration-300 shadow-sm uppercase text-xs tracking-widest outline-none",
                   activeTab === tab.id
@@ -426,7 +537,23 @@ export const PlansPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="py-16 max-w-6xl mx-auto px-4">
+      <div ref={plansSectionRef} className="py-16 max-w-6xl mx-auto px-4">
+        {/* Success Notification */}
+        {successNotification && (
+          <div className="mb-12 p-5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4 text-emerald-800 dark:text-emerald-400 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-800/30 rounded-lg">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-bold flex-1">{successNotification}</p>
+            <button 
+              onClick={() => setSuccessNotification(null)}
+              className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-800/30 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {/* Error Notification de Mercado Pago */}
         {errorNotification && (
           <div className="mb-12 p-5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-xl flex items-center gap-4 text-red-800 dark:text-red-400 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -443,33 +570,39 @@ export const PlansPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'streaming' && renderPlanSection(
-          "Streaming de Audio y Video",
-          "streaming",
-          "Alta calidad, estabilidad garantizada y soporte técnico especializado para tu emisora."
-        )}
-        
-        {activeTab === 'ads' && renderPlanSection(
-          "Soluciones Publicitarias",
-          "ads",
-          "Destaca tu marca o radio en nuestra plataforma y llega a miles de oyentes diarios."
-        )}
+        <div id="panel-streaming" role="tabpanel" aria-labelledby="tab-streaming">
+          {activeTab === 'streaming' && renderPlanSection(
+            "Streaming de Audio y Video",
+            "streaming",
+            "Alta calidad, estabilidad garantizada y soporte técnico especializado para tu emisora."
+          )}
+        </div>
 
-        {activeTab === 'microsite' && (
-          <>
-            {renderPlanSection(
-              "Servicios Premium para Radios",
-              "premium_feature",
-              "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
-            )}
+        <div id="panel-ads" role="tabpanel" aria-labelledby="tab-ads">
+          {activeTab === 'ads' && renderPlanSection(
+            "Soluciones Publicitarias",
+            "ads",
+            "Destaca tu marca o radio en nuestra plataforma y llega a miles de oyentes diarios."
+          )}
+        </div>
 
-            {renderPlanSection(
-              "Mejora tu Micrositio",
-              "microsite",
-              "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
-            )}
-          </>
-        )}
+        <div id="panel-microsite" role="tabpanel" aria-labelledby="tab-microsite">
+          {activeTab === 'microsite' && (
+            <>
+              {renderPlanSection(
+                "Servicios Premium para Radios",
+                "premium_feature",
+                "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
+              )}
+
+              {renderPlanSection(
+                "Mejora tu Micrositio",
+                "microsite",
+                "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Trust Section - Startup Style */}
@@ -495,7 +628,31 @@ export const PlansPage: React.FC = () => {
 
       {renderFeatureComparator()}
       
+      {renderGuaranteeSection()}
+
+      {renderTestimonialsSection()}
+      
       {renderFAQ()}
+
+      {/* Proactive WhatsApp Help Button */}
+      {showWhatsApp && (
+        <div className={cn(
+          "fixed right-8 z-50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-10",
+          currentRadio ? "bottom-28" : "bottom-8"
+        )}>
+          <button
+            onClick={() => window.open('https://wa.me/543704602028?text=Hola, estoy viendo los planes y tengo una duda sobre el servicio.', '_blank')}
+            className="bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all group relative"
+          >
+            <div className="absolute -top-14 right-0 bg-white dark:bg-[#2b2c40] text-[#566a7f] dark:text-[#cbcbe2] text-xs font-bold py-2.5 px-4 rounded-xl shadow-xl whitespace-nowrap border border-gray-100 dark:border-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              ¿Necesitas ayuda con los planes? 👋
+              <div className="absolute -bottom-1.5 right-5 w-3 h-3 bg-white dark:bg-[#2b2c40] rotate-45 border-r border-b border-gray-100 dark:border-transparent" />
+            </div>
+            <MessageCircle className="w-7 h-7 fill-current" />
+            <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-[#232333] rounded-full animate-pulse" />
+          </button>
+        </div>
+      )}
 
       <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
       <AudioPlayer />
