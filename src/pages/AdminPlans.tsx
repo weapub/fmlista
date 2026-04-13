@@ -260,7 +260,9 @@ export default function AdminPlans() {
 
         {/* Form Modal */}
         {showForm && (
-          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-lg border border-gray-100 dark:border-transparent p-8">
+          <>
+            <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-40" onClick={() => setShowForm(false)} />
+            <div className="relative z-50 bg-white dark:bg-[#2b2c40] rounded-xl shadow-2xl border border-gray-100 dark:border-[#444564] p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">
                 {editingPlan ? 'Editar Plan' : 'Crear Nuevo Plan'}
@@ -283,7 +285,7 @@ export default function AdminPlans() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                     placeholder="Ej: Streaming Pro"
                   />
                 </div>
@@ -295,7 +297,7 @@ export default function AdminPlans() {
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                   >
                     <option value="streaming">Streaming</option>
                     <option value="ads">Publicidad</option>
@@ -313,7 +315,7 @@ export default function AdminPlans() {
                     min="0"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                     placeholder="5000"
                   />
                 </div>
@@ -325,7 +327,7 @@ export default function AdminPlans() {
                   <select
                     value={formData.interval}
                     onChange={(e) => setFormData(prev => ({ ...prev, interval: e.target.value as any }))}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                   >
                     <option value="monthly">Mensual</option>
                     <option value="yearly">Anual</option>
@@ -340,7 +342,7 @@ export default function AdminPlans() {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                   rows={3}
                   placeholder="Describe brevemente este plan..."
                 />
@@ -352,62 +354,70 @@ export default function AdminPlans() {
                 </label>
                 <div className="space-y-3">
                   {formData.features.length > 0 && (
-                    <div className="space-y-2 mb-4 p-4 bg-gray-50 dark:bg-[#1a1b2e] rounded-lg border border-gray-200 dark:border-[#444564]">
+                    <div className="space-y-4 mb-4 p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#1a1b2e] dark:to-[#0d0e18] rounded-lg border border-gray-200 dark:border-[#444564]">
                       {/* Características incluidas */}
-                      <div>
-                        {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).length > 0 && (
-                          <>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2 uppercase">Incluidas</p>
-                            <div className="space-y-2 mb-4">
-                              {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).map((feature, idx) => {
-                                const actualIdx = formData.features.indexOf(feature);
-                                return (
-                                  <div key={actualIdx} className="flex items-center gap-2">
-                                    <div className="flex-1 px-4 py-2 border border-emerald-200 dark:border-emerald-800/30 rounded-lg dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 text-sm">
-                                      ✓ {feature}
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveFeature(actualIdx)}
-                                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 transition-colors"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
+                      {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Incluidas</p>
+                          </div>
+                          <div className="space-y-2">
+                            {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).map((feature, idx) => {
+                              const actualIdx = formData.features.indexOf(feature);
+                              return (
+                                <div key={actualIdx} className="flex items-center gap-2">
+                                  <div className="flex-1 px-4 py-2.5 border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/15 rounded-lg text-emerald-700 dark:text-emerald-400 text-sm font-medium">
+                                    <span className="text-emerald-500 mr-2">✓</span>{feature}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </>
-                        )}
-                      </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveFeature(actualIdx)}
+                                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 dark:text-red-400 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Separador si hay ambas */}
+                      {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).length > 0 && 
+                       formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).length > 0 && (
+                        <div className="h-px bg-gray-300 dark:bg-[#444564]"></div>
+                      )}
 
                       {/* Características no incluidas */}
-                      <div>
-                        {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).length > 0 && (
-                          <>
-                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase">No Incluidas</p>
-                            <div className="space-y-2">
-                              {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).map((feature, idx) => {
-                                const actualIdx = formData.features.indexOf(feature);
-                                return (
-                                  <div key={actualIdx} className="flex items-center gap-2">
-                                    <div className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#0a0a12] text-gray-500 dark:text-gray-400 text-sm line-through opacity-60">
-                                      {feature}
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveFeature(actualIdx)}
-                                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 transition-colors"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
+                      {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                            <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">No Incluidas</p>
+                          </div>
+                          <div className="space-y-2">
+                            {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).map((feature, idx) => {
+                              const actualIdx = formData.features.indexOf(feature);
+                              return (
+                                <div key={actualIdx} className="flex items-center gap-2">
+                                  <div className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-[#444564] bg-gray-50/50 dark:bg-[#0a0a12] rounded-lg text-gray-600 dark:text-gray-400 text-sm font-medium line-through opacity-70">
+                                    {feature}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </>
-                        )}
-                      </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveFeature(actualIdx)}
+                                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 dark:text-red-400 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="flex gap-2">
@@ -416,7 +426,7 @@ export default function AdminPlans() {
                       value={newFeature}
                       onChange={(e) => setNewFeature(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddFeature())}
-                      className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
+                      className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent dark:focus:ring-[#696cff]"
                       placeholder="Agregar característica... (usa '–' al inicio para NO incluidas)"
                     />
                     <button
@@ -427,31 +437,31 @@ export default function AdminPlans() {
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800/30">
-                    💡 <strong>Tip:</strong> Escribe características normales para "Incluidas" o comienza con "<strong>–</strong>" para características "No Incluidas" que se mostrarán tachadas.
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mt-3 p-3.5 bg-blue-50 dark:bg-blue-900/15 rounded-lg border border-blue-200 dark:border-blue-800/30 leading-relaxed">
+                    <strong>💡 Tip de características:</strong> Escribe características normales para la sección "Incluidas", o comienza con "<strong>–</strong>" para las "No Incluidas" que se mostrarán con tachado.
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-6 bg-gray-50 dark:bg-[#1a1b2e] p-4 rounded-lg border border-gray-200 dark:border-[#444564]">
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.active}
                     onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300 dark:border-[#444564] text-[#696cff] focus:ring-[#696cff] accent-[#696cff]"
                   />
-                  <span className="text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2]">Activo</span>
+                  <span className="text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2]">Plan Activo</span>
                 </label>
 
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.is_featured}
                     onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300 dark:border-[#444564] text-amber-500 focus:ring-amber-500 accent-amber-500"
                   />
-                  <span className="text-sm font-bold text-[#696cff]">Plan Destacado</span>
+                  <span className="text-sm font-bold text-amber-700 dark:text-amber-400">Destacar en la app</span>
                 </label>
               </div>
 
@@ -459,77 +469,81 @@ export default function AdminPlans() {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-6 py-2 border border-gray-200 dark:border-[#444564] rounded-lg hover:bg-gray-50 dark:hover:bg-[#444564] transition-colors font-bold"
+                  className="px-6 py-2 border border-gray-300 dark:border-[#444564] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1b2e] transition-colors font-bold text-[#566a7f] dark:text-[#cbcbe2]"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] transition-colors font-bold flex items-center gap-2"
+                  className="px-6 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] active:bg-[#5050d4] transition-colors font-bold flex items-center gap-2 shadow-md"
                 >
                   <Save className="w-4 h-4" />
                   Guardar Plan
                 </button>
               </div>
             </form>
-          </div>
+            </div>
+          </>
         )}
 
         {/* Plans Grid */}
-        <div className="grid gap-6">
+        <div className="space-y-4">
           {plans.map(plan => (
-            <div key={plan.id} className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-6 transition-colors">
+            <div key={plan.id} className="group bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-200 dark:border-[#444564] hover:shadow-md dark:hover:border-[#696cff]/30 transition-all duration-200 p-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-bold text-[#566a7f] dark:text-[#cbcbe2]">
                       {plan.name}
                     </h3>
-                    <span className="px-2 py-1 bg-[#696cff]/10 text-[#696cff] text-xs font-bold rounded-full">
-                      {plan.type}
+                    <span className="px-3 py-1.5 bg-[#696cff]/10 text-[#696cff] text-xs font-bold rounded-full whitespace-nowrap">
+                      {plan.type === 'streaming' && '📡 Streaming'}
+                      {plan.type === 'ads' && '📢 Publicidad'}
+                      {plan.type === 'microsite' && '🌐 Micrositio'}
+                      {plan.type === 'premium_feature' && '⭐ Premium'}
                     </span>
                     {plan.interval && (
-                      <span className="px-2 py-1 bg-gray-100 dark:bg-[#444564] text-[#566a7f] dark:text-[#cbcbe2] text-xs font-bold rounded-full">
-                        {plan.interval === 'monthly' ? 'Mensual' : 'Anual'}
+                      <span className="px-3 py-1.5 bg-gray-100 dark:bg-[#444564] text-[#566a7f] dark:text-[#cbcbe2] text-xs font-bold rounded-full whitespace-nowrap">
+                        {plan.interval === 'monthly' ? '📅 Mensual' : '📆 Anual'}
                       </span>
                     )}
                     {plan.is_featured && (
-                      <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 text-xs font-bold rounded-full">
+                      <span className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-full whitespace-nowrap">
                         ⭐ Destacado
                       </span>
                     )}
                     {!plan.active && (
-                      <span className="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 text-xs font-bold rounded-full">
-                        Inactivo
+                      <span className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-bold rounded-full whitespace-nowrap">
+                        🚫 Inactivo
                       </span>
                     )}
                   </div>
-                  <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-3">{plan.description}</p>
-                  <div className="flex items-center gap-4">
+                  <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-4 text-sm leading-relaxed">{plan.description}</p>
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-[#1a1b2e] p-4 rounded-lg border border-gray-100 dark:border-[#444564]">
                     <div>
-                      <p className="text-sm text-[#a1acb8] dark:text-[#7e7e9a]">Precio</p>
-                      <p className="text-2xl font-bold text-[#696cff]">${plan.price}</p>
+                      <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] uppercase font-bold tracking-wider mb-1">Precio</p>
+                      <p className="text-2xl font-bold text-[#696cff]">${Number(plan.price).toLocaleString('es-AR')}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-[#a1acb8] dark:text-[#7e7e9a]">Características</p>
-                      <p className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+                      <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] uppercase font-bold tracking-wider mb-1">Características</p>
+                      <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">
                         {Array.isArray(plan.features) ? plan.features.length : 0}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-gray-100 dark:border-[#444564]">
                   <button
                     onClick={() => handleEdit(plan)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#03c3ec]/10 text-[#03c3ec] rounded-lg hover:bg-[#03c3ec]/20 transition-colors font-bold"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#696cff]/10 text-[#696cff] rounded-lg hover:bg-[#696cff]/20 active:bg-[#696cff]/30 transition-all duration-200 font-bold text-sm group-hover:text-[#696cff]"
                   >
                     <Edit className="w-4 h-4" />
                     Editar
                   </button>
                   <button
                     onClick={() => plan.id && handleDelete(plan.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors font-bold"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/40 active:bg-red-300 dark:active:bg-red-900/60 transition-all duration-200 font-bold text-sm"
                   >
                     <Trash2 className="w-4 h-4" />
                     Eliminar
