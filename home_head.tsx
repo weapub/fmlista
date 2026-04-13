@@ -77,7 +77,7 @@ export const Home: React.FC = () => {
       // Consultas paralelas para máxima velocidad
       const [recentRes, trendingRes, favsRes] = await Promise.all([
         supabase.from('radios').select('*').order('created_at', { ascending: false }).limit(6),
-        // Para tendencias, traemos las +�ltimas 6 de la categor+�a m+�s popular
+        // Para tendencias, traemos las últimas 6 de la categoría más popular
         supabase.from('radios').select('*').limit(6),
         // Cargar favoritos si existen
         favoriteIds.length > 0 
@@ -142,23 +142,6 @@ export const Home: React.FC = () => {
       radio.location?.toLowerCase().includes(searchTerm.toLowerCase())
     ), [filteredRadios, searchTerm])
 
-  const computedRecentRadios = useMemo(() => 
-    [...radios]
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 6), [radios])
-
-  const { trendingCategory: computedTrendingCategory, trendingRadios: computedTrendingRadios } = useMemo(() => {
-    const categoryCounts = radios.reduce<Record<string, number>>((acc, r) => {
-      if (r.category) acc[r.category] = (acc[r.category] || 0) + 1
-      return acc
-    }, {})
-    const category = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null
-    const radioList = category
-      ? radios.filter(r => r.category === category).slice(0, 6)
-      : radios.slice(0, 6)
-    return { trendingCategory: category, trendingRadios: radioList }
-  }, [radios])
-
   const featuredRadios = useMemo(() => radios.filter(r => r.is_featured).slice(0, 3), [radios]);
   const hasActiveFilters = searchTerm !== '' || selectedLocation !== null || selectedCategory !== null;
 
@@ -214,87 +197,14 @@ export const Home: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Tendencias */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xl font-semibold text-gray-900">Lo más Escuchado</h2>
-            {trendingCategory && (
-              <span className="text-sm text-[#696cff] font-bold">Top: {trendingCategory}</span>
-            )}
-          </div>
-          {trendingRadios.length === 0 ? (
-            <p className="text-gray-600">Sin emisoras</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {trendingRadios.map(radio => (
-                <RadioCard key={radio.id} radio={radio} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Agregadas recientemente */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">Recién Llegadas</h2>
-          {recentRadios.length === 0 ? (
-            <p className="text-gray-600">Sin emisoras recientes</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {recentRadios.map(radio => (
-                <RadioCard key={radio.id} radio={radio} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Results count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Mostrando {filteredBySearch.length} de {radios.length} emisoras
-          </p>
-        </div>
-        
-        {/* Radio Grid */}
-        {filteredBySearch.length === 0 ? (
-          <div className="text-center py-12">
-            <RadioIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron emisoras</h3>
-            <p className="text-gray-600">
-              Intenta ajustar tus filtros o t+�rmino de b+�squeda
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredBySearch.map((radio) => (
-                <RadioCard key={radio.id} radio={radio} />
-              ))}
-            </div>
-            
-            {hasMore && (
-              <div ref={loaderRef} className="mt-12 pb-12">
-                {isLoadingMore && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {[...Array(4)].map((_, i) => (
-                      <RadioCardSkeleton key={`more-${i}`} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </>
-        )}
->>>>>>> 4e19e3a (Mejoras de rendimiento, scroll infinito, favoritos y compartir)
-
             {/* Destacadas */}
             {featuredRadios.length > 0 && !hasActiveFilters && (
-              <div className="mb-8 max-w-[896px] mx-auto">
+              <div className="mb-12 max-w-[896px] mx-auto">
                 <div className="flex items-center space-x-2 mb-4">
                   <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">Destacadas</h2>
                   <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800 font-medium">
-                    Sponsoreado
+                    Patrocinado
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -307,18 +217,18 @@ export const Home: React.FC = () => {
 
             {/* Tendencias */}
             {!hasActiveFilters && (
-              <div className="mb-8 max-w-[896px] mx-auto">
+              <div className="mb-12 max-w-[896px] mx-auto">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
-                  {trendingCategory && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Categor+�a: {trendingCategory}</span>
+                  {specialTrendingCategory && (
+                <span className="text-sm text-gray-500 dark:text-gray-400">Categoría: {specialTrendingCategory}</span>
                   )}
                 </div>
-                {trendingRadios.length === 0 ? (
+                {specialTrendingRadios.length === 0 ? (
                   <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {trendingRadios.map(radio => (
+                    {specialTrendingRadios.map(radio => (
                       <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
                     ))}
                   </div>
@@ -328,13 +238,13 @@ export const Home: React.FC = () => {
 
             {/* Agregadas recientemente */}
             {!hasActiveFilters && (
-              <div className="mb-8 max-w-[896px] mx-auto">
+              <div className="mb-12 max-w-[896px] mx-auto">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
-                {recentRadios.length === 0 ? (
+                {specialRecentRadios.length === 0 ? (
                   <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {recentRadios.map(radio => (
+                    {specialRecentRadios.map(radio => (
                       <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
                     ))}
                   </div>
@@ -345,7 +255,7 @@ export const Home: React.FC = () => {
             {/* Results count */}
             <div className="mb-6 max-w-[896px] mx-auto">
               <p className="text-gray-600 dark:text-gray-400">
-                Mostrando {filteredBySearch.length} de {visibleRadios.length} emisoras
+                Mostrando {filteredBySearch.length} de {radios.length} emisoras
               </p>
             </div>
 
@@ -357,7 +267,7 @@ export const Home: React.FC = () => {
                 <RadioIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron emisoras</h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Intenta ajustar tus filtros o t+�rmino de b+�squeda
+              Intenta ajustar tus filtros o término de búsqueda
                 </p>
               </div>
             ) : (
@@ -369,15 +279,18 @@ export const Home: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Noticias de Formosa - Removed bottom section */}
-            {/* <div className="mt-12">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">Noticias de Formosa</h2>
-              <p className="text-gray-600 mb-4">Actualidad desde los diarios m+�s populares de la provincia.</p>
-              <NewsSection />
-            </div> */}
-          </>
-        )}
+            
+            {hasMore && (
+              <div ref={loaderRef} className="mt-12 pb-12 max-w-[896px] mx-auto">
+                {isLoadingMore && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[...Array(2)].map((_, i) => (
+                      <RadioCardSkeleton key={`more-${i}`} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
       </div>
       <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
     </div>

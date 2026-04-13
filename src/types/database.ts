@@ -57,6 +57,7 @@ export interface Plan {
   price?: number | string | null;
   price_cents?: number | null;
   currency?: string | null;
+  is_featured?: boolean;
   interval?: 'monthly' | 'yearly' | string | null;
   description?: string | null;
   features?: string[];

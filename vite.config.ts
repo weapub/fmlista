@@ -163,70 +163,64 @@ export default defineConfig({
             const mount = u.pathname.replace(/;$/, '').replace(/\/$/, '')
             
             const candidates = [
+              `${origin}${mount}/status-json.xsl`,
               `${origin}/status-json.xsl`,
-              `${origin}/status.xsl`,
               `${origin}${mount}/currentsong`,
               `${origin}/currentsong`,
-              // Add mount specific status if mount exists
-              ...(mount ? [`${origin}${mount}/status-json.xsl`, `${origin}${mount}/status.xsl`] : [])
+              `${origin}/status.xsl`,
+              ...(mount ? [`${origin}${mount}/status.xsl`] : [])
             ]
             
-            let title = ''
-            // Disable SSL verification for this fetch
-            const fetchOptions = {
-              agent: undefined, // native fetch doesn't support agent easily without undici, but we can try ignoring errors
-              // For Node 18+ native fetch, we can't easily disable SSL verify without global config
-            }
-            // Hack for dev environment to ignore SSL
             if (process.env.NODE_ENV === 'development') {
               process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
             }
 
-            for (const url of candidates) {
+            // Realizar peticiones concurrentes para reducir latencia
+            const results = await Promise.allSettled(candidates.map(async (url) => {
               try {
-                // Use a short timeout for the fetch to avoid hanging on streams
                 const controller = new AbortController()
-                const timeoutId = setTimeout(() => controller.abort(), 2000)
+                const timeoutId = setTimeout(() => controller.abort(), 2500)
                 
-                const r = await fetch(url, { 
-                  ...fetchOptions, 
-                  signal: controller.signal 
-                })
+                const r = await fetch(url, { signal: controller.signal })
                 clearTimeout(timeoutId)
                 
-                if (!r.ok) continue
+                if (!r.ok) return null
                 
-                // Check Content-Type to avoid reading audio streams
                 const contentType = r.headers.get('content-type') || ''
                 if (contentType.includes('audio/') || contentType.includes('video/') || contentType.includes('application/ogg')) {
-                  continue
+                  return null
                 }
                 
                 const text = await r.text()
+                let extractedTitle = ''
                 
                 if (url.endsWith('status-json.xsl')) {
                   try {
                     const json = JSON.parse(text)
                     const src = json.icestats?.source
                     if (Array.isArray(src)) {
-                      // Try to match by mount point
                       const match = src.find((s: any) => s.listenurl?.includes(mount) || s.server_name)
-                      title = match?.title || match?.server_name || ''
+                      extractedTitle = match?.title || match?.server_name || ''
                     } else if (src) {
-                      title = src.title || src.server_name || ''
+                      extractedTitle = src.title || src.server_name || ''
                     }
                   } catch {}
                 } else if (url.includes('currentsong')) {
-                  title = text.trim()
+                  extractedTitle = text.trim()
                 } else if (url.endsWith('status.xsl')) {
                   const m = text.match(/Current Song:\s*<[^>]*>([^<]+)<\/[^>]*>/i) || text.match(/Stream Title:\s*([^\n<]+)/i)
-                  title = (m && m[1]?.trim()) || ''
+                  extractedTitle = (m && m[1]?.trim()) || ''
                 }
-                if (title) break
-              } catch (e) {
-                // ignore specific fetch errors
+                
+                return extractedTitle
+              } catch {
+                return null
               }
-            }
+            }))
+
+            const title = results
+              .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && !!r.value)
+              .map(r => r.value)[0] || ''
             
             res.setHeader('Content-Type', 'application/json')
             res.statusCode = 200

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Plan } from '@/types/database';
-import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle } from 'lucide-react';
+import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle, Calendar, Layout, Megaphone, Radio } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useRadioStore } from '@/stores/radioStore';
@@ -46,6 +46,8 @@ export const PlansPage: React.FC = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorNotification, setErrorNotification] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [activeTab, setActiveTab] = useState('streaming');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const { currentRadio } = useRadioStore();
 
@@ -67,110 +69,7 @@ export const PlansPage: React.FC = () => {
         .eq('active', true)
         .order('price', { ascending: true });
       
-      let fetchedPlans = data || [];
-
-      // Check if we have microsite plans, if not add mock ones for display
-      const hasMicrositePlans = fetchedPlans.some(p => p.type === 'microsite');
-      if (!hasMicrositePlans) {
-        const mockMicrositePlans: Plan[] = [
-          {
-            id: 'mock-micro-1',
-            name: 'Microsite Básico',
-            type: 'microsite',
-            price: 2000,
-            currency: 'ARS',
-            description: 'Mejora la presencia de tu radio con un diseño personalizado básico.',
-            features: ['Personalización de colores', 'Banner de cabecera propio', 'Enlaces a redes sociales destacados', 'Soporte por email'],
-            interval: 'monthly',
-            active: true
-          },
-          {
-            id: 'mock-micro-2',
-            name: 'Microsite Profesional',
-            type: 'microsite',
-            price: 4500,
-            currency: 'ARS',
-            description: 'Todo lo necesario para una imagen profesional y atractiva.',
-            features: ['Todo lo del plan Básico', 'Galería de fotos (hasta 20)', 'Sección de programación semanal', 'Botón de WhatsApp flotante', 'Soporte prioritario'],
-            interval: 'monthly',
-            active: true
-          },
-          {
-            id: 'mock-micro-3',
-            name: 'Microsite Full',
-            type: 'microsite',
-            price: 8000,
-            currency: 'ARS',
-            description: 'La experiencia definitiva para tus oyentes con todas las funciones.',
-            features: ['Todo lo del plan Profesional', 'Blog de noticias integrado', 'Integración chat en vivo', 'Analytics avanzados de visitas', 'Dominio personalizado (.com.ar)'],
-            interval: 'monthly',
-            active: true
-          }
-        ];
-        fetchedPlans = [...fetchedPlans, ...mockMicrositePlans];
-      }
-
-      // Check for streaming plans
-      const hasStreamingPlans = fetchedPlans.some(p => p.type === 'streaming');
-      if (!hasStreamingPlans) {
-        const mockStreamingPlans: Plan[] = [
-          {
-            id: 'mock-stream-1',
-            name: 'Streaming Audio SD',
-            type: 'streaming',
-            price: 5000,
-            currency: 'ARS',
-            description: 'Ideal para comenzar. Calidad estándar y estabilidad.',
-            features: ['Calidad 64kbps AAC+', 'Oyentes ilimitados', 'Panel de control Centovacast', 'App genérica incluida'],
-            interval: 'monthly',
-            active: true
-          },
-          {
-            id: 'mock-stream-2',
-            name: 'Streaming Audio HD',
-            type: 'streaming',
-            price: 8500,
-            currency: 'ARS',
-            description: 'La mejor calidad de sonido para tus oyentes.',
-            features: ['Calidad 128kbps AAC+', 'Oyentes ilimitados', 'Panel de control Centovacast', 'App personalizada Android'],
-            interval: 'monthly',
-            active: true
-          }
-        ];
-        fetchedPlans = [...fetchedPlans, ...mockStreamingPlans];
-      }
-
-      // Check for ads plans
-      const hasAdsPlans = fetchedPlans.some(p => p.type === 'ads');
-      if (!hasAdsPlans) {
-        const mockAdsPlans: Plan[] = [
-          {
-            id: 'mock-ads-1',
-            name: 'Banner Principal',
-            type: 'ads',
-            price: 15000,
-            currency: 'ARS',
-            description: 'Máxima visibilidad en la portada de la aplicación.',
-            features: ['Ubicación superior en Home', 'Enlace directo a tu web/WhatsApp', 'Estadísticas de clics', 'Diseño de banner incluido'],
-            interval: 'monthly',
-            active: true
-          },
-          {
-            id: 'mock-ads-2',
-            name: 'Radio Destacada',
-            type: 'ads',
-            price: 10000,
-            currency: 'ARS',
-            description: 'Aparece primero en las búsquedas y listas.',
-            features: ['Posición #1 en tu categoría', 'Distintivo "Destacado"', 'Mayor exposición en sugerencias', 'Reporte mensual de alcance'],
-            interval: 'monthly',
-            active: true
-          }
-        ];
-        fetchedPlans = [...fetchedPlans, ...mockAdsPlans];
-      }
-      
-      setPlans(fetchedPlans);
+      setPlans(data || []);
       setLoading(false);
     };
 
@@ -198,14 +97,14 @@ export const PlansPage: React.FC = () => {
       console.error('Error al procesar pago:', err);
       // Fallback a WhatsApp si el sistema automático falla
       const message = `Hola, quiero contratar el plan ${plan.name}. Tuve un problema con el pago automático.`;
-      window.open(`https://wa.me/543704000000?text=${encodeURIComponent(message)}`, '_blank');
+      window.open(`https://wa.me/543704602028?text=${encodeURIComponent(message)}`, '_blank');
     } finally {
       setProcessingId(null);
     }
   };
 
   const renderPlanSection = (title: string, type: string, description: string) => {
-    const filteredPlans = plans.filter(p => p.type === type);
+    const filteredPlans = plans.filter(p => p.type === type && p.interval === billingCycle);
     if (filteredPlans.length === 0) return null;
 
     return (
@@ -216,8 +115,8 @@ export const PlansPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-4">
           {filteredPlans.map((plan, index) => (
-            <div key={plan.id} className={`group relative bg-white dark:bg-[#2b2c40] rounded-xl p-8 transition-all duration-300 hover:shadow-lg border ${index === 1 ? 'border-[#696cff] shadow-md shadow-[#696cff]/10 scale-105 z-10' : 'border-gray-100 dark:border-transparent'}`}>
-              {index === 1 && (
+            <div key={plan.id} className={`group relative bg-white dark:bg-[#2b2c40] rounded-xl p-8 transition-all duration-300 hover:shadow-lg border ${plan.is_featured ? 'border-[#696cff] shadow-md shadow-[#696cff]/10 scale-105 z-10' : 'border-gray-100 dark:border-transparent'}`}>
+              {plan.is_featured && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#696cff] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
                   Recomendado
                 </div>
@@ -243,7 +142,7 @@ export const PlansPage: React.FC = () => {
                   onClick={() => handleSubscribe(plan)}
                   disabled={processingId !== null}
                   className={`w-full py-3 px-6 rounded-lg font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
-                    index === 1 
+                    plan.is_featured 
                       ? 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20' 
                       : 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20'
                   } disabled:opacity-50`}
@@ -254,7 +153,7 @@ export const PlansPage: React.FC = () => {
                       Procesando...
                     </>
                   ) : (
-                    index === 1 ? 'Contratar Ahora' : 'Comenzar con este Plan'
+                    plan.is_featured ? 'Contratar Ahora' : 'Comenzar con este Plan'
                   )}
                 </button>
               </div>
@@ -292,40 +191,65 @@ export const PlansPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#f5f5f9]/50 dark:bg-[#232333]/50">
-                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564]">Características</th>
-                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Básico</th>
-                  <th className="p-6 text-sm font-bold text-[#696cff] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10">Profesional</th>
-                  <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Full</th>
+        {/* Desktop View: Table */}
+        <div className="hidden md:block bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f5f5f9]/50 dark:bg-[#232333]/50">
+                <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564]">Características</th>
+                <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Básico</th>
+                <th className="p-6 text-sm font-bold text-[#696cff] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10">Profesional</th>
+                <th className="p-6 text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] uppercase tracking-wider border-b border-gray-100 dark:border-[#444564] text-center">Full</th>
+              </tr>
+            </thead>
+            <tbody className="text-[#697a8d] dark:text-[#a3a4cc]">
+              {comparisonFeatures.map((feature, idx) => (
+                <tr key={idx} className="hover:bg-[#f5f5f9]/30 dark:hover:bg-[#323249] transition-colors">
+                  <td className="p-5 border-b border-gray-50 dark:border-[#444564] font-medium text-sm">
+                    <div className="flex items-center gap-2">
+                      {feature.name}
+                      <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] dark:text-[#7e7e9a] cursor-help" />
+                    </div>
+                  </td>
+                  <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
+                    {renderValue(feature.basic)}
+                  </td>
+                  <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10 font-semibold text-[#696cff]">
+                    {renderValue(feature.pro)}
+                  </td>
+                  <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
+                    {renderValue(feature.full)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="text-[#697a8d] dark:text-[#a3a4cc]">
-                {comparisonFeatures.map((feature, idx) => (
-                  <tr key={idx} className="hover:bg-[#f5f5f9]/30 dark:hover:bg-[#323249] transition-colors">
-                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] font-medium text-sm">
-                      <div className="flex items-center gap-2">
-                        {feature.name}
-                        <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] dark:text-[#7e7e9a] cursor-help" />
-                      </div>
-                    </td>
-                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
-                      {renderValue(feature.basic)}
-                    </td>
-                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center bg-[#696cff]/5 dark:bg-[#696cff]/10 font-semibold text-[#696cff]">
-                      {renderValue(feature.pro)}
-                    </td>
-                    <td className="p-5 border-b border-gray-50 dark:border-[#444564] text-center">
-                      {renderValue(feature.full)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile View: Comparison Cards */}
+        <div className="md:hidden space-y-4">
+          {comparisonFeatures.map((feature, idx) => (
+            <div key={idx} className="bg-white dark:bg-[#2b2c40] rounded-xl p-5 border border-gray-100 dark:border-transparent shadow-sm">
+              <div className="flex items-center gap-2 mb-5 font-bold text-[#566a7f] dark:text-[#cbcbe2] text-sm leading-tight border-b border-gray-50 dark:border-[#444564] pb-3">
+                {feature.name}
+                <HelpCircle className="w-3.5 h-3.5 text-[#a1acb8] dark:text-[#7e7e9a]" />
+              </div>
+              <div className="grid grid-cols-3 gap-2 items-end">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-[9px] font-black text-[#a1acb8] dark:text-[#7e7e9a] uppercase tracking-tighter">Básico</span>
+                  <div className="h-10 flex items-center">{renderValue(feature.basic)}</div>
+                </div>
+                <div className="flex flex-col items-center gap-2 bg-[#696cff]/5 dark:bg-[#696cff]/10 rounded-lg py-3 border border-[#696cff]/10 scale-110 shadow-sm shadow-[#696cff]/5">
+                  <span className="text-[9px] font-black text-[#696cff] uppercase tracking-tighter">Profesional</span>
+                  <div className="h-10 flex items-center">{renderValue(feature.pro)}</div>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-[9px] font-black text-[#a1acb8] dark:text-[#7e7e9a] uppercase tracking-tighter">Full</span>
+                  <div className="h-10 flex items-center">{renderValue(feature.full)}</div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         
         <div className="mt-8 bg-[#696cff]/10 dark:bg-[#696cff]/20 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-[#696cff]/20">
@@ -339,7 +263,7 @@ export const PlansPage: React.FC = () => {
             </div>
           </div>
           <button 
-            onClick={() => window.open('https://wa.me/543704000000', '_blank')}
+            onClick={() => window.open('https://wa.me/543704602028?text=Hola, quiero información sobre los planes corporativos.', '_blank')}
             className="bg-[#696cff] text-white px-8 py-3 rounded-lg font-bold shadow-md shadow-[#696cff]/20 hover:bg-[#5f61e6] transition-all whitespace-nowrap"
           >
             Hablar con un Asesor
@@ -456,6 +380,49 @@ export const PlansPage: React.FC = () => {
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-semibold">
             La plataforma líder de Formosa para streaming profesional, micrositios SaaS y publicidad de alto impacto.
           </p>
+
+          {/* Billing Toggle Improvement */}
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <span className={cn("text-sm font-bold transition-colors", billingCycle === 'monthly' ? "text-white" : "text-white/60")}>Mensual</span>
+            <button 
+              onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
+              className="w-14 h-7 bg-white/20 rounded-full relative p-1 transition-colors hover:bg-white/30"
+            >
+              <div className={cn(
+                "w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
+                billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0"
+              )} />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className={cn("text-sm font-bold transition-colors", billingCycle === 'yearly' ? "text-white" : "text-white/60")}>Anual</span>
+              <span className="bg-emerald-400 text-[#1a1a2e] text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                Ahorra 20%
+              </span>
+            </div>
+          </div>
+
+          {/* Tabs Navigation */}
+          <div className="mt-12 flex flex-wrap justify-center gap-3">
+            {[
+              { id: 'streaming', label: 'Streaming', icon: Radio },
+              { id: 'microsite', label: 'Micrositios', icon: Layout },
+              { id: 'ads', label: 'Publicidad', icon: Megaphone },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black transition-all duration-300 shadow-sm uppercase text-xs tracking-widest outline-none",
+                  activeTab === tab.id
+                    ? "bg-white text-[#696cff] shadow-xl shadow-[#696cff]/30 -translate-y-1"
+                    : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+                )}
+              >
+                <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-[#696cff]" : "text-white/60")} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -476,28 +443,32 @@ export const PlansPage: React.FC = () => {
           </div>
         )}
 
-        {renderPlanSection(
+        {activeTab === 'streaming' && renderPlanSection(
           "Streaming de Audio y Video",
           "streaming",
           "Alta calidad, estabilidad garantizada y soporte técnico especializado para tu emisora."
         )}
         
-        {renderPlanSection(
+        {activeTab === 'ads' && renderPlanSection(
           "Soluciones Publicitarias",
           "ads",
           "Destaca tu marca o radio en nuestra plataforma y llega a miles de oyentes diarios."
         )}
 
-        {renderPlanSection(
-          "Servicios Premium para Radios",
-          "premium_feature",
-          "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
-        )}
+        {activeTab === 'microsite' && (
+          <>
+            {renderPlanSection(
+              "Servicios Premium para Radios",
+              "premium_feature",
+              "Desbloquea funciones avanzadas para tu micrositio, incluyendo gestión propia de publicidad."
+            )}
 
-        {renderPlanSection(
-          "Mejora tu Micrositio",
-          "microsite",
-          "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
+            {renderPlanSection(
+              "Mejora tu Micrositio",
+              "microsite",
+              "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
+            )}
+          </>
         )}
       </div>
 
