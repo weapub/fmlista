@@ -10,13 +10,15 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import 'dotenv/config';
 
 // Obtener credenciales
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+// Priorizar SERVICE_ROLE_KEY para operaciones de limpieza (Delete)
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Error: Faltan variables de entorno SUPABASE_URL y SUPABASE_SERVICE_KEY');
+  console.error('❌ Error: Faltan variables de entorno (SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY)');
   process.exit(1);
 }
 
@@ -29,17 +31,17 @@ const yearlyPlans = [
     price: 48000,
     currency: 'ARS',
     description: 'Perfecto para radios que están arrancando o quieren migrar a digital sin complicaciones.',
-    features: ['Streaming de audio HD', 'Hasta 50 oyentes simultáneos', 'Player embebible', 'Estadísticas básicas', '– Streaming de video', '– Soporte prioritario'],
+    features: ['Streaming de audio HD', 'Hasta 50 oyentes simultáneos', 'Player embebible', 'Estadísticas básicas', '– Streaming de video', '– Soporte prioritario', '– App Android incluida', '– Estadísticas avanzadas', '– Oyentes ilimitados', '– Grabación de programas', '– App iOS'],
     interval: 'yearly',
     active: true,
   },
   {
-    name: 'Streaming Profesional',
+    name: 'Streaming Pro',
     type: 'streaming',
     price: 76800,
     currency: 'ARS',
     description: 'La opción equilibrada para emisoras en crecimiento con App propia.',
-    features: ['Todo lo del plan Básico', 'Streaming en HD AAC+', 'Hasta 500 oyentes', 'App Android incluida', 'Estadísticas avanzadas', 'Soporte prioritario', '– Streaming de video'],
+    features: ['Todo lo del plan Básico', 'Streaming en HD AAC+', 'Hasta 500 oyentes', 'App Android incluida', 'Estadísticas avanzadas', 'Soporte prioritario', '– Streaming de video', '– Oyentes ilimitados', '– Grabación de programas', '– App iOS'],
     interval: 'yearly',
     active: true,
     is_featured: true,
@@ -49,7 +51,7 @@ const yearlyPlans = [
     type: 'streaming',
     price: 115200,
     currency: 'ARS',
-    description: 'Potencia total con video, oyentes ilimitados y soporte VIP.',
+    description: 'La experiencia completa para tu radio con video y soporte VIP.',
     features: ['Todo lo del plan Pro', 'Oyentes ilimitados', 'Streaming de video HD', 'App Android + iOS', 'Grabación de programas', 'Soporte 24/7 VIP'],
     interval: 'yearly',
     active: true,
@@ -60,7 +62,7 @@ const yearlyPlans = [
     price: 144000,
     currency: 'ARS',
     description: 'Banner en página de inicio',
-    features: ['Posición Top', 'Rotación garantizada', 'Reporte de clicks'],
+    features: ['Posición Top', 'Rotación garantizada', 'Reporte de clicks', '– Ubicación estratégica', '– Alta visibilidad', '– Reporte mensual', '– 100% de impresiones', '– Botón de acción directo', '– Reporte detallado'],
     interval: 'yearly',
     active: true,
   },
@@ -70,7 +72,7 @@ const yearlyPlans = [
     price: 96000,
     currency: 'ARS',
     description: 'Presencia constante en el reproductor y barra lateral.',
-    features: ['Ubicación estratégica', 'Alta visibilidad', 'Reporte mensual'],
+    features: ['Ubicación estratégica', 'Alta visibilidad', 'Reporte mensual', '– Posición Top', '– Rotación garantizada', '– Reporte de clicks', '– 100% de impresiones', '– Botón de acción directo', '– Reporte detallado'],
     interval: 'yearly',
     active: true,
   },
@@ -80,17 +82,7 @@ const yearlyPlans = [
     price: 192000,
     currency: 'ARS',
     description: 'Impacto total al abrir la plataforma o micrositio.',
-    features: ['100% de impresiones', 'Botón de acción directo', 'Reporte detallado'],
-    interval: 'yearly',
-    active: true,
-  },
-  {
-    name: 'Suscripción Premium Radio',
-    type: 'premium_feature',
-    price: 28800,
-    currency: 'ARS',
-    description: 'Control total de tu micrositio',
-    features: ['Sube tus propias publicidades', 'Estadísticas avanzadas', 'Sin anuncios de terceros'],
+    features: ['100% de impresiones', 'Botón de acción directo', 'Reporte detallado', '– Posición Top', '– Rotación garantizada', '– Reporte de clicks', '– Ubicación estratégica', '– Alta visibilidad', '– Reporte mensual'],
     interval: 'yearly',
     active: true,
   },
@@ -100,7 +92,7 @@ const yearlyPlans = [
     price: 19200,
     currency: 'ARS',
     description: 'Mejora la presencia de tu radio con un diseño personalizado básico.',
-    features: ['Personalización de colores', 'Banner de cabecera propio', 'Enlaces a redes sociales destacados', 'Soporte por email'],
+    features: ['Personalización de colores', 'Banner de cabecera propio', 'Enlaces a redes sociales destacados', 'Soporte por email', '– Galería de fotos', '– Programación semanal', '– Botón de WhatsApp flotante', '– Blog de noticias', '– Integración chat en vivo', '– Analytics de visitas', '– Dominio personalizado (.com.ar)', '– Sube tus propias publicidades', '– Estadísticas avanzadas', '– Sin anuncios de terceros'],
     interval: 'yearly',
     active: true,
   },
@@ -110,7 +102,7 @@ const yearlyPlans = [
     price: 43200,
     currency: 'ARS',
     description: 'Todo lo necesario para una imagen profesional y atractiva.',
-    features: ['Todo lo del plan Básico', 'Galería de fotos (hasta 20)', 'Sección de programación semanal', 'Botón de WhatsApp flotante', 'Soporte prioritario'],
+    features: ['Todo lo del plan Básico', 'Galería de fotos (hasta 20)', 'Sección de programación semanal', 'Botón de WhatsApp flotante', 'Soporte prioritario', '– Blog de noticias', '– Integración chat en vivo', '– Analytics de visitas', '– Dominio personalizado (.com.ar)', '– Sube tus propias publicidades', '– Estadísticas avanzadas', '– Sin anuncios de terceros'],
     interval: 'yearly',
     active: true,
     is_featured: true,
@@ -121,7 +113,7 @@ const yearlyPlans = [
     price: 76800,
     currency: 'ARS',
     description: 'La experiencia definitiva para tus oyentes con todas las funciones.',
-    features: ['Todo lo del plan Profesional', 'Blog de noticias integrado', 'Integración chat en vivo', 'Analytics avanzados de visitas', 'Dominio personalizado (.com.ar)'],
+    features: ['Todo lo del plan Profesional', 'Blog de noticias integrado', 'Integración chat en vivo', 'Analytics avanzados de visitas', 'Dominio personalizado (.com.ar)', 'Sube tus propias publicidades', 'Estadísticas avanzadas', 'Sin anuncios de terceros', 'Soporte 24/7 VIP'],
     interval: 'yearly',
     active: true,
   },

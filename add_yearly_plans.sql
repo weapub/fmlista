@@ -2,7 +2,7 @@
 -- Run this in your Supabase SQL Editor
 
 -- Streaming Plans (Yearly)
-INSERT INTO public.plans (name, type, price, currency, description, features, interval, active)
+INSERT INTO public.plans (name, type, price, currency, description, features, interval, active, is_featured)
 VALUES 
 (
   'Plan Streaming Básico',
@@ -87,6 +87,7 @@ VALUES
   'Todo lo necesario para una imagen profesional y atractiva.',
   ARRAY['Todo lo del plan Básico', 'Galería de fotos (hasta 20)', 'Sección de programación semanal', 'Botón de WhatsApp flotante', 'Soporte prioritario'],
   'yearly',
+  true,
   true
 ),
 (

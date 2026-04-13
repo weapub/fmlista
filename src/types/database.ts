@@ -48,6 +48,9 @@ export interface Advertisement {
   display_order?: number | null;
   order?: number | null;
   active?: boolean;
+  start_date?: string | null;
+  end_date?: string | null;
+  clicks?: number | null;
 }
 
 export interface Plan {
