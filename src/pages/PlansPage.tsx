@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Plan } from '@/types/database';
-import { Check, X, Minus, HelpCircle, ChevronDown } from 'lucide-react';
+import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useRadioStore } from '@/stores/radioStore';
@@ -42,8 +43,21 @@ const PlanSectionSkeleton = () => (
 export const PlansPage: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [errorNotification, setErrorNotification] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const { currentRadio } = useRadioStore();
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status === 'payment_error') {
+      setErrorNotification('Hubo un problema al procesar tu pago. Por favor, intenta nuevamente o contacta a nuestro equipo de soporte.');
+      // Limpiar URL
+      searchParams.delete('status');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -163,11 +177,31 @@ export const PlansPage: React.FC = () => {
     fetchPlans();
   }, []);
 
-  const handleSubscribe = (plan: Plan) => {
-    // For now, redirect to WhatsApp or contact
-    const message = `Hola, estoy interesado en el ${plan.name} (${plan.type})`;
-    const whatsappUrl = `https://wa.me/543704000000?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleSubscribe = async (plan: Plan) => {
+    setProcessingId(plan.id);
+    
+    try {
+      // Lógica de Startup: Llamada a Edge Function para crear preferencia en Mercado Pago
+      // El backend se encarga de la seguridad y de devolver el init_point
+      const { data, error } = await supabase.functions.invoke('create-mp-preference', {
+        body: { planId: plan.id, type: plan.type }
+      });
+
+      if (error) throw error;
+
+      if (data?.init_point) {
+        window.location.href = data.init_point; // Redirigir al checkout de Mercado Pago
+      } else {
+        throw new Error('No se pudo generar el link de pago');
+      }
+    } catch (err) {
+      console.error('Error al procesar pago:', err);
+      // Fallback a WhatsApp si el sistema automático falla
+      const message = `Hola, quiero contratar el plan ${plan.name}. Tuve un problema con el pago automático.`;
+      window.open(`https://wa.me/543704000000?text=${encodeURIComponent(message)}`, '_blank');
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   const renderPlanSection = (title: string, type: string, description: string) => {
@@ -207,9 +241,21 @@ export const PlansPage: React.FC = () => {
                 </ul>
                 <button
                   onClick={() => handleSubscribe(plan)}
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all transform active:scale-95 ${index === 1 ? 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20' : 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20'}`}
+                  disabled={processingId !== null}
+                  className={`w-full py-3 px-6 rounded-lg font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
+                    index === 1 
+                      ? 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-md shadow-[#696cff]/20' 
+                      : 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20'
+                  } disabled:opacity-50`}
                 >
-                  {index === 1 ? 'Contratar Ahora' : 'Seleccionar Plan'}
+                  {processingId === plan.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    index === 1 ? 'Contratar Ahora' : 'Comenzar con este Plan'
+                  )}
                 </button>
               </div>
             </div>
@@ -282,16 +328,21 @@ export const PlansPage: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-8 bg-[#696cff]/10 dark:bg-[#696cff]/20 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-[#696cff]/20">
+        <div className="mt-8 bg-[#696cff]/10 dark:bg-[#696cff]/20 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-[#696cff]/20">
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex w-12 h-12 rounded-full bg-[#696cff] items-center justify-center text-white shrink-0">
+              <Zap className="w-6 h-6" />
+            </div>
           <div className="text-center md:text-left">
-            <h4 className="text-[#696cff] font-bold">¿Necesitas algo a medida?</h4>
-            <p className="text-[#697a8d] dark:text-[#a3a4cc] text-sm">Desarrollamos funciones exclusivas para grupos de radios o cadenas nacionales.</p>
+              <h4 className="text-[#696cff] font-bold text-lg">¿Eres una cadena de emisoras?</h4>
+              <p className="text-[#697a8d] dark:text-[#a3a4cc] text-sm max-w-md">Ofrecemos planes corporativos con gestión centralizada y descuentos por volumen para grupos mediáticos.</p>
+            </div>
           </div>
           <button 
             onClick={() => window.open('https://wa.me/543704000000', '_blank')}
-            className="bg-[#696cff] text-white px-6 py-2.5 rounded-lg font-medium shadow-md shadow-[#696cff]/20 hover:bg-[#5f61e6] transition-all"
+            className="bg-[#696cff] text-white px-8 py-3 rounded-lg font-bold shadow-md shadow-[#696cff]/20 hover:bg-[#5f61e6] transition-all whitespace-nowrap"
           >
-            Contactar Ventas
+            Hablar con un Asesor
           </button>
         </div>
       </div>
@@ -398,16 +449,33 @@ export const PlansPage: React.FC = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] text-white py-24 px-4 shadow-lg shadow-[#696cff]/20">
+      <div className="bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] text-white py-28 px-4 shadow-lg shadow-[#696cff]/20 overflow-hidden relative">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Soluciones para tu Emisora</h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium">
-            Lleva tu radio al siguiente nivel con nuestras soluciones de streaming y publicidad.
+          <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter leading-tight italic">POTENCIÁ TU RADIO</h1>
+          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-semibold">
+            La plataforma líder de Formosa para streaming profesional, micrositios SaaS y publicidad de alto impacto.
           </p>
         </div>
       </div>
 
       <div className="py-16 max-w-6xl mx-auto px-4">
+        {/* Error Notification de Mercado Pago */}
+        {errorNotification && (
+          <div className="mb-12 p-5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-xl flex items-center gap-4 text-red-800 dark:text-red-400 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="p-2 bg-red-100 dark:bg-red-800/30 rounded-lg">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-bold flex-1">{errorNotification}</p>
+            <button 
+              onClick={() => setErrorNotification(null)}
+              className="p-2 hover:bg-red-100 dark:hover:bg-red-800/30 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {renderPlanSection(
           "Streaming de Audio y Video",
           "streaming",
@@ -431,6 +499,27 @@ export const PlansPage: React.FC = () => {
           "microsite",
           "Herramientas exclusivas para personalizar y potenciar la página de tu radio dentro de nuestra plataforma."
         )}
+      </div>
+
+      {/* Trust Section - Startup Style */}
+      <div className="bg-white/50 dark:bg-[#2b2c40]/50 py-12 border-y border-gray-100 dark:border-[#444564] mb-20">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-around gap-8 opacity-70 grayscale">
+          <div className="flex items-center gap-2 font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+            <ShieldCheck className="w-6 h-6 text-[#71dd37]" />
+            <span>Pagos Seguros via Mercado Pago</span>
+          </div>
+          <div className="flex items-center gap-2 font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+            < Zap className="w-6 h-6 text-[#696cff]" />
+            <span>Activación en menos de 48hs</span>
+          </div>
+          <div className="flex items-center gap-2 font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+            <CreditCard className="w-6 h-6 text-[#03c3ec]" />
+            <span>Todas las tarjetas y transferencias</span>
+          </div>
+        </div>
+        <div className="mt-8 flex justify-center gap-4">
+          <img src="https://logotipous.com/wp-content/uploads/2019/02/mercado-pago-logo.png" alt="Mercado Pago" className="h-8 object-contain dark:brightness-200" />
+        </div>
       </div>
 
       {renderFeatureComparator()}

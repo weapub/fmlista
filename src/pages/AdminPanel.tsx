@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2 } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
 import { AdminLayout } from '@/components/AdminLayout'
+import { cn } from '@/lib/utils'
 
 const RadioCardSkeleton = () => (
   <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse border border-gray-100">
@@ -30,9 +31,30 @@ const RadioCardSkeleton = () => (
 
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuthStore()
   const [radios, setRadios] = useState<RadioType[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [notification, setNotification] = useState<{type: 'success' | 'info' | 'error', message: string} | null>(null)
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status === 'payment_success') {
+      setNotification({
+        type: 'success',
+        message: '¡Pago procesado con éxito! Tu suscripción se activará automáticamente en unos instantes.'
+      });
+      searchParams.delete('status');
+      setSearchParams(searchParams, { replace: true });
+    } else if (status === 'payment_pending') {
+      setNotification({
+        type: 'info',
+        message: 'Tu pago está pendiente de confirmación. Te avisaremos por email una vez acreditado.'
+      });
+      searchParams.delete('status');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   useEffect(() => {
     // TypeScript check requires casting or more complex type guards
@@ -47,7 +69,7 @@ const AdminPanel: React.FC = () => {
         setIsLoading(true)
         // Get radios based on role
         let query = supabase
-          .from('radios')
+          .from('radio_subscription_status')
           .select('*')
           .order('created_at', { ascending: false })
 
@@ -111,6 +133,32 @@ const AdminPanel: React.FC = () => {
       subtitle="Gestión de emisoras y contenido"
     >
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Notificaciones de Pago */}
+        {notification && (
+          <div className={cn(
+            "p-4 rounded-xl border flex items-start gap-3 relative animate-in fade-in slide-in-from-top-4 duration-300",
+            notification.type === 'success' ? "bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400" :
+            notification.type === 'error' ? "bg-red-50 border-red-100 text-red-800 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400" :
+            "bg-blue-50 border-blue-100 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-400"
+          )}>
+            {notification.type === 'success' && <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />}
+            {notification.type === 'error' && <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />}
+            {notification.type === 'info' && <InfoIcon className="w-5 h-5 shrink-0 text-blue-500" />}
+            
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold">{notification.type === 'success' ? '¡Excelente!' : 'Aviso'}</p>
+              <p className="text-sm opacity-90">{notification.message}</p>
+            </div>
+
+            <button 
+              onClick={() => setNotification(null)}
+              className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Tarjetas de estadísticas con nuevo estilo */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-6 flex items-center space-x-4 transition-colors">
@@ -139,7 +187,9 @@ const AdminPanel: React.FC = () => {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Plan Actual</p>
-              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Premium</p>
+              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+                {radios[0]?.plan_name || 'Sin Plan'}
+              </p>
             </div>
           </div>
         </div>
