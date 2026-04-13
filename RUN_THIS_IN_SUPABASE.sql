@@ -24,14 +24,7 @@ VALUES
   5000,
   'ARS',
   'Perfecto para radios que están arrancando o quieren migrar a digital sin complicaciones.',
-  ARRAY[
-    'Streaming de audio HD',
-    'Hasta 50 oyentes simultáneos',
-    'Player embebible en tu web',
-    'Estadísticas básicas de audiencia',
-    '– Streaming de video',
-    '– Soporte prioritario'
-  ],
+  '["Streaming de audio HD", "Hasta 50 oyentes simultáneos", "Player embebible en tu web", "Estadísticas básicas de audiencia", "– Streaming de video", "– Soporte prioritario"]'::jsonb,
   'monthly',
   true
 ),
@@ -41,14 +34,7 @@ VALUES
   8000,
   'ARS',
   'Para radios establecidas que quieren crecer, con video y herramientas avanzadas incluidas.',
-  ARRAY[
-    'Streaming de audio y video HD',
-    'Oyentes ilimitados',
-    'Player embebible personalizado',
-    'Panel de estadísticas avanzado',
-    'Soporte prioritario 24/7',
-    'App en FM Lista destacada'
-  ],
+  '["Streaming de audio y video HD", "Oyentes ilimitados", "Player embebible personalizado", "Panel de estadísticas avanzado", "Soporte prioritario 24/7", "App en FM Lista destacada"]'::jsonb,
   'monthly',
   true
 );
@@ -64,14 +50,7 @@ VALUES
   48000,
   'ARS',
   'Perfecto para radios que están arrancando o quieren migrar a digital sin complicaciones.',
-  ARRAY[
-    'Streaming de audio HD',
-    'Hasta 50 oyentes simultáneos',
-    'Player embebible en tu web',
-    'Estadísticas básicas de audiencia',
-    '– Streaming de video',
-    '– Soporte prioritario'
-  ],
+  '["Streaming de audio HD", "Hasta 50 oyentes simultáneos", "Player embebible en tu web", "Estadísticas básicas de audiencia", "– Streaming de video", "– Soporte prioritario"]'::jsonb,
   'yearly',
   true,
   false
@@ -82,14 +61,7 @@ VALUES
   64000,
   'ARS',
   'Para radios establecidas que quieren crecer, con video y herramientas avanzadas incluidas.',
-  ARRAY[
-    'Streaming de audio y video HD',
-    'Oyentes ilimitados',
-    'Player embebible personalizado',
-    'Panel de estadísticas avanzado',
-    'Soporte prioritario 24/7',
-    'App en FM Lista destacada'
-  ],
+  '["Streaming de audio y video HD", "Oyentes ilimitados", "Player embebible personalizado", "Panel de estadísticas avanzado", "Soporte prioritario 24/7", "App en FM Lista destacada"]'::jsonb,
   'yearly',
   true,
   false
@@ -106,12 +78,7 @@ VALUES
   15000,
   'ARS',
   'Tu aviso en la pantalla principal de la app, vista por todos los usuarios desde que la abren.',
-  ARRAY[
-    'Banner en pantalla de inicio',
-    'Rotación con otras marcas',
-    'Estadísticas de impresiones',
-    'Link a tu web o WhatsApp'
-  ],
+  '["Banner en pantalla de inicio", "Rotación con otras marcas", "Estadísticas de impresiones", "Link a tu web o WhatsApp"]'::jsonb,
   'monthly',
   true
 ),
@@ -121,13 +88,7 @@ VALUES
   3000,
   'ARS',
   'Patrocinás directamente una radio y quedás asociado a su audiencia fiel. Mayor recordación de marca.',
-  ARRAY[
-    'Logo en la página de la radio',
-    'Mención al aire (opcional)',
-    'Audiencia segmentada y fiel',
-    'Métricas de engagement',
-    'Renovación mensual sin contratos'
-  ],
+  '["Logo en la página de la radio", "Mención al aire (opcional)", "Audiencia segmentada y fiel", "Métricas de engagement", "Renovación mensual sin contratos"]'::jsonb,
   'monthly',
   true
 ),
@@ -137,13 +98,7 @@ VALUES
   35000,
   'ARS',
   'Ocupás el 100% del espacio publicitario en la app durante el mes. Sin competencia, máxima visibilidad.',
-  ARRAY[
-    'Banner exclusivo en toda la app',
-    'Sin rotación con otras marcas',
-    'Notificación push a usuarios',
-    'Reporte mensual detallado',
-    'Asesoramiento creativo incluido'
-  ],
+  '["Banner exclusivo en toda la app", "Sin rotación con otras marcas", "Notificación push a usuarios", "Reporte mensual detallado", "Asesoramiento creativo incluido"]'::jsonb,
   'monthly',
   true
 );
@@ -159,12 +114,7 @@ VALUES
   144000,
   'ARS',
   'Tu aviso en la pantalla principal de la app, vista por todos los usuarios desde que la abren.',
-  ARRAY[
-    'Banner en pantalla de inicio',
-    'Rotación con otras marcas',
-    'Estadísticas de impresiones',
-    'Link a tu web o WhatsApp'
-  ],
+  '["Banner en pantalla de inicio", "Rotación con otras marcas", "Estadísticas de impresiones", "Link a tu web o WhatsApp"]'::jsonb,
   'yearly',
   true,
   false
@@ -175,13 +125,7 @@ VALUES
   28800,
   'ARS',
   'Patrocinás directamente una radio y quedás asociado a su audiencia fiel. Mayor recordación de marca.',
-  ARRAY[
-    'Logo en la página de la radio',
-    'Mención al aire (opcional)',
-    'Audiencia segmentada y fiel',
-    'Métricas de engagement',
-    'Renovación mensual sin contratos'
-  ],
+  '["Logo en la página de la radio", "Mención al aire (opcional)", "Audiencia segmentada y fiel", "Métricas de engagement", "Renovación mensual sin contratos"]'::jsonb,
   'yearly',
   true,
   false
@@ -192,13 +136,7 @@ VALUES
   336000,
   'ARS',
   'Ocupás el 100% del espacio publicitario en la app durante el mes. Sin competencia, máxima visibilidad.',
-  ARRAY[
-    'Banner exclusivo en toda la app',
-    'Sin rotación con otras marcas',
-    'Notificación push a usuarios',
-    'Reporte mensual detallado',
-    'Asesoramiento creativo incluido'
-  ],
+  '["Banner exclusivo en toda la app", "Sin rotación con otras marcas", "Notificación push a usuarios", "Reporte mensual detallado", "Asesoramiento creativo incluido"]'::jsonb,
   'yearly',
   true,
   false
@@ -215,14 +153,7 @@ VALUES
   2000,
   'ARS',
   'Presencia digital lista para usar. Ideal para radios que quieren mostrar lo esencial sin esfuerzo.',
-  ARRAY[
-    'Página dentro de FM Lista',
-    'Logo, descripción y redes sociales',
-    'Player integrado',
-    'Grilla de programación básica',
-    '– Noticias y contenido propio',
-    '– Galería de fotos'
-  ],
+  '["Página dentro de FM Lista", "Logo, descripción y redes sociales", "Player integrado", "Grilla de programación básica", "– Noticias y contenido propio", "– Galería de fotos"]'::jsonb,
   'monthly',
   true
 ),
@@ -232,14 +163,7 @@ VALUES
   4500,
   'ARS',
   'Todo lo que tu radio necesita para destacarse, generar contenido y fidelizar oyentes.',
-  ARRAY[
-    'Todo del plan Básico',
-    'Sección de noticias y novedades',
-    'Galería de fotos y videos',
-    'Grilla de programación completa',
-    'Formulario de contacto',
-    'Perfil destacado en búsquedas'
-  ],
+  '["Todo del plan Básico", "Sección de noticias y novedades", "Galería de fotos y videos", "Grilla de programación completa", "Formulario de contacto", "Perfil destacado en búsquedas"]'::jsonb,
   'monthly',
   true
 ),
@@ -249,14 +173,7 @@ VALUES
   8000,
   'ARS',
   'La experiencia completa. Tu radio con su propia identidad digital, estadísticas y todo personalizado.',
-  ARRAY[
-    'Todo del plan Profesional',
-    'Diseño personalizado con tu marca',
-    'Analytics detallado de oyentes',
-    'Integración con redes sociales',
-    'Acceso anticipado a novedades',
-    'Soporte dedicado vía WhatsApp'
-  ],
+  '["Todo del plan Profesional", "Diseño personalizado con tu marca", "Analytics detallado de oyentes", "Integración con redes sociales", "Acceso anticipado a novedades", "Soporte dedicado vía WhatsApp"]'::jsonb,
   'monthly',
   true
 );
@@ -272,14 +189,7 @@ VALUES
   19200,
   'ARS',
   'Presencia digital lista para usar. Ideal para radios que quieren mostrar lo esencial sin esfuerzo.',
-  ARRAY[
-    'Página dentro de FM Lista',
-    'Logo, descripción y redes sociales',
-    'Player integrado',
-    'Grilla de programación básica',
-    '– Noticias y contenido propio',
-    '– Galería de fotos'
-  ],
+  '["Página dentro de FM Lista", "Logo, descripción y redes sociales", "Player integrado", "Grilla de programación básica", "– Noticias y contenido propio", "– Galería de fotos"]'::jsonb,
   'yearly',
   true,
   false
@@ -290,14 +200,7 @@ VALUES
   43200,
   'ARS',
   'Todo lo que tu radio necesita para destacarse, generar contenido y fidelizar oyentes.',
-  ARRAY[
-    'Todo del plan Básico',
-    'Sección de noticias y novedades',
-    'Galería de fotos y videos',
-    'Grilla de programación completa',
-    'Formulario de contacto',
-    'Perfil destacado en búsquedas'
-  ],
+  '["Todo del plan Básico", "Sección de noticias y novedades", "Galería de fotos y videos", "Grilla de programación completa", "Formulario de contacto", "Perfil destacado en búsquedas"]'::jsonb,
   'yearly',
   true,
   false
@@ -308,14 +211,7 @@ VALUES
   76800,
   'ARS',
   'La experiencia completa. Tu radio con su propia identidad digital, estadísticas y todo personalizado.',
-  ARRAY[
-    'Todo del plan Profesional',
-    'Diseño personalizado con tu marca',
-    'Analytics detallado de oyentes',
-    'Integración con redes sociales',
-    'Acceso anticipado a novedades',
-    'Soporte dedicado vía WhatsApp'
-  ],
+  '["Todo del plan Profesional", "Diseño personalizado con tu marca", "Analytics detallado de oyentes", "Integración con redes sociales", "Acceso anticipado a novedades", "Soporte dedicado vía WhatsApp"]'::jsonb,
   'yearly',
   true,
   false
