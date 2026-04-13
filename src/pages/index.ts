@@ -87,6 +87,12 @@ serve(async (req) => {
 
       // 3. Si el pago está aprobado, activar suscripción
       if (payment.status === 'approved') {
+        // Obtener el plan para determinar la duración (30 días vs 365 días)
+        const { data: plan } = await supabaseClient.from('plans').select('interval').eq('id', planId).single();
+        
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + (plan?.interval === 'yearly' ? 365 : 30));
+
         const { error: subError } = await supabaseClient
           .from('subscriptions')
           .upsert({
@@ -94,7 +100,7 @@ serve(async (req) => {
             plan_id: planId,
             status: 'active',
             mp_payment_id: id,
-            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            current_period_end: expirationDate.toISOString(),
             updated_at: new Date().toISOString()
           }, { onConflict: 'user_id' })
 

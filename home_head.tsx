@@ -197,100 +197,101 @@ export const Home: React.FC = () => {
             </div>
           </div>
         )}
-            {/* Destacadas */}
-            {featuredRadios.length > 0 && !hasActiveFilters && (
-              <div className="mb-12 max-w-[896px] mx-auto">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Destacadas</h2>
-                  <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800 font-medium">
-                    Patrocinado
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredRadios.map(radio => (
-                    <RadioCard key={radio.id} radio={radio} isFeatured={true} />
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* Tendencias */}
-            {!hasActiveFilters && (
-              <div className="mb-12 max-w-[896px] mx-auto">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
-                  {specialTrendingCategory && (
-                <span className="text-sm text-gray-500 dark:text-gray-400">Categoría: {specialTrendingCategory}</span>
-                  )}
-                </div>
-                {specialTrendingRadios.length === 0 ? (
-                  <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {specialTrendingRadios.map(radio => (
-                      <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Agregadas recientemente */}
-            {!hasActiveFilters && (
-              <div className="mb-12 max-w-[896px] mx-auto">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
-                {specialRecentRadios.length === 0 ? (
-                  <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {specialRecentRadios.map(radio => (
-                      <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Results count */}
-            <div className="mb-6 max-w-[896px] mx-auto">
-              <p className="text-gray-600 dark:text-gray-400">
-                Mostrando {filteredBySearch.length} de {radios.length} emisoras
-              </p>
+        {/* Destacadas */}
+        {featuredRadios.length > 0 && !hasActiveFilters && (
+          <div className="mb-12 max-w-[896px] mx-auto">
+            <div className="flex items-center space-x-2 mb-4">
+              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Destacadas</h2>
+              <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800 font-medium">
+                Patrocinado
+              </span>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {featuredRadios.map(radio => (
+                <RadioCard key={radio.id} radio={radio} isFeatured={true} />
+              ))}
+            </div>
+          </div>
+        )}
 
-            <AdBanner position="home_middle" />
-            
-            {/* Radio Grid */}
-            {filteredBySearch.length === 0 ? (
-              <div className="text-center py-12">
-                <RadioIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron emisoras</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-              Intenta ajustar tus filtros o término de búsqueda
-                </p>
-              </div>
+        {/* Tendencias */}
+        {!hasActiveFilters && (
+          <div className="mb-12 max-w-[896px] mx-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
+              {specialTrendingCategory && (
+                <span className="text-sm text-gray-500 dark:text-gray-400">Categoría: {specialTrendingCategory}</span>
+              )}
+            </div>
+            {specialTrendingRadios.length === 0 ? (
+              <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
             ) : (
-              <div className="max-w-[896px] mx-auto mb-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredBySearch.map((radio) => (
-                    <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {specialTrendingRadios.map(radio => (
+                  <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
+                ))}
               </div>
             )}
-            
-            {hasMore && (
-              <div ref={loaderRef} className="mt-12 pb-12 max-w-[896px] mx-auto">
-                {isLoadingMore && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[...Array(2)].map((_, i) => (
-                      <RadioCardSkeleton key={`more-${i}`} />
-                    ))}
-                  </div>
-                )}
+          </div>
+        )}
+
+        {/* Agregadas recientemente */}
+        {!hasActiveFilters && (
+          <div className="mb-12 max-w-[896px] mx-auto">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
+            {specialRecentRadios.length === 0 ? (
+              <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {specialRecentRadios.map(radio => (
+                  <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
+                ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Results count */}
+        <div className="mb-6 max-w-[896px] mx-auto">
+          <p className="text-gray-600 dark:text-gray-400">
+            Mostrando {filteredBySearch.length} de {radios.length} emisoras
+          </p>
+        </div>
+
+        <AdBanner position="home_middle" />
+        
+        {/* Radio Grid */}
+        {filteredBySearch.length === 0 ? (
+          <div className="text-center py-12">
+            <RadioIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron emisoras</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Intenta ajustar tus filtros o término de búsqueda
+            </p>
+          </div>
+        ) : (
+          <div className="max-w-[896px] mx-auto mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredBySearch.map((radio) => (
+                <RadioCard key={radio.id} radio={radio} isFeatured={radio.is_featured} />
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {hasMore && (
+          <div ref={loaderRef} className="mt-12 pb-12 max-w-[896px] mx-auto">
+            {isLoadingMore && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[...Array(2)].map((_, i) => (
+                  <RadioCardSkeleton key={`more-${i}`} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <Footer className={currentRadio ? 'pb-32' : 'pb-8'} />
     </div>

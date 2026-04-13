@@ -156,6 +156,11 @@ export const PlansPage: React.FC = () => {
                   Recomendado
                 </div>
               )}
+              {plan.interval === 'yearly' && (
+                <div className="absolute top-4 right-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
+                  {plan.type === 'microsite' ? 'Incluye Dominio' : 'Ahorro 20%'}
+                </div>
+              )}
               <div className="flex flex-col h-full">
                 <h3 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-4 text-center">{plan.name}</h3>
                 <div className="flex items-baseline justify-center mb-6">
@@ -164,14 +169,25 @@ export const PlansPage: React.FC = () => {
                 </div>
                 <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-8 leading-relaxed text-center text-sm">{plan.description}</p>
                 <ul className="space-y-4 mb-10 flex-grow">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start">
-                      <div className="bg-[#696cff]/10 p-1 rounded-full mr-3 group-hover:bg-[#696cff] transition-colors">
-                        <Check className="w-3.5 h-3.5 text-[#696cff] group-hover:text-white" />
-                      </div>
-                      <span className="text-[#697a8d] dark:text-[#a3a4cc] font-normal text-sm">{feature}</span>
-                    </li>
-                  ))}
+                  {plan.features.map((feature, idx) => {
+                    const isExcluded = feature.startsWith('–') || feature.startsWith('-');
+                    const cleanFeature = isExcluded ? feature.substring(1).trim() : feature;
+                    
+                    return (
+                      <li key={idx} className="flex items-start">
+                        <div className={cn(
+                          "p-1 rounded-full mr-3 transition-colors",
+                          isExcluded ? "bg-slate-100 dark:bg-slate-800" : "bg-[#696cff]/10 group-hover:bg-[#696cff]"
+                        )}>
+                          {isExcluded ? <Minus className="w-3.5 h-3.5 text-slate-400" /> : <Check className="w-3.5 h-3.5 text-[#696cff] group-hover:text-white" />}
+                        </div>
+                        <span className={cn(
+                          "font-normal text-sm",
+                          isExcluded ? "text-slate-400 line-through opacity-70" : "text-[#697a8d] dark:text-[#a3a4cc]"
+                        )}>{cleanFeature}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <button
                   onClick={() => handleSubscribe(plan)}

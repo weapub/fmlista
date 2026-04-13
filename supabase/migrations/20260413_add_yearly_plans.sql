@@ -5,22 +5,33 @@
 INSERT INTO public.plans (name, type, price, currency, description, features, interval, active)
 VALUES 
 (
-  'Plan Streaming Básico',
+  'Streaming Básico',
   'streaming',
   48000,
   'ARS',
-  'Audio MP3 128kbps',
-  ARRAY['Listeners ilimitados', 'AutoDJ 5GB', 'Soporte 24/7'],
+  'Perfecto para radios que están arrancando o quieren migrar a digital sin complicaciones.',
+  ARRAY['Streaming de audio HD', 'Hasta 50 oyentes simultáneos', 'Player embebible', 'Estadísticas básicas', '– Streaming de video', '– Soporte prioritario'],
   'yearly',
   true
 ),
 (
-  'Plan Streaming Pro',
+  'Streaming Profesional',
   'streaming',
   76800,
   'ARS',
-  'Audio AAC+ 128kbps + App',
-  ARRAY['Listeners ilimitados', 'AutoDJ 15GB', 'Soporte Prioritario', 'App Android'],
+  'La opción equilibrada para emisoras en crecimiento con App propia.',
+  ARRAY['Todo lo del plan Básico', 'Streaming en HD AAC+', 'Hasta 500 oyentes', 'App Android incluida', 'Estadísticas avanzadas', 'Soporte prioritario', '– Streaming de video'],
+  'yearly',
+  true,
+  true -- is_featured
+),
+(
+  'Streaming Full',
+  'streaming',
+  115200,
+  'ARS',
+  'Potencia total con video, oyentes ilimitados y soporte VIP.',
+  ARRAY['Todo lo del plan Pro', 'Oyentes ilimitados', 'Streaming de video HD', 'App Android + iOS', 'Grabación de programas', 'Soporte 24/7 VIP'],
   'yearly',
   true
 )
@@ -30,12 +41,32 @@ ON CONFLICT(id) DO NOTHING;
 INSERT INTO public.plans (name, type, price, currency, description, features, interval, active)
 VALUES 
 (
-  'Plan Publicidad Home',
+  'Publicidad Home',
   'ads',
   144000,
   'ARS',
   'Banner en página de inicio',
   ARRAY['Posición Top', 'Rotación garantizada', 'Reporte de clicks'],
+  'yearly',
+  true
+),
+(
+  'Banner Lateral / Player',
+  'ads',
+  96000,
+  'ARS',
+  'Presencia constante en el reproductor y barra lateral.',
+  ARRAY['Ubicación estratégica', 'Alta visibilidad', 'Reporte mensual'],
+  'yearly',
+  true
+),
+(
+  'Pop-up de Bienvenida',
+  'ads',
+  192000,
+  'ARS',
+  'Impacto total al abrir la plataforma o micrositio.',
+  ARRAY['100% de impresiones', 'Botón de acción directo', 'Reporte detallado'],
   'yearly',
   true
 )

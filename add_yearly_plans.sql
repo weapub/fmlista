@@ -15,12 +15,22 @@ VALUES
   true
 ),
 (
-  'Plan Streaming Pro',
+  'Streaming Pro',
   'streaming',
   76800,
   'ARS',
-  'Audio AAC+ 128kbps + App',
-  ARRAY['Listeners ilimitados', 'AutoDJ 15GB', 'Soporte Prioritario', 'App Android'],
+  'La opción equilibrada para emisoras en crecimiento con App propia.',
+  ARRAY['Todo lo del plan Básico', 'Streaming en HD AAC+', 'Hasta 500 oyentes', 'App Android incluida', 'Estadísticas avanzadas', 'Soporte prioritario', '– Streaming de video'],
+  'yearly',
+  true
+),
+(
+  'Streaming Full',
+  'streaming',
+  115200,
+  'ARS',
+  'Potencia total con video, oyentes ilimitados y soporte VIP.',
+  ARRAY['Todo lo del plan Pro', 'Oyentes ilimitados', 'Streaming de video HD', 'App Android + iOS', 'Grabación de programas', 'Soporte 24/7 VIP'],
   'yearly',
   true
 )
