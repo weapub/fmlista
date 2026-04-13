@@ -13,6 +13,7 @@ export interface Radio {
   category?: string | null;
   description?: string | null;
   is_featured?: boolean;
+  plan_name?: string | null;
   stream_url?: string | null;
   video_stream_url?: string | null;
   created_at?: string | null;

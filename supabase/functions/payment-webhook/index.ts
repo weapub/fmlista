@@ -1,3 +1,6 @@
+// Payment webhook handler moved from src/pages/index.ts
+// This file is intended to run in a Deno-based Supabase Edge Function environment.
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
@@ -14,7 +17,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     const mpAccessToken = Deno.env.get('MP_ACCESS_TOKEN') ?? ''
 
-    // Usamos el service_role_key para saltar las reglas RLS y actualizar el estado del usuario
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey)
 
     const url = new URL(req.url)
@@ -22,7 +24,6 @@ serve(async (req) => {
     const id = url.searchParams.get('id') || url.searchParams.get('data.id')
 
     if (topic === 'payment') {
-      // 1. Obtener detalles del pago desde Mercado Pago
       const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
         headers: { 'Authorization': `Bearer ${mpAccessToken}` }
       })
@@ -30,10 +31,8 @@ serve(async (req) => {
       if (!mpResponse.ok) throw new Error('Error al consultar pago en MP')
       const payment = await mpResponse.json()
 
-      // 2. Extraer metadatos (asociados en create-mp-preference)
       const { userId, planId } = JSON.parse(payment.external_reference)
 
-      // 3. Si el pago está aprobado, activar suscripción
       if (payment.status === 'approved') {
         const { error: subError } = await supabaseClient
           .from('subscriptions')
@@ -47,7 +46,6 @@ serve(async (req) => {
           }, { onConflict: 'user_id' })
 
         if (subError) throw subError
-        
         console.log(`✅ Suscripción activada para el usuario: ${userId}`)
       }
     }
