@@ -209,6 +209,13 @@ const AdminPanel: React.FC = () => {
                     <span>Gestionar Planes</span>
                   </button>
                   <button
+                    onClick={() => navigate('/admin/anuncios')}
+                    className="bg-[#ff9500]/10 text-[#ff9500] px-4 py-2 rounded-lg hover:bg-[#ff9500]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+                  >
+                    <Megaphone className="w-4 h-4" />
+                    <span>Gestionar Anuncios</span>
+                  </button>
+                  <button
                     onClick={() => navigate('/admin/settings')}
                     className="bg-[#697a8d]/10 text-[#697a8d] dark:text-[#a3a4cc] px-4 py-2 rounded-lg hover:bg-[#697a8d]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
                   >
@@ -283,11 +290,18 @@ const AdminPanel: React.FC = () => {
                           <span>Horarios</span>
                         </button>
                         <button
+                          onClick={() => navigate(`/admin/anuncios/${radio.id}`)}
+                          className="flex items-center justify-center space-x-1 py-2 bg-[#ff9500]/10 text-[#ff9500] rounded-lg hover:bg-[#ff9500]/20 transition-colors text-xs font-semibold"
+                        >
+                          <Megaphone className="w-3.5 h-3.5" />
+                          <span>Anuncios</span>
+                        </button>
+                        <button
                           onClick={() => handleDeleteRadio(radio.id)}
-                          className="col-span-2 py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                          className="py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>Eliminar Emisora</span>
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </div>

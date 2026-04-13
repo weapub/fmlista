@@ -8,6 +8,7 @@ const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ defa
 const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
 const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
+const AdsManager = React.lazy(() => import('@/pages/AdsManager'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
 const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'));
@@ -37,6 +38,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/planes" element={<AdminPlans />} />
+          <Route path="/admin/anuncios" element={<AdsManager />} />
+          <Route path="/admin/anuncios/:radioId" element={<AdsManager />} />
           <Route path="/admin/profile/:id" element={<ProfileEditor />} />
           <Route path="/admin/profile/new" element={<ProfileEditor />} />
           <Route path="/admin/schedule/:id" element={<ScheduleManager />} />
