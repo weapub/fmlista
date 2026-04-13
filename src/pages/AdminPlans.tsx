@@ -351,23 +351,65 @@ export default function AdminPlans() {
                   Características *
                 </label>
                 <div className="space-y-3">
-                  {formData.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={feature}
-                        disabled
-                        className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white opacity-70"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFeature(idx)}
-                        className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                  {formData.features.length > 0 && (
+                    <div className="space-y-2 mb-4 p-4 bg-gray-50 dark:bg-[#1a1b2e] rounded-lg border border-gray-200 dark:border-[#444564]">
+                      {/* Características incluidas */}
+                      <div>
+                        {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).length > 0 && (
+                          <>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2 uppercase">Incluidas</p>
+                            <div className="space-y-2 mb-4">
+                              {formData.features.filter(f => !f.startsWith('–') && !f.startsWith('-')).map((feature, idx) => {
+                                const actualIdx = formData.features.indexOf(feature);
+                                return (
+                                  <div key={actualIdx} className="flex items-center gap-2">
+                                    <div className="flex-1 px-4 py-2 border border-emerald-200 dark:border-emerald-800/30 rounded-lg dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 text-sm">
+                                      ✓ {feature}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveFeature(actualIdx)}
+                                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 transition-colors"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Características no incluidas */}
+                      <div>
+                        {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).length > 0 && (
+                          <>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase">No Incluidas</p>
+                            <div className="space-y-2">
+                              {formData.features.filter(f => f.startsWith('–') || f.startsWith('-')).map((feature, idx) => {
+                                const actualIdx = formData.features.indexOf(feature);
+                                return (
+                                  <div key={actualIdx} className="flex items-center gap-2">
+                                    <div className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#0a0a12] text-gray-500 dark:text-gray-400 text-sm line-through opacity-60">
+                                      {feature}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveFeature(actualIdx)}
+                                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-red-500 transition-colors"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  )}
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -375,7 +417,7 @@ export default function AdminPlans() {
                       onChange={(e) => setNewFeature(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddFeature())}
                       className="flex-1 px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white"
-                      placeholder="Agregar característica..."
+                      placeholder="Agregar característica... (usa '–' al inicio para NO incluidas)"
                     />
                     <button
                       type="button"
@@ -385,6 +427,9 @@ export default function AdminPlans() {
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
+                  <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                    💡 <strong>Tip:</strong> Escribe características normales para "Incluidas" o comienza con "<strong>–</strong>" para características "No Incluidas" que se mostrarán tachadas.
+                  </p>
                 </div>
               </div>
 
