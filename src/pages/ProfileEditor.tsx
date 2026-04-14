@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Radio, Plan } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info, CreditCard } from 'lucide-react';
+import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info, CreditCard, Settings } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 import { ROLES } from '@/types/auth';
 
