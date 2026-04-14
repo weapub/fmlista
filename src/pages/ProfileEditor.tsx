@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Radio, Plan } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info, CreditCard, Settings } from 'lucide-react';
+import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info, CreditCard, Settings, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
+import { cn } from '@/lib/utils';
 import { ROLES } from '@/types/auth';
 
 export default function ProfileEditor() {
@@ -15,6 +16,7 @@ export default function ProfileEditor() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<{id: string, email: string}[]>([]);
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable' | 'invalid'>('idle');
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -149,6 +151,27 @@ export default function ProfileEditor() {
     }
   };
 
+  useEffect(() => {
+    const checkSlug = async () => {
+      if (!formData.slug) {
+        setSlugStatus('idle');
+        return;
+      }
+
+      if (!/^[a-z0-9-.]+$/.test(formData.slug)) {
+        setSlugStatus('invalid');
+        return;
+      }
+
+      setSlugStatus('checking');
+      const available = await isSlugAvailable(formData.slug, id);
+      setSlugStatus(available ? 'available' : 'unavailable');
+    };
+
+    const timeoutId = setTimeout(checkSlug, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.slug, id]);
+
   const isSlugAvailable = async (slug: string, currentId?: string): Promise<boolean> => {
     if (!slug) return true;
     try {
@@ -166,9 +189,27 @@ export default function ProfileEditor() {
     }
   };
 
+  const generateSlug = (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize('NFD') // Separa caracteres combinados (como acentos)
+      .replace(/[\u0300-\u036f]/g, '') // Elimina los acentos
+      .replace(/[^a-z0-9.-]/g, '-') // Reemplaza todo lo que no sea letra, número, punto o guion por un guion
+      .replace(/-+/g, '-') // Evita guiones múltiples seguidos
+      .replace(/^-+|-+$/g, ''); // Quita guiones al inicio o final
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      // Generar slug automático solo si es una radio nueva y estamos cambiando el nombre
+      if (name === 'name' && (!id || id === 'new')) {
+        newData.slug = generateSlug(value);
+      }
+      return newData;
+    });
   };
 
   const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<Blob> => {
@@ -257,20 +298,16 @@ export default function ProfileEditor() {
     setSaving(true);
 
     try {
-      // Validate slug format if present
-      if (formData.slug && !/^[a-z0-9-.]+$/.test(formData.slug)) {
+      if (slugStatus === 'invalid') {
         alert('El identificador (slug) solo puede contener letras minúsculas, números, guiones y puntos.');
         setSaving(false);
         return;
       }
 
-      if (formData.slug) {
-        const available = await isSlugAvailable(formData.slug, id);
-        if (!available) {
-          alert('El Identificador URL (Slug) ya está en uso por otra radio. Elige uno diferente.');
-          setSaving(false);
-          return;
-        }
+      if (slugStatus === 'unavailable') {
+        alert('El Identificador URL (Slug) ya está en uso por otra radio. Elige uno diferente.');
+        setSaving(false);
+        return;
       }
 
       if (!user?.id) {
@@ -501,16 +538,35 @@ export default function ProfileEditor() {
 
               <div>
                 <label className={labelClasses}>Identificador URL (Slug)</label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleInputChange}
-                  placeholder="ej. radio.formosa"
-                  className={inputClasses}
-                />
-                <p className="text-[10px] text-[#a1acb8] mt-1 italic">
-                  Solo minúsculas, números, puntos y guiones.
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleInputChange}
+                    placeholder="ej. radio.formosa"
+                    className={cn(
+                      inputClasses,
+                      slugStatus === 'available' && "border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/10",
+                      (slugStatus === 'unavailable' || slugStatus === 'invalid') && "border-red-500 focus:border-red-500 focus:ring-red-500/10"
+                    )}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                    {slugStatus === 'checking' && <Loader2 className="w-4 h-4 animate-spin text-[#a1acb8]" />}
+                    {slugStatus === 'available' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                    {(slugStatus === 'unavailable' || slugStatus === 'invalid') && <AlertCircle className="w-4 h-4 text-red-500" />}
+                  </div>
+                </div>
+                <p className={cn(
+                  "text-[10px] mt-1 italic",
+                  slugStatus === 'invalid' ? "text-red-500" : 
+                  slugStatus === 'unavailable' ? "text-red-500" :
+                  slugStatus === 'available' ? "text-emerald-600" : "text-[#a1acb8]"
+                )}>
+                  {slugStatus === 'invalid' && "Formato inválido (solo minúsculas, números, puntos y guiones)."}
+                  {slugStatus === 'unavailable' && "Este identificador ya está en uso."}
+                  {slugStatus === 'available' && "¡Identificador disponible!"}
+                  {slugStatus === 'idle' && "Solo minúsculas, números, puntos y guiones."}
                 </p>
               </div>
 
