@@ -21,7 +21,7 @@ export const Login: React.FC = () => {
   
   useEffect(() => {
     if (user) {
-      if (user.role === 'admin' || user.role === 'radio_admin') {
+      if (user.role === 'super_admin' || user.role === 'radio_admin') {
         navigate('/admin')
       } else {
         navigate('/')

@@ -33,7 +33,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Si no hay usuario o el rol no es 'admin', redirigimos al login
-  if (!user || user.role !== 'admin') {
+  if (!user || user.role !== 'super_admin') {
     return <Navigate to="/login" replace />;
   }
 
