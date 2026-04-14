@@ -6,6 +6,7 @@ import { Advertisement } from '@/types/database';
 import { Plus, Trash2, Edit, Save, X, ExternalLink, AlertCircle, CheckCircle2, Eye, EyeOff, Megaphone } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 import { cn } from '@/lib/utils';
+import { ROLES } from '@/types/auth';
 
 export default function AdsManager() {
   const navigate = useNavigate();
@@ -48,14 +49,14 @@ export default function AdsManager() {
           return;
         }
 
-        if (user.role !== 'super_admin' && radio.user_id !== user.id) {
+        if (user.role !== ROLES.SUPER_ADMIN && radio.user_id !== user.id) {
           navigate('/admin');
           return;
         }
         setRadioName(radio.name);
       } else {
         // Super Admin Context (Global Ads)
-        if (user.role !== 'super_admin') {
+        if (user.role !== ROLES.SUPER_ADMIN) {
           navigate('/admin');
           return;
         }

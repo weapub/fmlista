@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Radio, Mail, Lock, User, LogIn, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
+import { ROLES, UserRole } from '@/types/auth'
 
 export const Login: React.FC = () => {
   const navigate = useNavigate()
@@ -12,7 +13,7 @@ export const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'listener' as 'listener' | 'radio_admin'
+    role: ROLES.LISTENER as UserRole
   })
   
   useEffect(() => {
@@ -21,7 +22,7 @@ export const Login: React.FC = () => {
   
   useEffect(() => {
     if (user) {
-      if (user.role === 'super_admin' || user.role === 'radio_admin') {
+      if (user.role === ROLES.SUPER_ADMIN || user.role === ROLES.RADIO_ADMIN) {
         navigate('/admin')
       } else {
         navigate('/')

@@ -6,6 +6,7 @@ import { Plan } from '@/types/database';
 import { Plus, Trash2, Edit, Save, X, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 import { cn } from '@/lib/utils';
+import { ROLES } from '@/types/auth';
 
 interface PlanFormData {
   name: string;
@@ -45,7 +46,7 @@ export default function AdminPlans() {
         return;
       }
 
-      if (user.role !== 'super_admin') {
+      if (user.role !== ROLES.SUPER_ADMIN) {
         navigate('/admin');
         return;
       }

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
 import { AdminLayout } from '@/components/AdminLayout'
 import { cn } from '@/lib/utils'
+import { ROLES } from '@/types/auth'
 
 const RadioCardSkeleton = () => (
   <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse border border-gray-100">
@@ -58,8 +59,7 @@ const AdminPanel: React.FC = () => {
   
   useEffect(() => {
     // TypeScript check requires casting or more complex type guards
-    const userRole = user?.role as string;
-    if (!user || (userRole !== 'radio_admin' && userRole !== 'super_admin')) {
+    if (!user || (user.role !== ROLES.RADIO_ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
       navigate('/login')
       return
     }
@@ -74,7 +74,7 @@ const AdminPanel: React.FC = () => {
           .order('created_at', { ascending: false })
 
         // If not super_admin, filter by user_id
-        if (userRole !== 'super_admin') {
+        if (user.role !== ROLES.SUPER_ADMIN) {
           query = query.eq('user_id', user.id)
         }
 
@@ -199,8 +199,15 @@ const AdminPanel: React.FC = () => {
           <div className="p-6 border-b border-gray-50 dark:border-[#444564] flex flex-col sm:flex-row justify-between items-center gap-4">
             <h2 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Mis Emisoras</h2>
             <div className="flex flex-wrap gap-3">
-              {user?.role === 'super_admin' && (
+              {user?.role === ROLES.SUPER_ADMIN && (
                 <>
+                  <button
+                    onClick={() => navigate('/admin/billing')}
+                    className="bg-[#71dd37]/10 text-[#71dd37] px-4 py-2 rounded-lg hover:bg-[#71dd37]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>Gestión de Cobros</span>
+                  </button>
                   <button
                     onClick={() => navigate('/admin/planes')}
                     className="bg-[#03c3ec]/10 text-[#03c3ec] px-4 py-2 rounded-lg hover:bg-[#03c3ec]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
@@ -283,8 +290,15 @@ const AdminPanel: React.FC = () => {
                           <span>Horarios</span>
                         </button>
                         <button
+                          onClick={() => navigate(`/admin/anuncios/${radio.id}`)}
+                          className="col-span-1 py-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                        >
+                          <Megaphone className="w-3.5 h-3.5" />
+                          <span>Anuncios</span>
+                        </button>
+                        <button
                           onClick={() => handleDeleteRadio(radio.id)}
-                          className="col-span-2 py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                          className="col-span-1 py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Eliminar Emisora</span>

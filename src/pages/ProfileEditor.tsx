@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
 import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
+import { ROLES } from '@/types/auth';
 
 export default function ProfileEditor() {
   const { id } = useParams<{ id: string }>();
@@ -55,8 +56,7 @@ export default function ProfileEditor() {
 
   useEffect(() => {
     // TypeScript check requires casting or more complex type guards
-    const userRole = user?.role as string;
-    if (!user || (userRole !== 'radio_admin' && userRole !== 'super_admin')) {
+    if (!user || (user.role !== ROLES.RADIO_ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
       navigate('/login');
       return;
     }
@@ -77,8 +77,7 @@ export default function ProfileEditor() {
 
       // Si no es super admin, solo puede editar sus propias radios
       // TypeScript check requires casting or more complex type guards
-      const userRole = user?.role as string;
-      if (userRole !== 'super_admin') {
+      if (user?.role !== ROLES.SUPER_ADMIN) {
         query = query.eq('user_id', user?.id);
       }
 
@@ -263,8 +262,7 @@ export default function ProfileEditor() {
           .eq('id', id);
 
         // TypeScript check requires casting or more complex type guards
-        const userRole = user?.role as string;
-        if (userRole !== 'super_admin') {
+        if (user?.role !== ROLES.SUPER_ADMIN) {
            query = query.eq('user_id', user.id);
         }
 

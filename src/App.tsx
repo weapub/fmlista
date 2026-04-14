@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { useAuthStore } from '@/stores/authStore'
+import { ROLES } from '@/types/auth'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ default: m.PlansPage })));
@@ -32,8 +33,8 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     return <PageLoader />;
   }
 
-  // Si no hay usuario o el rol no es 'admin', redirigimos al login
-  if (!user || user.role !== 'super_admin') {
+  // Si no hay usuario o el rol no es 'super_admin', redirigimos al login
+  if (!user || user.role !== ROLES.SUPER_ADMIN) {
     return <Navigate to="/login" replace />;
   }
 
