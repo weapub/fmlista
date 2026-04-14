@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Radio } from '@/types/database';
+import { Radio, Plan } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info } from 'lucide-react';
+import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, Share2, Info, CreditCard } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 import { ROLES } from '@/types/auth';
 
@@ -14,6 +14,7 @@ export default function ProfileEditor() {
   const [radio, setRadio] = useState<Radio | null>(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<{id: string, email: string}[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -31,7 +32,8 @@ export default function ProfileEditor() {
     social_instagram: '',
     social_twitter: '',
     address: '',
-    user_id: ''
+    user_id: '',
+    plan_id: ''
   });
 
   const categories = [
@@ -67,11 +69,13 @@ export default function ProfileEditor() {
       setLoading(false);
       if (user?.role === ROLES.SUPER_ADMIN) {
         fetchUsers();
+        fetchPlans();
       }
     } else {
       fetchRadio();
       if (user?.role === ROLES.SUPER_ADMIN) {
         fetchUsers();
+        fetchPlans();
       }
     }
   }, [id, user, navigate]);
@@ -82,6 +86,15 @@ export default function ProfileEditor() {
       .select('id, email')
       .order('email');
     if (data) setUsers(data);
+  };
+
+  const fetchPlans = async () => {
+    const { data } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('active', true)
+      .order('price');
+    if (data) setAvailablePlans(data);
   };
 
   const fetchRadio = async () => {
@@ -101,6 +114,13 @@ export default function ProfileEditor() {
 
       if (error) throw error;
 
+      // Obtener el plan actual si existe
+      const { data: subData } = await supabase
+        .from('subscriptions')
+        .select('plan_id')
+        .eq('radio_id', id)
+        .maybeSingle();
+
       setRadio(data);
       setFormData({
         name: data.name || '',
@@ -118,13 +138,31 @@ export default function ProfileEditor() {
         social_instagram: data.social_instagram || '',
         social_twitter: data.social_twitter || '',
         address: data.address || '',
-        user_id: data.user_id || ''
+        user_id: data.user_id || '',
+        plan_id: subData?.plan_id || ''
       });
     } catch (error) {
       console.error('Error fetching radio:', error);
       navigate('/admin');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const isSlugAvailable = async (slug: string, currentId?: string): Promise<boolean> => {
+    if (!slug) return true;
+    try {
+      let query = supabase
+        .from('radios')
+        .select('id')
+        .eq('slug', slug);
+      if (currentId && currentId !== 'new') {
+        query = query.neq('id', currentId);
+      }
+      const { data } = await query.maybeSingle();
+      return data === null;
+    } catch (err) {
+      return false;
     }
   };
 
@@ -226,13 +264,25 @@ export default function ProfileEditor() {
         return;
       }
 
+      if (formData.slug) {
+        const available = await isSlugAvailable(formData.slug, id);
+        if (!available) {
+          alert('El Identificador URL (Slug) ya está en uso por otra radio. Elige uno diferente.');
+          setSaving(false);
+          return;
+        }
+      }
+
       if (!user?.id) {
         alert('Tu sesión no está disponible. Ingresa nuevamente.');
         setSaving(false);
         return;
       }
+      
+      let radioId = id;
+
       if (!id || id === 'new') {
-        const { error } = await supabase
+        const { data: newRadio, error } = await supabase
           .from('radios')
           .insert({
             name: formData.name,
@@ -251,11 +301,14 @@ export default function ProfileEditor() {
             social_instagram: formData.social_instagram,
             social_twitter: formData.social_twitter,
             address: formData.address
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
+        radioId = newRadio.id;
       } else {
-        const updateData = {
+        const updateData: any = {
             name: formData.name,
             slug: formData.slug || null,
             frequency: formData.frequency,
@@ -270,9 +323,13 @@ export default function ProfileEditor() {
             social_facebook: formData.social_facebook,
             social_instagram: formData.social_instagram,
             social_twitter: formData.social_twitter,
-            address: formData.address,
-            user_id: user.role === ROLES.SUPER_ADMIN ? (formData.user_id || user.id) : undefined
+            address: formData.address
         };
+
+        // Solo actualizamos el owner si el Super Admin seleccionó uno específicamente
+        if (user.role === ROLES.SUPER_ADMIN && formData.user_id) {
+          updateData.user_id = formData.user_id;
+        }
 
         let query = supabase
           .from('radios')
@@ -289,10 +346,30 @@ export default function ProfileEditor() {
         if (error) throw error;
       }
 
+      // Actualizar Plan si es Super Admin
+      if (user.role === ROLES.SUPER_ADMIN && formData.plan_id && radioId) {
+        const { error: subError } = await supabase
+          .from('subscriptions')
+          .upsert({
+            radio_id: radioId,
+            plan_id: formData.plan_id,
+            status: 'active',
+            next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'radio_id' });
+
+        if (subError) throw subError;
+      }
+
       navigate('/admin');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving radio:', error);
-      alert('Error saving radio profile. Please try again.');
+      // Mostramos un error más descriptivo
+      const errorMsg = error.code === '23505' 
+        ? 'El Identificador URL (Slug) ya está en uso por otra radio. Elige uno diferente.'
+        : error.message || 'Ocurrió un problema al guardar los cambios.';
+      
+      alert(`Error: ${errorMsg}`);
     } finally {
       setSaving(false);
     }
@@ -339,6 +416,70 @@ export default function ProfileEditor() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
               <div className="p-2 bg-[#696cff]/10 rounded-lg">
+                <Settings className="w-5 h-5 text-[#696cff]" />
+              </div>
+              <h2 className="text-lg font-bold text-[#566a7f]">Administración y Propietario</h2>
+            </div>
+            
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/30">
+              {user?.role === ROLES.SUPER_ADMIN ? (
+                <>
+                  <div>
+                    <label className={labelClasses}>Usuario Propietario</label>
+                    <select
+                      name="user_id"
+                      value={formData.user_id}
+                      onChange={handleInputChange}
+                      className={inputClasses}
+                    >
+                      <option value="">Seleccionar Usuario...</option>
+                      {users.map(u => (
+                        <option key={u.id} value={u.id}>{u.email}</option>
+                      ))}
+                    </select>
+                    <p className="text-[10px] text-[#a1acb8] mt-1">
+                      Usuario que tendrá acceso a gestionar esta emisora.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>Plan Asignado</label>
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8]" />
+                      <select
+                        name="plan_id"
+                        value={formData.plan_id}
+                        onChange={handleInputChange}
+                        className={`${inputClasses} pl-10`}
+                      >
+                        <option value="">Sin Plan Activo</option>
+                        {availablePlans.map(plan => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.name} (${plan.price}/{plan.interval === 'monthly' ? 'mes' : 'año'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="text-[10px] text-[#a1acb8] mt-1">
+                      Controla las funcionalidades premium de la radio.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="md:col-span-2 p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-3">
+                  <Info className="w-5 h-5 text-blue-500" />
+                  <p className="text-sm text-blue-700">
+                    Estás editando esta radio como administrador. Solo el Super Admin puede cambiar el propietario o el plan.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Card: Información Básica */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+              <div className="p-2 bg-[#696cff]/10 rounded-lg">
                 <Info className="w-5 h-5 text-[#696cff]" />
               </div>
               <h2 className="text-lg font-bold text-[#566a7f]">Información General</h2>
@@ -357,26 +498,6 @@ export default function ProfileEditor() {
                   className={inputClasses}
                 />
               </div>
-
-              {user?.role === ROLES.SUPER_ADMIN && (
-                <div>
-                  <label className={labelClasses}>Propietario (Usuario Responsable)</label>
-                  <select
-                    name="user_id"
-                    value={formData.user_id}
-                    onChange={handleInputChange}
-                    className={inputClasses}
-                  >
-                    <option value="">Yo mismo ({user.email})</option>
-                    {users.map(u => (
-                      <option key={u.id} value={u.id}>{u.email}</option>
-                    ))}
-                  </select>
-                  <p className="text-[10px] text-[#a1acb8] mt-1">
-                    Selecciona qué usuario podrá administrar esta emisora.
-                  </p>
-                </div>
-              )}
 
               <div>
                 <label className={labelClasses}>Identificador URL (Slug)</label>

@@ -13,7 +13,7 @@ DROP POLICY IF EXISTS "Radio admins view own invoices" ON public.invoices;
 CREATE POLICY "Super admins manage all invoices" ON public.invoices
   FOR ALL TO authenticated
   USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'super_admin')
   );
 
 -- Política para Radio Admins (solo lectura de sus propias facturas)
@@ -36,7 +36,7 @@ DROP POLICY IF EXISTS "Radio admins view own subscriptions" ON public.subscripti
 CREATE POLICY "Super admins manage all subscriptions" ON public.subscriptions
   FOR ALL TO authenticated
   USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'super_admin')
   );
 
 CREATE POLICY "Radio admins view own subscriptions" ON public.subscriptions
