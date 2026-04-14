@@ -5,23 +5,25 @@
 INSERT INTO public.plans (name, type, price, currency, description, features, interval, active, is_featured)
 VALUES 
 (
-  'Plan Streaming Básico',
+  'Streaming Básico',
   'streaming',
   48000,
   'ARS',
-  'Audio MP3 128kbps',
-  ARRAY['Listeners ilimitados', 'AutoDJ 5GB', 'Soporte 24/7'],
+  'Perfecto para radios que están arrancando o quieren migrar a digital.',
+  ARRAY['Streaming de audio HD', 'Hasta 50 oyentes simultáneos', 'Player embebible en tu web', 'Estadísticas básicas de audiencia', '– Streaming de video', '– Soporte prioritario'],
   'yearly',
-  true
+  true,
+  false
 ),
 (
-  'Streaming Pro',
+  'Streaming Profesional',
   'streaming',
   76800,
   'ARS',
-  'La opción equilibrada para emisoras en crecimiento con App propia.',
-  ARRAY['Todo lo del plan Básico', 'Streaming en HD AAC+', 'Hasta 500 oyentes', 'App Android incluida', 'Estadísticas avanzadas', 'Soporte prioritario', '– Streaming de video'],
+  'Para radios establecidas que quieren crecer, con video y herramientas avanzadas.',
+  ARRAY['Todo lo del plan Básico', 'Oyentes ilimitados', 'Streaming de video HD', 'App Android personalizada', 'Panel de estadísticas avanzado', 'Soporte prioritario 24/7'],
   'yearly',
+  true,
   true
 ),
 (
@@ -29,10 +31,11 @@ VALUES
   'streaming',
   115200,
   'ARS',
-  'Potencia total con video, oyentes ilimitados y soporte VIP.',
-  ARRAY['Todo lo del plan Pro', 'Oyentes ilimitados', 'Streaming de video HD', 'App Android + iOS', 'Grabación de programas', 'Soporte 24/7 VIP'],
+  'La experiencia definitiva para tu radio con soporte VIP.',
+  ARRAY['Todo lo del plan Pro', 'Calidad de audio 320kbps', 'App Android + iOS', 'Grabación de programas', 'Soporte VIP dedicado', 'Hosting de archivos 50GB'],
   'yearly',
-  true
+  true,
+  false
 )
 ON CONFLICT DO NOTHING;
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Plan } from '@/types/database';
 import { Check, X, Minus, HelpCircle, ChevronDown, ShieldCheck, Zap, CreditCard, Loader2, AlertCircle, Calendar, Layout, Megaphone, Radio, Star, Quote, MessageCircle } from 'lucide-react';
@@ -44,6 +44,7 @@ export const PlansPage: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorNotification, setErrorNotification] = useState<string | null>(null);
   const [successNotification, setSuccessNotification] = useState<string | null>(null);
@@ -115,6 +116,15 @@ export const PlansPage: React.FC = () => {
     setProcessingId(plan.id);
     
     try {
+      // Verificar si el usuario está autenticado antes de proceder
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Redirigir al login si no hay sesión activa
+        navigate('/login', { state: { returnTo: window.location.pathname } });
+        return;
+      }
+
       // Lógica de Startup: Llamada a Edge Function para crear preferencia en Mercado Pago
       // El backend se encarga de la seguridad y de devolver el init_point
       const { data, error } = await supabase.functions.invoke('create-mp-preference', {
