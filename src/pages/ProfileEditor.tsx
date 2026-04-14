@@ -13,6 +13,7 @@ export default function ProfileEditor() {
   const { user } = useAuthStore();
   const [radio, setRadio] = useState<Radio | null>(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<{id: string, email: string}[]>([]);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -29,7 +30,8 @@ export default function ProfileEditor() {
     social_facebook: '',
     social_instagram: '',
     social_twitter: '',
-    address: ''
+    address: '',
+    user_id: ''
   });
 
   const categories = [
@@ -63,10 +65,24 @@ export default function ProfileEditor() {
 
     if (!id || id === 'new') {
       setLoading(false);
+      if (user?.role === ROLES.SUPER_ADMIN) {
+        fetchUsers();
+      }
     } else {
       fetchRadio();
+      if (user?.role === ROLES.SUPER_ADMIN) {
+        fetchUsers();
+      }
     }
   }, [id, user, navigate]);
+
+  const fetchUsers = async () => {
+    const { data } = await supabase
+      .from('users')
+      .select('id, email')
+      .order('email');
+    if (data) setUsers(data);
+  };
 
   const fetchRadio = async () => {
     try {
@@ -101,7 +117,8 @@ export default function ProfileEditor() {
         social_facebook: data.social_facebook || '',
         social_instagram: data.social_instagram || '',
         social_twitter: data.social_twitter || '',
-        address: data.address || ''
+        address: data.address || '',
+        user_id: data.user_id || ''
       });
     } catch (error) {
       console.error('Error fetching radio:', error);
@@ -228,7 +245,7 @@ export default function ProfileEditor() {
             video_stream_url: formData.video_stream_url,
             logo_url: formData.logo_url,
             cover_url: formData.cover_url,
-            user_id: user.id,
+            user_id: user.role === ROLES.SUPER_ADMIN ? (formData.user_id || user.id) : user.id,
             whatsapp: formData.whatsapp,
             social_facebook: formData.social_facebook,
             social_instagram: formData.social_instagram,
@@ -253,7 +270,8 @@ export default function ProfileEditor() {
             social_facebook: formData.social_facebook,
             social_instagram: formData.social_instagram,
             social_twitter: formData.social_twitter,
-            address: formData.address
+            address: formData.address,
+            user_id: user.role === ROLES.SUPER_ADMIN ? (formData.user_id || user.id) : undefined
         };
 
         let query = supabase
@@ -339,6 +357,26 @@ export default function ProfileEditor() {
                   className={inputClasses}
                 />
               </div>
+
+              {user?.role === ROLES.SUPER_ADMIN && (
+                <div>
+                  <label className={labelClasses}>Propietario (Usuario Responsable)</label>
+                  <select
+                    name="user_id"
+                    value={formData.user_id}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                  >
+                    <option value="">Yo mismo ({user.email})</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>{u.email}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-[#a1acb8] mt-1">
+                    Selecciona qué usuario podrá administrar esta emisora.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className={labelClasses}>Identificador URL (Slug)</label>

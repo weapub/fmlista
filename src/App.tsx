@@ -11,6 +11,7 @@ const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.L
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
 const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then(m => ({ default: m.BillingManagement })));
 const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
+const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const AdsManager = React.lazy(() => import('@/pages/AdsManager'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
@@ -62,6 +63,14 @@ export default function App() {
             element={
               <AdminRoute>
                 <BillingManagement />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/admin/users" 
+            element={
+              <AdminRoute>
+                <UserManagement />
               </AdminRoute>
             } 
           />

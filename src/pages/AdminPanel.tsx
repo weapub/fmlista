@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard, Users } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -201,6 +201,13 @@ const AdminPanel: React.FC = () => {
             <div className="flex flex-wrap gap-3">
               {user?.role === ROLES.SUPER_ADMIN && (
                 <>
+                  <button
+                    onClick={() => navigate('/admin/users')}
+                    className="bg-[#696cff]/10 text-[#696cff] px-4 py-2 rounded-lg hover:bg-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Gestión de Usuarios</span>
+                  </button>
                   <button
                     onClick={() => navigate('/admin/billing')}
                     className="bg-[#71dd37]/10 text-[#71dd37] px-4 py-2 rounded-lg hover:bg-[#71dd37]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
