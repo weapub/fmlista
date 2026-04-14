@@ -21,7 +21,7 @@ export const Login: React.FC = () => {
   
   useEffect(() => {
     if (user) {
-      if (user.role === 'radio_admin') {
+      if (user.role === 'admin' || user.role === 'radio_admin') {
         navigate('/admin')
       } else {
         navigate('/')
@@ -41,16 +41,9 @@ export const Login: React.FC = () => {
     try {
       clearError()
       if (isLogin) {
-        const { error } = await signIn(formData.email, formData.password)
-        if (error) throw error
+        await signIn(formData.email, formData.password)
       } else {
-        const { error } = await signUp(formData.email, formData.password, formData.role)
-        if (error) {
-          if (error.message.includes('Database error')) {
-            throw new Error('Error al crear el perfil en la base de datos. Intenta nuevamente en unos segundos.')
-          }
-          throw error
-        }
+        await signUp(formData.email, formData.password, formData.role)
       }
     } catch (error) {
       console.error('Authentication error:', error)

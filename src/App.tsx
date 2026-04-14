@@ -1,12 +1,14 @@
 import React, { useEffect, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { useAuthStore } from '@/stores/authStore'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ default: m.PlansPage })));
 const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
+const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then(m => ({ default: m.BillingManagement })));
 const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
 const AdsManager = React.lazy(() => import('@/pages/AdsManager'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
@@ -20,6 +22,23 @@ const PageLoader = () => (
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#696cff]"></div>
   </div>
 );
+
+// Componente para proteger rutas exclusivas de Super Admin
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuthStore();
+
+  // Mientras carga la sesión, mostramos el loader
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  // Si no hay usuario o el rol no es 'admin', redirigimos al login
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
@@ -37,6 +56,14 @@ export default function App() {
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route 
+            path="/admin/billing" 
+            element={
+              <AdminRoute>
+                <BillingManagement />
+              </AdminRoute>
+            } 
+          />
           <Route path="/admin/planes" element={<AdminPlans />} />
           <Route path="/admin/anuncios" element={<AdsManager />} />
           <Route path="/admin/anuncios/:radioId" element={<AdsManager />} />
