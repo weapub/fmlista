@@ -44,7 +44,7 @@ export const Login: React.FC = () => {
       if (isLogin) {
         await signIn(formData.email, formData.password)
       } else {
-        await signUp(formData.email, formData.password, formData.role)
+        await signUp(formData.email, formData.password, formData.role as 'listener' | 'radio_admin')
       }
     } catch (error) {
       console.error('Authentication error:', error)
