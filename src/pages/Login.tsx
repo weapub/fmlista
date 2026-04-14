@@ -39,10 +39,18 @@ export const Login: React.FC = () => {
     e.preventDefault()
     
     try {
+      clearError()
       if (isLogin) {
-        await signIn(formData.email, formData.password)
+        const { error } = await signIn(formData.email, formData.password)
+        if (error) throw error
       } else {
-        await signUp(formData.email, formData.password, formData.role)
+        const { error } = await signUp(formData.email, formData.password, formData.role)
+        if (error) {
+          if (error.message.includes('Database error')) {
+            throw new Error('Error al crear el perfil en la base de datos. Intenta nuevamente en unos segundos.')
+          }
+          throw error
+        }
       }
     } catch (error) {
       console.error('Authentication error:', error)

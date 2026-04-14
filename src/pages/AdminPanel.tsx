@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, Tag } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -205,15 +205,8 @@ const AdminPanel: React.FC = () => {
                     onClick={() => navigate('/admin/planes')}
                     className="bg-[#03c3ec]/10 text-[#03c3ec] px-4 py-2 rounded-lg hover:bg-[#03c3ec]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
                   >
-                    <Tag className="w-4 h-4" />
+                    <Settings className="w-4 h-4" />
                     <span>Gestionar Planes</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/admin/anuncios')}
-                    className="bg-[#ff9500]/10 text-[#ff9500] px-4 py-2 rounded-lg hover:bg-[#ff9500]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                  >
-                    <Megaphone className="w-4 h-4" />
-                    <span>Gestionar Anuncios</span>
                   </button>
                   <button
                     onClick={() => navigate('/admin/settings')}
@@ -290,18 +283,11 @@ const AdminPanel: React.FC = () => {
                           <span>Horarios</span>
                         </button>
                         <button
-                          onClick={() => navigate(`/admin/anuncios/${radio.id}`)}
-                          className="flex items-center justify-center space-x-1 py-2 bg-[#ff9500]/10 text-[#ff9500] rounded-lg hover:bg-[#ff9500]/20 transition-colors text-xs font-semibold"
-                        >
-                          <Megaphone className="w-3.5 h-3.5" />
-                          <span>Anuncios</span>
-                        </button>
-                        <button
                           onClick={() => handleDeleteRadio(radio.id)}
-                          className="py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                          className="col-span-2 py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>Eliminar</span>
+                          <span>Eliminar Emisora</span>
                         </button>
                       </div>
                     </div>
