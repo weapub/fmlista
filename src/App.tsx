@@ -1,53 +1,56 @@
-import React, { useEffect, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import React, { Suspense, useEffect } from 'react'
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useTheme } from '@/hooks/useTheme'
 import { ROLES } from '@/types/auth'
 
-const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
-const PlansPage = React.lazy(() => import('@/pages/PlansPage').then(m => ({ default: m.PlansPage })));
-const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
-const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
-const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then(m => ({ default: m.BillingManagement })));
-const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
-const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement').then(m => ({ default: m.UserManagement })));
-const PaymentHistory = React.lazy(() => import('@/pages/admin/PaymentHistory').then(m => ({ default: m.PaymentHistory })));
-const AdsManager = React.lazy(() => import('@/pages/AdsManager'));
-const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
-const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
-const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'));
-const AppSettings = React.lazy(() => import('@/pages/AppSettings'));
-const NotFound = React.lazy(() => import('@/pages/NotFound'));
+const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'))
+const PlansPage = React.lazy(() => import('@/pages/PlansPage').then((m) => ({ default: m.PlansPage })))
+const Login = React.lazy(() => import('@/pages/Login').then((m) => ({ default: m.Login })))
+const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'))
+const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then((m) => ({ default: m.BillingManagement })))
+const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'))
+const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement').then((m) => ({ default: m.UserManagement })))
+const PaymentHistory = React.lazy(() => import('@/pages/admin/PaymentHistory').then((m) => ({ default: m.PaymentHistory })))
+const AdsManager = React.lazy(() => import('@/pages/AdsManager'))
+const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'))
+const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'))
+const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'))
+const AppSettings = React.lazy(() => import('@/pages/AppSettings'))
+const NotFound = React.lazy(() => import('@/pages/NotFound'))
 
 const PageLoader = () => (
-  <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 flex items-center justify-center transition-colors">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#696cff]"></div>
+  <div className="min-h-screen bg-[#f5f5f9] flex items-center justify-center transition-colors dark:bg-slate-950">
+    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#696cff]" />
   </div>
-);
+)
 
 const ThemeBootstrap = () => {
-  useTheme();
-  return null;
-};
+  useTheme()
+  return null
+}
 
-// Componente para proteger rutas exclusivas de Super Admin
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuthStore();
+const ProtectedRoute = ({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode
+  allowedRoles: string[]
+}) => {
+  const { user, isLoading } = useAuthStore()
 
-  // Mientras carga la sesión, mostramos el loader
   if (isLoading) {
-    return <PageLoader />;
+    return <PageLoader />
   }
 
-  // Si no hay usuario o el rol no es 'super_admin', redirigimos al login
-  if (!user || user.role !== ROLES.SUPER_ADMIN) {
-    return <Navigate to="/login" replace />;
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
@@ -65,31 +68,94 @@ export default function App() {
           <Route path="/radio/:id" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route 
-            path="/admin/billing" 
+          <Route
+            path="/admin"
             element={
-              <AdminRoute>
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/billing"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
                 <BillingManagement />
-              </AdminRoute>
-            } 
+              </ProtectedRoute>
+            }
           />
-          <Route 
-            path="/admin/users" 
+          <Route
+            path="/admin/users"
             element={
-              <AdminRoute>
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
                 <UserManagement />
-              </AdminRoute>
-            } 
+              </ProtectedRoute>
+            }
           />
-          <Route path="/admin/payments" element={<PaymentHistory />} />
-          <Route path="/admin/planes" element={<AdminPlans />} />
-          <Route path="/admin/anuncios" element={<AdsManager />} />
-          <Route path="/admin/anuncios/:radioId" element={<AdsManager />} />
-          <Route path="/admin/profile/:id" element={<ProfileEditor />} />
-          <Route path="/admin/profile/new" element={<ProfileEditor />} />
-          <Route path="/admin/schedule/:id" element={<ScheduleManager />} />
-          <Route path="/admin/settings" element={<AppSettings />} />
+          <Route
+            path="/admin/payments"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <PaymentHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/planes"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                <AdminPlans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/anuncios"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <AdsManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/anuncios/:radioId"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <AdsManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/profile/:id"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <ProfileEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/profile/new"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <ProfileEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/schedule/:id"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.RADIO_ADMIN, ROLES.SUPER_ADMIN]}>
+                <ScheduleManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                <AppSettings />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/library" element={<UserLibrary />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -63,6 +63,13 @@ const AdminPanel: React.FC = () => {
       });
       searchParams.delete('status');
       setSearchParams(searchParams, { replace: true });
+    } else if (status === 'payment_error') {
+      setNotification({
+        type: 'error',
+        message: 'No pudimos confirmar el pago. Puedes reintentar desde Historial de Pagos o revisar el estado en unos minutos.',
+      });
+      searchParams.delete('status');
+      setSearchParams(searchParams, { replace: true });
     } else if (status === 'payment_pending') {
       setNotification({
         type: 'info',
@@ -298,6 +305,21 @@ const AdminPanel: React.FC = () => {
                         <Play className="w-3 h-3 mr-1 shrink-0" />
                         <span className="truncate">{radio.location || 'Emisora online'}</span>
                       </p>
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        <span className={cn(
+                          'rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase',
+                          (radio as any).subscription_status === 'active'
+                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                            : 'bg-amber-50 text-amber-600 border border-amber-100'
+                        )}>
+                          {(radio as any).subscription_status === 'active' ? 'Suscripcion activa' : 'Sin suscripcion activa'}
+                        </span>
+                        {(radio as any).next_billing_date && (
+                          <span className="rounded-lg border border-slate-100 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase text-slate-500 dark:border-[#444564] dark:bg-[#2b2c40] dark:text-[#a3a4cc]">
+                            Renueva {(new Date((radio as any).next_billing_date)).toLocaleDateString('es-AR')}
+                          </span>
+                        )}
+                      </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <button

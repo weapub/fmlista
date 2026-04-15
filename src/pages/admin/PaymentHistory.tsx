@@ -53,7 +53,7 @@ export const PaymentHistory: React.FC = () => {
     } else if (status === 'payment_error') {
       setNotification({
         type: 'error',
-        message: 'Hubo un problema al procesar el pago. Puedes volver a intentarlo desde esta pantalla.',
+        message: 'Hubo un problema al procesar el pago o el checkout fue cancelado. Puedes volver a intentarlo desde esta pantalla.',
       });
     }
 
@@ -108,7 +108,13 @@ export const PaymentHistory: React.FC = () => {
       }
     } catch (error) {
       console.error('Error al procesar pago:', error);
-      alert('Hubo un error al generar el link de pago. Intenta de nuevo o contacta a soporte.');
+      const message = error instanceof Error ? error.message : '';
+      setNotification({
+        type: 'error',
+        message: message.includes('Authentication required')
+          ? 'Tu sesion expiro. Vuelve a iniciar sesion para generar el link de pago.'
+          : 'Hubo un error al generar el link de pago. Intenta de nuevo o contacta a soporte.',
+      });
     } finally {
       setProcessingId(null);
     }

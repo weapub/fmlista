@@ -13,6 +13,48 @@ type PaymentReference = {
   userId?: string
 }
 
+type MercadoPagoWebhookBody = {
+  type?: string
+  action?: string
+  data?: {
+    id?: string | number
+  }
+}
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status,
+  })
+}
+
+async function parseWebhookPayload(req: Request) {
+  const clonedReq = req.clone()
+  let body: MercadoPagoWebhookBody | null = null
+
+  try {
+    body = (await clonedReq.json()) as MercadoPagoWebhookBody
+  } catch {
+    body = null
+  }
+
+  const url = new URL(req.url)
+  const topic =
+    url.searchParams.get("topic") ||
+    url.searchParams.get("type") ||
+    body?.type ||
+    body?.action?.split(".")[0] ||
+    null
+
+  const idFromBody = body?.data?.id ? String(body.data.id) : null
+  const id =
+    url.searchParams.get("id") ||
+    url.searchParams.get("data.id") ||
+    idFromBody
+
+  return { topic, id, body }
+}
+
 async function validateSignature(secret: string, xSignature: string, id: string): Promise<boolean> {
   try {
     const parts = xSignature.split(",")
@@ -95,32 +137,22 @@ serve(async (req) => {
 
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    const url = new URL(req.url)
-    const topic = url.searchParams.get("topic") || url.searchParams.get("type")
-    const id = url.searchParams.get("id") || url.searchParams.get("data.id")
+    const { topic, id, body } = await parseWebhookPayload(req)
     const xSignature = req.headers.get("x-signature")
 
     if (topic !== "payment" || !id) {
-      return new Response(JSON.stringify({ received: true, ignored: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      })
+      console.log("Webhook ignored", { topic, body })
+      return jsonResponse({ received: true, ignored: true })
     }
 
     if (mpWebhookSecret && !xSignature) {
-      return new Response(JSON.stringify({ error: "Missing signature" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      })
+      return jsonResponse({ error: "Missing signature" }, 401)
     }
 
     if (mpWebhookSecret && xSignature) {
       const isValid = await validateSignature(mpWebhookSecret, xSignature, id)
       if (!isValid) {
-        return new Response(JSON.stringify({ error: "Invalid signature" }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 401,
-        })
+        return jsonResponse({ error: "Invalid signature" }, 401)
       }
     }
 
@@ -135,7 +167,20 @@ serve(async (req) => {
     try {
       paymentReference = JSON.parse(payment.external_reference || "{}")
     } catch {
-      throw new Error("Metadatos de pago invalidos o faltantes")
+      paymentReference = {}
+    }
+
+    if (!paymentReference.invoiceId && payment.metadata?.invoiceId) {
+      paymentReference.invoiceId = String(payment.metadata.invoiceId)
+    }
+    if (!paymentReference.planId && payment.metadata?.planId) {
+      paymentReference.planId = String(payment.metadata.planId)
+    }
+    if (!paymentReference.radioId && payment.metadata?.radioId) {
+      paymentReference.radioId = String(payment.metadata.radioId)
+    }
+    if (!paymentReference.userId && payment.metadata?.userId) {
+      paymentReference.userId = String(payment.metadata.userId)
     }
 
     if (payment.status === "approved") {
@@ -146,18 +191,19 @@ serve(async (req) => {
         .maybeSingle()
 
       if (existingEvent) {
-        return new Response(JSON.stringify({ received: true, already_processed: true }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        })
+        return jsonResponse({ received: true, already_processed: true })
       }
 
       if (paymentReference.invoiceId) {
+        const paidAt = new Date().toISOString()
         const { data: invoice, error: invoiceError } = await supabaseClient
           .from("invoices")
           .update({
             status: "paid",
-            paid_at: new Date().toISOString(),
+            paid_at: paidAt,
+            notes: paymentReference.invoiceId
+              ? `Pagado via MP (ID: ${id})`
+              : null,
           })
           .neq("status", "paid")
           .eq("id", paymentReference.invoiceId)
@@ -167,19 +213,18 @@ serve(async (req) => {
         if (invoiceError) throw invoiceError
 
         if (!invoice) {
-          return new Response(JSON.stringify({ received: true, already_processed: true }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 200,
-          })
+          return jsonResponse({ received: true, already_processed: true })
         }
 
-        const invoiceNotes = invoice.notes ? `${invoice.notes}\nPagado via MP (ID: ${id})` : `Pagado via MP (ID: ${id})`
-        const { error: notesError } = await supabaseClient
-          .from("invoices")
-          .update({ notes: invoiceNotes })
-          .eq("id", paymentReference.invoiceId)
+        if (invoice.notes) {
+          const invoiceNotes = `${invoice.notes}\nPagado via MP (ID: ${id})`
+          const { error: notesError } = await supabaseClient
+            .from("invoices")
+            .update({ notes: invoiceNotes })
+            .eq("id", paymentReference.invoiceId)
 
-        if (notesError) throw notesError
+          if (notesError) throw notesError
+        }
 
         paymentReference.radioId = paymentReference.radioId || invoice?.radio_id || undefined
       }
@@ -201,19 +246,18 @@ serve(async (req) => {
         throw eventInsertError
       }
 
-      console.log(`Pago aprobado procesado: ${id}`)
+      console.log("Pago aprobado procesado", {
+        paymentId: id,
+        invoiceId: paymentReference.invoiceId ?? null,
+        planId: paymentReference.planId ?? null,
+        radioId: paymentReference.radioId ?? null,
+      })
     }
 
-    return new Response(JSON.stringify({ received: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    })
+    return jsonResponse({ received: true })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"
     console.error("Webhook Error:", message)
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
+    return jsonResponse({ error: message }, 400)
   }
 })

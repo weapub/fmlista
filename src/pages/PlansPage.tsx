@@ -9,6 +9,13 @@ import { useRadioStore } from '@/stores/radioStore';
 import { cn } from '@/lib/utils';
 import { AudioPlayer } from '@/components/AudioPlayer';
 
+interface RadioOption {
+  id: string;
+  name: string;
+  frequency?: string | null;
+  location?: string | null;
+}
+
 const PlanCardSkeleton = () => (
   <div className="bg-white rounded-xl p-8 border border-gray-100 animate-pulse flex flex-col h-full shadow-sm">
     <div className="h-6 bg-[#696cff]/10 rounded-full w-3/4 mx-auto mb-4" />
@@ -52,8 +59,10 @@ export const PlansPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('streaming');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [availableRadios, setAvailableRadios] = useState<RadioOption[]>([]);
+  const [selectedRadioId, setSelectedRadioId] = useState<string | null>(null);
   const plansSectionRef = useRef<HTMLDivElement>(null);
-  const { currentRadio } = useRadioStore();
+  const { currentRadio, setCurrentRadio } = useRadioStore();
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -100,6 +109,46 @@ export const PlansPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const fetchAvailableRadios = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setAvailableRadios([]);
+        setSelectedRadioId(currentRadio?.id ?? null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('radios')
+        .select('id, name, frequency, location')
+        .eq('user_id', user.id)
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error al cargar radios del usuario:', error);
+        return;
+      }
+
+      const radios = (data || []) as RadioOption[];
+      setAvailableRadios(radios);
+
+      if (currentRadio && radios.some((radio) => radio.id === currentRadio.id)) {
+        setSelectedRadioId(currentRadio.id);
+        return;
+      }
+
+      if (radios.length === 1) {
+        setSelectedRadioId(radios[0].id);
+        setCurrentRadio(radios[0] as any);
+      }
+    };
+
+    void fetchAvailableRadios();
+  }, [currentRadio, setCurrentRadio]);
+
+  useEffect(() => {
     // Mostrar el botón de ayuda proactiva después de 30 segundos
     const timer = setTimeout(() => setShowWhatsApp(true), 30000);
     return () => clearTimeout(timer);
@@ -128,7 +177,7 @@ export const PlansPage: React.FC = () => {
       // Lógica de Startup: Llamada a Edge Function para crear preferencia en Mercado Pago
       // El backend se encarga de la seguridad y de devolver el init_point
       const { data, error } = await supabase.functions.invoke('create-mp-preference', {
-        body: { planId: plan.id, radioId: currentRadio?.id ?? null }
+        body: { planId: plan.id, radioId: selectedRadioId ?? currentRadio?.id ?? null }
       });
 
       if (error) throw error;
@@ -598,6 +647,44 @@ export const PlansPage: React.FC = () => {
             >
               <X className="w-5 h-5" />
             </button>
+          </div>
+        )}
+
+        {availableRadios.length > 0 && (
+          <div className="mb-12 rounded-2xl border border-[#696cff]/15 bg-white dark:bg-[#2b2c40] p-5 shadow-sm">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-black uppercase tracking-wider text-[#696cff]">Radio para suscribir</p>
+                <h2 className="mt-1 text-lg font-bold text-[#566a7f] dark:text-[#cbcbe2]">
+                  {availableRadios.length > 1 ? 'Elige la emisora que recibira este plan' : 'La suscripcion se aplicara a tu emisora'}
+                </h2>
+                <p className="mt-1 text-sm text-[#a1acb8] dark:text-[#7e7e9a]">
+                  El cobro se asociara a la radio seleccionada y el webhook activara ese servicio.
+                </p>
+              </div>
+
+              <div className="w-full md:w-[22rem]">
+                <select
+                  value={selectedRadioId ?? ''}
+                  onChange={(e) => {
+                    const nextId = e.target.value || null;
+                    setSelectedRadioId(nextId);
+                    const selected = availableRadios.find((radio) => radio.id === nextId);
+                    if (selected) {
+                      setCurrentRadio(selected as any);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-[#d9dee3] bg-white px-4 py-3 text-sm font-semibold text-[#566a7f] outline-none transition-all focus:border-[#696cff] focus:ring-4 focus:ring-[#696cff]/10 dark:border-[#444564] dark:bg-[#232333] dark:text-[#cbcbe2]"
+                >
+                  {availableRadios.length > 1 && <option value="">Selecciona una radio</option>}
+                  {availableRadios.map((radio) => (
+                    <option key={radio.id} value={radio.id}>
+                      {radio.name}{radio.frequency ? ` - ${radio.frequency}` : ''}{radio.location ? ` (${radio.location})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
         )}
 
