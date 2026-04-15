@@ -1,153 +1,220 @@
-import { useEffect } from 'react'
-import { useRadioStore } from '@/stores/radioStore'
+import { useEffect } from 'react';
+import { useRadioStore } from '@/stores/radioStore';
 
-let audioElement: HTMLAudioElement | null = null
-let candidates: string[] = []
-let candidateIndex = 0
+let audioElement: HTMLAudioElement | null = null;
+let candidates: string[] = [];
+let candidateIndex = 0;
+let activeSource = '';
+const warmedOrigins = new Set<string>();
+const warmedStreams = new Set<string>();
+
+const ensureAudioElement = () => {
+  if (!audioElement) {
+    audioElement = new Audio();
+    audioElement.preload = 'auto';
+    audioElement.crossOrigin = 'anonymous';
+    audioElement.autoplay = false;
+  }
+
+  return audioElement;
+};
+
+const normalizeStreamUrl = (stream: string) => stream.trim();
+
+const buildCandidates = (stream: string): string[] => {
+  try {
+    const normalized = normalizeStreamUrl(stream);
+    const url = new URL(normalized);
+    const origin = `${url.protocol}//${url.host}`;
+    const path = url.pathname || '/';
+    const list: string[] = [normalized];
+
+    if (path.endsWith(';')) {
+      list.push(`${origin}${path.replace(/;$/, '')}`);
+    } else {
+      list.push(`${normalized};`);
+      if (path === '/' || path === '') {
+        list.push(`${origin}/;`);
+      }
+    }
+
+    if (!path.includes('stream')) {
+      list.push(`${origin}${path.endsWith('/') ? `${path}stream` : `${path}/stream`}`);
+      list.push(`${origin}${path.endsWith('/') ? `${path};stream/1` : `${path}/;stream/1`}`);
+    }
+
+    return Array.from(new Set(list));
+  } catch {
+    return [stream];
+  }
+};
+
+export const prewarmStream = (stream?: string | null) => {
+  if (!stream) return;
+
+  const normalized = normalizeStreamUrl(stream);
+  if (!normalized || warmedStreams.has(normalized)) return;
+
+  try {
+    const url = new URL(normalized);
+    const origin = `${url.protocol}//${url.host}`;
+
+    if (!warmedOrigins.has(origin) && typeof document !== 'undefined') {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      document.head.appendChild(link);
+      warmedOrigins.add(origin);
+    }
+  } catch {
+    // Ignore malformed stream URLs and avoid blocking playback.
+  }
+
+  if (typeof window !== 'undefined') {
+    try {
+      fetch(normalized, {
+        method: 'GET',
+        mode: 'no-cors',
+        cache: 'no-store',
+      }).catch(() => undefined);
+    } catch {
+      // Browsers may reject some stream endpoints here; preconnect is still useful.
+    }
+  }
+
+  warmedStreams.add(normalized);
+};
 
 export const useAudioPlayer = () => {
-  const { currentRadio, isPlaying, volume, setIsPlaying } = useRadioStore()
+  const { currentRadio, isPlaying, volume, setIsPlaying } = useRadioStore();
 
-  // Initialize shared audio element once for the whole app
   useEffect(() => {
-    if (!audioElement) {
-      audioElement = new Audio()
-      audioElement.preload = 'none'
-      audioElement.crossOrigin = 'anonymous'
-    }
-  }, [])
-
-  // Reflect volume changes
-  useEffect(() => {
-    if (audioElement) {
-      audioElement.volume = volume
-    }
-  }, [volume])
+    const audio = ensureAudioElement();
+    audio.volume = volume;
+  }, [volume]);
 
   const safePlay = async () => {
-    if (!audioElement) return
+    const audio = ensureAudioElement();
+
     try {
-      await audioElement.play()
+      await audio.play();
     } catch (error) {
       if (error instanceof DOMException) {
-        if (error.name === 'AbortError') {
-          return
-        }
+        if (error.name === 'AbortError') return;
         if (error.name === 'NotSupportedError') {
-          tryNextCandidate()
-          return
+          tryNextCandidate();
+          return;
         }
       }
-      setIsPlaying(false)
+      setIsPlaying(false);
     }
-  }
-
-  const buildCandidates = (stream: string): string[] => {
-    try {
-      const u = new URL(stream)
-      const origin = `${u.protocol}//${u.host}`
-      const path = u.pathname || '/'
-      const list: string[] = []
-      // Original
-      list.push(stream)
-      // Remove trailing ';'
-      if (path.endsWith(';')) {
-        list.push(`${origin}${path.replace(/;$/, '')}`)
-      } else {
-        // Add trailing ';' for Shoutcast compatibility
-        list.push(`${stream};`)
-        // Try simple stream without path if it fails (sometimes needed for pure IP:PORT)
-        if (path === '/' || path === '') {
-             list.push(`${origin}/;`)
-        }
-      }
-      // Common icecast patterns
-      if (!path.includes('stream')) {
-        list.push(`${origin}${path.endsWith('/') ? path + 'stream' : path + '/stream'}`)
-        list.push(`${origin}${path.endsWith('/') ? path + ';stream/1' : path + '/;stream/1'}`)
-        list.push(`${origin}${path.endsWith('/') ? path + 'live' : path + '/live'}`)
-      }
-      return Array.from(new Set(list))
-    } catch {
-      return [stream]
-    }
-  }
+  };
 
   const tryNextCandidate = () => {
-    if (!audioElement) return
-    if (!candidates.length) return
+    const audio = ensureAudioElement();
+
+    if (!candidates.length) return;
     if (candidateIndex >= candidates.length - 1) {
-      setIsPlaying(false)
-      return
+      setIsPlaying(false);
+      return;
     }
-    candidateIndex += 1
-    const next = candidates[candidateIndex]
-    if (next) {
-      audioElement.pause()
-      audioElement.src = next
-      audioElement.load()
-      if (isPlaying) safePlay()
-    } else {
-      setIsPlaying(false)
-    }
-  }
 
-  // Update source when stream changes
+    candidateIndex += 1;
+    const next = candidates[candidateIndex];
+    if (!next) {
+      setIsPlaying(false);
+      return;
+    }
+
+    activeSource = next;
+    audio.src = next;
+    audio.load();
+
+    if (useRadioStore.getState().isPlaying) {
+      void safePlay();
+    }
+  };
+
   useEffect(() => {
-    const src = currentRadio?.stream_url
-    if (!audioElement) return
-    
-    if (src) {
-      audioElement.pause()
-      audioElement.currentTime = 0
+    const audio = ensureAudioElement();
 
-      const newCandidates = buildCandidates(src)
-      if (candidates[0] !== newCandidates[0]) {
-        candidates = newCandidates
-        candidateIndex = 0
-        audioElement.src = candidates[0]
-        audioElement.load()
+    const handleError = () => {
+      tryNextCandidate();
+    };
+
+    const handleStalled = () => {
+      if (useRadioStore.getState().isPlaying) {
+        void safePlay();
       }
-    } else {
-      audioElement.pause()
-      audioElement.src = ''
-    }
+    };
 
-    audioElement.onerror = () => {
-      tryNextCandidate()
-    }
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('stalled', handleStalled);
 
-    if (isPlaying && src) {
-      const playPromise = setTimeout(() => safePlay(), 10)
-      return () => clearTimeout(playPromise)
-    }
-  }, [currentRadio?.id, currentRadio?.stream_url, isPlaying])
+    return () => {
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('stalled', handleStalled);
+    };
+  }, []);
 
-  // Control play/pause based on state
   useEffect(() => {
-    if (!audioElement) return
-    if (isPlaying && currentRadio?.stream_url) {
-      safePlay()
-    } else {
-      audioElement.pause()
+    const audio = ensureAudioElement();
+    const src = currentRadio?.stream_url?.trim();
+
+    if (!src) {
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      activeSource = '';
+      candidates = [];
+      candidateIndex = 0;
+      return;
     }
-  }, [isPlaying, currentRadio?.stream_url])
+
+    const newCandidates = buildCandidates(src);
+    const primaryCandidate = newCandidates[0];
+
+    if (activeSource !== primaryCandidate) {
+      candidates = newCandidates;
+      candidateIndex = 0;
+      activeSource = primaryCandidate;
+      prewarmStream(primaryCandidate);
+      audio.src = primaryCandidate;
+      audio.load();
+    }
+
+    if (isPlaying) {
+      void safePlay();
+    }
+  }, [currentRadio?.id, currentRadio?.stream_url]);
+
+  useEffect(() => {
+    const audio = ensureAudioElement();
+
+    if (!currentRadio?.stream_url) return;
+
+    if (isPlaying) {
+      void safePlay();
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, currentRadio?.stream_url]);
 
   const togglePlay = () => {
     if (currentRadio) {
-      setIsPlaying(!isPlaying)
+      setIsPlaying(!isPlaying);
     }
-  }
+  };
 
   const setVolume = (newVolume: number) => {
-    useRadioStore.getState().setVolume(Math.max(0, Math.min(1, newVolume)))
-  }
+    useRadioStore.getState().setVolume(Math.max(0, Math.min(1, newVolume)));
+  };
 
   return {
     togglePlay,
     setVolume,
     isPlaying: isPlaying && !!currentRadio,
     volume,
-    currentRadio
-  }
-}
+    currentRadio,
+  };
+};

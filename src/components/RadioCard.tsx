@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Play, Radio as RadioIcon } from 'lucide-react'
 import { Radio } from '@/types/database'
 import { useRadioStore } from '@/stores/radioStore'
+import { prewarmStream } from '@/hooks/useAudioPlayer'
 import { cn } from '@/lib/utils'
 
 interface RadioCardProps {
@@ -16,11 +17,15 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
   const { currentRadio, setCurrentRadio, isPlaying, setIsPlaying } = useRadioStore()
   const [logoError, setLogoError] = useState(false)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
+  const handlePrewarm = () => {
+    prewarmStream(radio.stream_url)
+  }
   
   const isCurrentRadio = currentRadio?.id === radio.id
   
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation()
+    handlePrewarm()
     if (isCurrentRadio) {
       setIsPlaying(true)
     } else {
@@ -41,6 +46,9 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
           handleCardClick();
         }
       }}
+      onMouseEnter={handlePrewarm}
+      onFocus={handlePrewarm}
+      onTouchStart={handlePrewarm}
       className={cn(
         "group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white dark:bg-gray-900 p-6 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] transition duration-300 hover:-translate-y-1 hover:border-[#696cff]/30 hover:shadow-2xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20",
         isFeatured && "border-yellow-300/50 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-900 dark:to-yellow-950/20",
