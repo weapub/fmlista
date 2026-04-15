@@ -1,29 +1,45 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard, Users, History } from 'lucide-react'
-import { useAuthStore } from '@/stores/authStore'
-import { api } from '@/lib/api'
-import { supabase } from '@/lib/supabase'
-import { Radio as RadioType } from '@/types/database'
-import { AdminLayout } from '@/components/AdminLayout'
-import { cn } from '@/lib/utils'
-import { ROLES } from '@/types/auth'
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Radio,
+  Settings,
+  Calendar,
+  Play,
+  Edit,
+  Trash2,
+  Plus,
+  Megaphone,
+  CheckCircle2,
+  AlertCircle,
+  Info as InfoIcon,
+  X,
+  CreditCard,
+  Users,
+  History,
+} from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import { Radio as RadioType } from '@/types/database';
+import { AdminLayout } from '@/components/AdminLayout';
+import { cn } from '@/lib/utils';
+import { ROLES } from '@/types/auth';
 
 const RadioCardSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse border border-gray-100">
-    <div className="w-full h-32 bg-gray-200" />
+  <div className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse border border-gray-100 dark:bg-[#2b2c40] dark:border-transparent">
+    <div className="w-full h-32 bg-gray-200 dark:bg-[#323249]" />
     <div className="p-4">
       <div className="space-y-3">
-        <div className="h-5 bg-gray-200 rounded w-3/4" />
-        <div className="h-4 bg-gray-200 rounded w-1/4" />
+        <div className="h-5 bg-gray-200 dark:bg-[#323249] rounded w-3/4" />
+        <div className="h-4 bg-gray-200 dark:bg-[#323249] rounded w-1/4" />
         <div className="space-y-2 pt-2">
-          <div className="h-3 bg-gray-200 rounded w-full" />
-          <div className="h-3 bg-gray-200 rounded w-5/6" />
+          <div className="h-3 bg-gray-200 dark:bg-[#323249] rounded w-full" />
+          <div className="h-3 bg-gray-200 dark:bg-[#323249] rounded w-5/6" />
         </div>
-        <div className="flex space-x-2 mt-4">
-          <div className="h-9 bg-gray-200 rounded-md flex-1" />
-          <div className="h-9 bg-gray-200 rounded-md flex-1" />
-          <div className="h-9 bg-gray-200 rounded-md w-10" />
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="h-10 bg-gray-200 dark:bg-[#323249] rounded-lg" />
+          <div className="h-10 bg-gray-200 dark:bg-[#323249] rounded-lg" />
+          <div className="h-10 bg-gray-200 dark:bg-[#323249] rounded-lg col-span-2" />
         </div>
       </div>
     </div>
@@ -31,137 +47,166 @@ const RadioCardSkeleton = () => (
 );
 
 const AdminPanel: React.FC = () => {
-  const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { user } = useAuthStore()
-  const [radios, setRadios] = useState<RadioType[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [notification, setNotification] = useState<{type: 'success' | 'info' | 'error', message: string} | null>(null)
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuthStore();
+  const [radios, setRadios] = useState<RadioType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notification, setNotification] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     const status = searchParams.get('status');
     if (status === 'payment_success') {
       setNotification({
         type: 'success',
-        message: '¡Pago procesado con éxito! Tu suscripción se activará automáticamente en unos instantes.'
+        message: 'Pago procesado con exito. Tu suscripcion se activara automaticamente en unos instantes.',
       });
       searchParams.delete('status');
       setSearchParams(searchParams, { replace: true });
     } else if (status === 'payment_pending') {
       setNotification({
         type: 'info',
-        message: 'Tu pago está pendiente de confirmación. Te avisaremos por email una vez acreditado.'
+        message: 'Tu pago esta pendiente de confirmacion. Te avisaremos por email una vez acreditado.',
       });
       searchParams.delete('status');
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
-  
+
   useEffect(() => {
-    // TypeScript check requires casting or more complex type guards
     if (!user || (user.role !== ROLES.RADIO_ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
-      navigate('/login')
-      return
+      navigate('/login');
+      return;
     }
-    
+
     const fetchUserRadios = async () => {
       try {
-        setIsLoading(true)
-        // Get radios based on role
-        let query = supabase
-          .from('radio_subscription_status')
-          .select('*')
-          .order('created_at', { ascending: false })
+        setIsLoading(true);
+        let query = supabase.from('radio_subscription_status').select('*').order('created_at', { ascending: false });
 
-        // If not super_admin, filter by user_id
         if (user.role !== ROLES.SUPER_ADMIN) {
-          query = query.eq('user_id', user.id)
+          query = query.eq('user_id', user.id);
         }
 
-        const { data, error } = await query
-        
-        if (error) throw error
-        setRadios(data || [])
+        const { data, error } = await query;
+
+        if (error) throw error;
+        setRadios(data || []);
       } catch (error) {
-        console.error('Error fetching radios:', error)
+        console.error('Error fetching radios:', error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    
-    fetchUserRadios()
-  }, [user, navigate])
-  
+    };
+
+    fetchUserRadios();
+  }, [user, navigate]);
+
   const handleDeleteRadio = async (radioId: string) => {
-    // Optimistic update for better perceived performance
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta emisora?')) {
-      return
+    if (!window.confirm('Estas seguro de que quieres eliminar esta emisora?')) {
+      return;
     }
-    
-    // Optimistically remove from UI immediately
+
     const originalRadios = [...radios];
-    setRadios(prev => prev.filter(radio => radio.id !== radioId));
+    setRadios((prev) => prev.filter((radio) => radio.id !== radioId));
 
     try {
-      await api.deleteRadio(radioId)
-      // Success, no further action needed as state is already updated
+      await api.deleteRadio(radioId);
     } catch (error) {
-      console.error('Error deleting radio:', error)
-      alert('Error al eliminar la emisora')
-      // Revert optimistic update on failure
+      console.error('Error deleting radio:', error);
+      alert('Error al eliminar la emisora');
       setRadios(originalRadios);
     }
-  }
-  
+  };
+
+  const quickActions = [
+    ...(user?.role === ROLES.SUPER_ADMIN
+      ? [
+          {
+            label: 'Usuarios',
+            icon: Users,
+            path: '/admin/users',
+            className: 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20',
+          },
+          {
+            label: 'Cobros',
+            icon: CreditCard,
+            path: '/admin/billing',
+            className: 'bg-[#71dd37]/10 text-[#71dd37] hover:bg-[#71dd37]/20',
+          },
+          {
+            label: 'Planes',
+            icon: Settings,
+            path: '/admin/planes',
+            className: 'bg-[#03c3ec]/10 text-[#03c3ec] hover:bg-[#03c3ec]/20',
+          },
+          {
+            label: 'Config',
+            icon: Settings,
+            path: '/admin/settings',
+            className: 'bg-[#697a8d]/10 text-[#697a8d] hover:bg-[#697a8d]/20',
+          },
+        ]
+      : []),
+    {
+      label: 'Pagos',
+      icon: History,
+      path: '/admin/payments',
+      className: 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20',
+    },
+    {
+      label: 'Nueva',
+      icon: Plus,
+      path: '/admin/profile/new',
+      className: 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-sm shadow-[#696cff]/20',
+    },
+  ];
+
   if (isLoading) {
     return (
-      <AdminLayout title="Panel de Administración" subtitle="Cargando emisoras...">
+      <AdminLayout title="Panel de Administracion" subtitle="Cargando emisoras...">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <RadioCardSkeleton key={i} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            {[...Array(3)].map((_, index) => (
+              <RadioCardSkeleton key={index} />
             ))}
           </div>
         </div>
       </AdminLayout>
-    )
+    );
   }
-  
+
   return (
-    <AdminLayout 
-      title="Panel de Administración" 
-      subtitle="Gestión de emisoras y contenido"
-    >
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Notificaciones de Pago */}
+    <AdminLayout title="Panel de Administracion" subtitle="Gestion de emisoras y contenido">
+      <div className="max-w-6xl mx-auto space-y-5 sm:space-y-8">
         {notification && (
-          <div className={cn(
-            "p-4 rounded-xl border flex items-start gap-3 relative animate-in fade-in slide-in-from-top-4 duration-300",
-            notification.type === 'success' ? "bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400" :
-            notification.type === 'error' ? "bg-red-50 border-red-100 text-red-800 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400" :
-            "bg-blue-50 border-blue-100 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-400"
-          )}>
+          <div
+            className={cn(
+              'p-4 rounded-xl border flex items-start gap-3 relative animate-in fade-in slide-in-from-top-4 duration-300',
+              notification.type === 'success'
+                ? 'bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400'
+                : notification.type === 'error'
+                  ? 'bg-red-50 border-red-100 text-red-800 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400'
+                  : 'bg-blue-50 border-blue-100 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-400'
+            )}
+          >
             {notification.type === 'success' && <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />}
             {notification.type === 'error' && <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />}
             {notification.type === 'info' && <InfoIcon className="w-5 h-5 shrink-0 text-blue-500" />}
-            
+
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold">{notification.type === 'success' ? '¡Excelente!' : 'Aviso'}</p>
+              <p className="text-sm font-bold">{notification.type === 'success' ? 'Excelente' : 'Aviso'}</p>
               <p className="text-sm opacity-90">{notification.message}</p>
             </div>
 
-            <button 
-              onClick={() => setNotification(null)}
-              className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
-            >
+            <button onClick={() => setNotification(null)} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Tarjetas de estadísticas con nuevo estilo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-6 flex items-center space-x-4 transition-colors">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 flex items-center space-x-4 transition-colors">
             <div className="p-3 bg-[#696cff]/10 rounded-lg">
               <Radio className="w-6 h-6 text-[#696cff]" />
             </div>
@@ -170,85 +215,50 @@ const AdminPanel: React.FC = () => {
               <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">{radios.length}</p>
             </div>
           </div>
-          
-          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-6 flex items-center space-x-4 transition-colors">
+
+          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 flex items-center space-x-4 transition-colors">
             <div className="p-3 bg-[#71dd37]/10 rounded-lg">
               <Play className="w-6 h-6 text-[#71dd37]" />
             </div>
             <div>
               <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Estado</p>
-              <p className="text-2xl font-bold text-[#71dd37]">En Línea</p>
+              <p className="text-2xl font-bold text-[#71dd37]">En linea</p>
             </div>
           </div>
-          
-          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-6 flex items-center space-x-4 transition-colors">
+
+          <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 flex items-center space-x-4 transition-colors sm:col-span-2 xl:col-span-1">
             <div className="p-3 bg-[#03c3ec]/10 rounded-lg">
               <Settings className="w-6 h-6 text-[#03c3ec]" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Plan Actual</p>
-              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">
-                {radios[0]?.plan_name || 'Sin Plan'}
-              </p>
+              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2] truncate">{radios[0]?.plan_name || 'Sin plan'}</p>
             </div>
           </div>
         </div>
-        
-        {/* Contenedor principal de la lista */}
+
         <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
-          <div className="p-6 border-b border-gray-50 dark:border-[#444564] flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Mis Emisoras</h2>
-            <div className="flex flex-wrap gap-3">
-              {user?.role === ROLES.SUPER_ADMIN && (
-                <>
-                  <button
-                    onClick={() => navigate('/admin/users')}
-                    className="bg-[#696cff]/10 text-[#696cff] px-4 py-2 rounded-lg hover:bg-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Gestión de Usuarios</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/admin/billing')}
-                    className="bg-[#71dd37]/10 text-[#71dd37] px-4 py-2 rounded-lg hover:bg-[#71dd37]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Gestión de Cobros</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/admin/planes')}
-                    className="bg-[#03c3ec]/10 text-[#03c3ec] px-4 py-2 rounded-lg hover:bg-[#03c3ec]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span>Gestionar Planes</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/admin/settings')}
-                    className="bg-[#697a8d]/10 text-[#697a8d] dark:text-[#a3a4cc] px-4 py-2 rounded-lg hover:bg-[#697a8d]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span>Configuración Global</span>
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => navigate('/admin/payments')}
-                className="bg-[#696cff]/10 text-[#696cff] px-4 py-2 rounded-lg hover:bg-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
-              >
-                <History className="w-4 h-4" />
-                <span>Historial de Pagos</span>
-              </button>
-              <button
-                onClick={() => navigate('/admin/profile/new')}
-                className="bg-[#696cff] text-white px-4 py-2 rounded-lg hover:bg-[#5f61e6] shadow-sm shadow-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-bold"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Nueva Emisora</span>
-              </button>
+          <div className="p-4 sm:p-6 border-b border-gray-50 dark:border-[#444564] flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg sm:text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Mis Emisoras</h2>
+              <span className="text-xs sm:text-sm text-[#a1acb8] dark:text-[#7e7e9a]">{radios.length} registradas</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
+              {quickActions.map((action) => (
+                <button
+                  key={`${action.label}-${action.path}`}
+                  onClick={() => navigate(action.path)}
+                  className={`${action.className} px-3 py-3 sm:px-4 sm:py-2 rounded-xl transition-all flex items-center justify-center space-x-2 text-xs sm:text-sm font-semibold`}
+                >
+                  <action.icon className="w-4 h-4" />
+                  <span>{action.label}</span>
+                </button>
+              ))}
             </div>
           </div>
-          
-          <div className="p-6">
+
+          <div className="p-4 sm:p-6">
             {radios.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -258,16 +268,16 @@ const AdminPanel: React.FC = () => {
                 <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-6 text-sm">Crea tu primera emisora para comenzar a transmitir.</p>
                 <button
                   onClick={() => navigate('/admin/profile/new')}
-                  className="bg-[#696cff]/10 text-[#696cff] px-6 py-2 rounded-lg hover:bg-[#696cff]/20 transition-all font-bold"
+                  className="bg-[#696cff]/10 text-[#696cff] px-6 py-3 rounded-xl hover:bg-[#696cff]/20 transition-all font-bold"
                 >
                   Comenzar ahora
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {radios.map((radio) => (
                   <div key={radio.id} className="group bg-white dark:bg-[#232333] rounded-xl border border-gray-100 dark:border-transparent overflow-hidden hover:shadow-md transition-all duration-300">
-                    <div className="relative h-32">
+                    <div className="relative h-36 sm:h-32">
                       {radio.cover_url ? (
                         <img src={radio.cover_url} alt={radio.name} className="w-full h-full object-cover" />
                       ) : (
@@ -281,41 +291,42 @@ const AdminPanel: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    
-                    <div className="p-5">
+
+                    <div className="p-4 sm:p-5">
                       <h3 className="font-bold text-[#566a7f] dark:text-[#cbcbe2] truncate mb-1">{radio.name}</h3>
-                      <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] flex items-center mb-3">
-                        <Play className="w-3 h-3 mr-1" /> {radio.location || 'Emisora Online'}
+                      <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] flex items-center mb-4">
+                        <Play className="w-3 h-3 mr-1 shrink-0" />
+                        <span className="truncate">{radio.location || 'Emisora online'}</span>
                       </p>
-                      
-                      <div className="grid grid-cols-2 gap-2 mt-4">
+
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => navigate(`/admin/profile/${radio.id}`)}
-                          className="flex items-center justify-center space-x-1 py-2 bg-gray-50 dark:bg-[#2b2c40] text-[#697a8d] dark:text-[#a3a4cc] rounded-lg hover:bg-gray-100 dark:hover:bg-[#323249] transition-colors text-xs font-semibold"
+                          className="flex items-center justify-center space-x-1 py-3 sm:py-2.5 bg-gray-50 dark:bg-[#2b2c40] text-[#697a8d] dark:text-[#a3a4cc] rounded-xl hover:bg-gray-100 dark:hover:bg-[#323249] transition-colors text-xs font-semibold"
                         >
                           <Edit className="w-3.5 h-3.5" />
                           <span>Editar</span>
                         </button>
                         <button
                           onClick={() => navigate(`/admin/schedule/${radio.id}`)}
-                          className="flex items-center justify-center space-x-1 py-2 bg-[#696cff]/10 text-[#696cff] rounded-lg hover:bg-[#696cff]/20 transition-colors text-xs font-semibold"
+                          className="flex items-center justify-center space-x-1 py-3 sm:py-2.5 bg-[#696cff]/10 text-[#696cff] rounded-xl hover:bg-[#696cff]/20 transition-colors text-xs font-semibold"
                         >
                           <Calendar className="w-3.5 h-3.5" />
                           <span>Horarios</span>
                         </button>
                         <button
                           onClick={() => navigate(`/admin/anuncios/${radio.id}`)}
-                          className="col-span-1 py-2 bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                          className="py-3 sm:py-2.5 bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Megaphone className="w-3.5 h-3.5" />
                           <span>Anuncios</span>
                         </button>
                         <button
                           onClick={() => handleDeleteRadio(radio.id)}
-                          className="col-span-1 py-2 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-lg transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
+                          className="py-3 sm:py-2.5 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-xl transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>Eliminar Emisora</span>
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </div>
@@ -327,7 +338,7 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default AdminPanel
+export default AdminPanel;
