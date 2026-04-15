@@ -2,99 +2,279 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+}
+
+type RequestBody = {
+  planId?: string
+  invoiceId?: string
+  radioId?: string
+  description?: string
+}
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+function getBaseUrl(req: Request) {
+  const envBaseUrl = Deno.env.get("SITE_URL") || Deno.env.get("PUBLIC_SITE_URL")
+  if (envBaseUrl) return envBaseUrl.replace(/\/$/, "")
+
+  const origin = req.headers.get("origin")
+  if (origin) return origin.replace(/\/$/, "")
+
+  const referer = req.headers.get("referer")
+  if (referer) return new URL(referer).origin
+
+  return "http://localhost:5173"
+}
+
+async function getAuthenticatedUser(
+  supabase: ReturnType<typeof createClient>,
+  req: Request,
+) {
+  const authHeader = req.headers.get("Authorization")
+  if (!authHeader) return { user: null, role: null }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "")
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token)
+
+  if (error || !user) return { user: null, role: null }
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  return { user, role: profile?.role ?? null }
 }
 
 serve(async (req) => {
-  // Manejo de CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405)
   }
 
   try {
-    // Inicializar cliente de Supabase con el token del usuario para validar identidad
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    const authHeader = req.headers.get('Authorization')!
-    
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    })
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    const mpAccessToken = Deno.env.get("MP_ACCESS_TOKEN") ?? ""
 
-    // 1. Obtener y validar al usuario
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) throw new Error('No autorizado')
+    if (!supabaseUrl || !supabaseServiceRoleKey || !mpAccessToken) {
+      return jsonResponse({ error: "Missing required environment variables" }, 500)
+    }
 
-    // 2. Parsear el cuerpo de la petición
-    const { planId } = await req.json()
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
-    // 3. Buscar el plan en la DB (para asegurar que el precio es el real)
-    const { data: plan, error: planError } = await supabaseClient
-      .from('plans')
-      .select('*')
-      .eq('id', planId)
-      .single()
+    const body = (await req.json()) as RequestBody
+    const { planId, invoiceId, radioId } = body
 
-    if (planError || !plan) throw new Error('El plan seleccionado no existe o no está activo')
+    if (!planId && !invoiceId) {
+      return jsonResponse({ error: "planId or invoiceId is required" }, 400)
+    }
 
-    // 4. Configurar Mercado Pago
-    const mpAccessToken = Deno.env.get('MP_ACCESS_TOKEN')
-    if (!mpAccessToken) throw new Error('Token de Mercado Pago no configurado')
+    const baseUrl = getBaseUrl(req)
+    const notificationUrl = `${supabaseUrl}/functions/v1/payment-webhook`
+    const { user, role } = await getAuthenticatedUser(supabase, req)
+    const isSuperAdmin = role === "super_admin"
 
-    // 5. Crear la preferencia de pago
-    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${mpAccessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    let preferencePayload: Record<string, unknown>
+
+    if (invoiceId) {
+      if (!user) {
+        return jsonResponse({ error: "Authentication required" }, 401)
+      }
+
+      const { data: invoice, error: invoiceError } = await supabase
+        .from("invoices")
+        .select(`
+          id,
+          amount,
+          currency,
+          status,
+          notes,
+          radio_id,
+          radios (
+            name,
+            user_id
+          )
+        `)
+        .eq("id", invoiceId)
+        .single()
+
+      if (invoiceError || !invoice) {
+        return jsonResponse({ error: "Invoice not found" }, 404)
+      }
+
+      const invoiceRadio = Array.isArray(invoice.radios) ? invoice.radios[0] : invoice.radios
+      if (!isSuperAdmin && invoiceRadio?.user_id !== user.id) {
+        return jsonResponse({ error: "Invoice does not belong to the authenticated user" }, 403)
+      }
+
+      if (invoice.status === "paid") {
+        return jsonResponse({ error: "Invoice is already paid" }, 409)
+      }
+
+      if (Number(invoice.amount) <= 0) {
+        return jsonResponse({ error: "Invoice amount must be greater than zero" }, 400)
+      }
+
+      const externalReference = {
+        invoiceId: invoice.id,
+        radioId: invoice.radio_id,
+        userId: invoiceRadio?.user_id ?? user.id,
+      }
+
+      preferencePayload = {
         items: [
           {
-            id: plan.id,
-            title: `Suscripción: ${plan.name}`,
-            description: plan.description,
+            title: body.description || `Pago de factura - ${invoiceRadio?.name || "FM Lista"}`,
+            description: invoice.notes || body.description || "Pago de factura",
             quantity: 1,
-            unit_price: plan.price,
-            currency_id: plan.currency || 'ARS',
+            currency_id: invoice.currency || "ARS",
+            unit_price: Number(invoice.amount),
           },
         ],
-        payer: {
-          email: user.email,
-        },
+        external_reference: JSON.stringify(externalReference),
+        notification_url: notificationUrl,
         back_urls: {
-          success: `${req.headers.get('origin')}/planes?status=payment_success`,
-          failure: `${req.headers.get('origin')}/planes?status=payment_error`,
-          pending: `${req.headers.get('origin')}/admin?status=payment_pending`,
+          success: `${baseUrl}/admin/payments?status=payment_success`,
+          failure: `${baseUrl}/admin/payments?status=payment_error`,
+          pending: `${baseUrl}/admin/payments?status=payment_pending`,
         },
-        auto_return: 'approved',
-        // Referencia externa para que el Webhook sepa a quién activar el servicio
-        external_reference: JSON.stringify({ userId: user.id, planId: plan.id }),
-        // URL de notificación (Webhook) - Deberás crear otra función para esto
-        notification_url: `${supabaseUrl}/functions/v1/mp-webhook`,
-      }),
+        auto_return: "approved",
+        metadata: externalReference,
+        payer: user.email ? { email: user.email } : undefined,
+      }
+    } else {
+      if (!planId) {
+        return jsonResponse({ error: "planId is required" }, 400)
+      }
+
+      if (!user) {
+        return jsonResponse({ error: "Authentication required" }, 401)
+      }
+
+      const [{ data: plan, error: planError }, { data: userRadios }] = await Promise.all([
+        supabase
+          .from("plans")
+          .select("id, name, price, currency, interval, type, active")
+          .eq("id", planId)
+          .single(),
+        supabase
+          .from("radios")
+          .select("id, name, user_id")
+          .eq("user_id", user.id),
+      ])
+
+      if (planError || !plan || !plan.active) {
+        return jsonResponse({ error: "Plan not found" }, 404)
+      }
+
+      if (Number(plan.price) <= 0) {
+        return jsonResponse({ error: "Plan price must be greater than zero" }, 400)
+      }
+
+      let selectedRadio = null
+
+      if (radioId) {
+        const { data: radio, error: radioError } = await supabase
+          .from("radios")
+          .select("id, name, user_id")
+          .eq("id", radioId)
+          .maybeSingle()
+
+        if (radioError || !radio) {
+          return jsonResponse({ error: "Radio not found" }, 404)
+        }
+
+        if (!isSuperAdmin && radio.user_id !== user.id) {
+          return jsonResponse({ error: "Radio does not belong to the authenticated user" }, 403)
+        }
+
+        selectedRadio = radio
+      } else if ((userRadios ?? []).length === 1) {
+        selectedRadio = userRadios?.[0] ?? null
+      } else if ((userRadios ?? []).length > 1) {
+        return jsonResponse({ error: "radioId is required when the user has multiple radios" }, 400)
+      }
+
+      if (!selectedRadio) {
+        return jsonResponse({ error: "No radio available for this subscription" }, 400)
+      }
+
+      const intervalLabel = plan.interval === "yearly" ? "anual" : "mensual"
+      const externalReference = {
+        userId: user.id,
+        planId: plan.id,
+        radioId: selectedRadio.id,
+      }
+
+      preferencePayload = {
+        items: [
+          {
+            title: body.description || plan.name,
+            description: `${plan.name} - Suscripcion ${intervalLabel}`,
+            quantity: 1,
+            currency_id: plan.currency || "ARS",
+            unit_price: Number(plan.price),
+          },
+        ],
+        external_reference: JSON.stringify(externalReference),
+        notification_url: notificationUrl,
+        back_urls: {
+          success: `${baseUrl}/planes?status=payment_success`,
+          failure: `${baseUrl}/planes?status=payment_error`,
+          pending: `${baseUrl}/planes?status=payment_pending`,
+        },
+        auto_return: "approved",
+        metadata: externalReference,
+        payer: user.email ? { email: user.email } : undefined,
+      }
+    }
+
+    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${mpAccessToken}`,
+        "Content-Type": "application/json",
+        "X-Idempotency-Key": crypto.randomUUID(),
+      },
+      body: JSON.stringify(preferencePayload),
     })
 
-    const preference = await response.json()
+    const mpData = await mpResponse.json()
 
-    if (!response.ok) throw new Error(preference.message || 'Error al crear preferencia')
+    if (!mpResponse.ok) {
+      console.error("Mercado Pago preference creation failed:", mpData)
+      return jsonResponse(
+        { error: "Failed to create Mercado Pago preference", details: mpData },
+        502,
+      )
+    }
 
-    return new Response(
-      JSON.stringify({ init_point: preference.init_point }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
-    )
-
+    return jsonResponse({
+      id: mpData.id,
+      init_point: mpData.init_point,
+      sandbox_init_point: mpData.sandbox_init_point,
+    })
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
-      }
-    )
+    const message = error instanceof Error ? error.message : "Unknown error"
+    console.error("create-mp-preference error:", message)
+    return jsonResponse({ error: message }, 400)
   }
 })

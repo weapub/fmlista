@@ -1,6 +1,25 @@
 -- Add Yearly Plans with 20% discount
 -- Run this in your Supabase SQL Editor
 
+ALTER TABLE public.plans ADD COLUMN IF NOT EXISTS is_featured boolean DEFAULT false;
+
+ALTER TABLE public.plans DROP CONSTRAINT IF EXISTS plans_type_check;
+ALTER TABLE public.plans ADD CONSTRAINT plans_type_check
+  CHECK (type IN ('streaming', 'ads', 'premium_feature', 'microsite'));
+
+DELETE FROM public.plans
+WHERE interval = 'yearly'
+  AND name IN (
+    'Streaming Básico',
+    'Streaming Profesional',
+    'Streaming Full',
+    'Plan Publicidad Home',
+    'Suscripción Premium Radio',
+    'Microsite Básico',
+    'Microsite Profesional',
+    'Microsite Full'
+  );
+
 -- Streaming Plans (Yearly)
 INSERT INTO public.plans (name, type, price, currency, description, features, interval, active, is_featured)
 VALUES 

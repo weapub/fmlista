@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard, Users } from 'lucide-react'
+import { Radio, Settings, Calendar, Image, Play, Edit, Trash2, Plus, ArrowLeft, Megaphone, BarChart2, CheckCircle2, AlertCircle, Info as InfoIcon, X, CreditCard, Users, History } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
@@ -231,6 +231,13 @@ const AdminPanel: React.FC = () => {
                   </button>
                 </>
               )}
+              <button
+                onClick={() => navigate('/admin/payments')}
+                className="bg-[#696cff]/10 text-[#696cff] px-4 py-2 rounded-lg hover:bg-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-semibold"
+              >
+                <History className="w-4 h-4" />
+                <span>Historial de Pagos</span>
+              </button>
               <button
                 onClick={() => navigate('/admin/profile/new')}
                 className="bg-[#696cff] text-white px-4 py-2 rounded-lg hover:bg-[#5f61e6] shadow-sm shadow-[#696cff]/20 transition-all flex items-center space-x-2 text-sm font-bold"

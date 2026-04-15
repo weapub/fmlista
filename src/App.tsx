@@ -12,6 +12,7 @@ const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'));
 const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then(m => ({ default: m.BillingManagement })));
 const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'));
 const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement').then(m => ({ default: m.UserManagement })));
+const PaymentHistory = React.lazy(() => import('@/pages/admin/PaymentHistory').then(m => ({ default: m.PaymentHistory })));
 const AdsManager = React.lazy(() => import('@/pages/AdsManager'));
 const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'));
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'));
@@ -74,6 +75,7 @@ export default function App() {
               </AdminRoute>
             } 
           />
+          <Route path="/admin/payments" element={<PaymentHistory />} />
           <Route path="/admin/planes" element={<AdminPlans />} />
           <Route path="/admin/anuncios" element={<AdsManager />} />
           <Route path="/admin/anuncios/:radioId" element={<AdsManager />} />

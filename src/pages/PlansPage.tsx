@@ -128,7 +128,7 @@ export const PlansPage: React.FC = () => {
       // Lógica de Startup: Llamada a Edge Function para crear preferencia en Mercado Pago
       // El backend se encarga de la seguridad y de devolver el init_point
       const { data, error } = await supabase.functions.invoke('create-mp-preference', {
-        body: { planId: plan.id, type: plan.type }
+        body: { planId: plan.id, radioId: currentRadio?.id ?? null }
       });
 
       if (error) throw error;
@@ -140,6 +140,10 @@ export const PlansPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error al procesar pago:', err);
+      if (err instanceof Error && err.message.includes('radioId is required')) {
+        setErrorNotification('Selecciona la radio que quieres suscribir antes de iniciar el pago.');
+        return;
+      }
       // Fallback a WhatsApp si el sistema automático falla
       const message = `Hola, quiero contratar el plan ${plan.name}. Tuve un problema con el pago automático.`;
       window.open(`https://wa.me/543704602028?text=${encodeURIComponent(message)}`, '_blank');
