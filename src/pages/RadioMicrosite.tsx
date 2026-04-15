@@ -12,6 +12,7 @@ import { useRadioStore } from '@/stores/radioStore'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { cn } from '@/lib/utils'
+import { useDeviceStore } from '@/stores/deviceStore'
 
 export const RadioMicrosite: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -22,6 +23,7 @@ export const RadioMicrosite: React.FC = () => {
   const [logoError, setLogoError] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [isTheaterMode, setIsTheaterMode] = useState(false)
+  const { isTV } = useDeviceStore()
   // ReactPlayer's type definitions can conflict with our setup; cast to any for JSX usage
   const RP: any = ReactPlayer as any;
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
@@ -154,7 +156,8 @@ export const RadioMicrosite: React.FC = () => {
       {/* Cover Image */}
       <div className={cn(
         "relative transition-all duration-500 ease-in-out bg-black overflow-hidden shadow-2xl",
-        isTheaterMode ? "h-[60vh] md:h-[75vh]" : "h-64"
+        isTheaterMode ? "h-[60vh] md:h-[75vh]" : "h-64",
+        isTV && !isTheaterMode && "h-[32rem]"
       )}>
         {isTheaterMode && radio.video_stream_url ? (
           <div className="w-full h-full bg-black flex items-center justify-center">
@@ -192,46 +195,46 @@ export const RadioMicrosite: React.FC = () => {
         {/* Back Button */}
         <button
           onClick={() => navigate('/')}
-          className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white/30 transition-all border border-white/10"
+          className={cn("absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white/30 transition-all border border-white/10 focusable", isTV && "p-4 rounded-3xl")}
         >
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className={cn("text-white", isTV ? "w-8 h-8" : "w-6 h-6")} />
         </button>
       </div>
       
       {/* Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+      <div className={cn("container mx-auto px-4 py-8", isTV && "px-8 py-10")}>
+        <div className={cn("max-w-4xl mx-auto", isTV && "max-w-6xl")}>
           {/* Header Section */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 mb-8 transition-colors">
+          <div className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 mb-8 transition-colors", isTV && "rounded-[2rem] p-10 mb-10")}>
             <div className="flex flex-col gap-6 lg:flex-row items-start justify-between">
-              <div className="flex flex-col sm:flex-row sm:items-start items-center gap-4">
+              <div className={cn("flex flex-col sm:flex-row sm:items-start items-center gap-4", isTV && "gap-6")}>
                 {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
                   <img
                     src={radio.logo_url}
                     alt={radio.name}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    className={cn("rounded-full object-cover border-4 border-white shadow-lg", isTV ? "w-28 h-28" : "w-20 h-20")}
                     loading="lazy"
                     onError={() => setLogoError(true)}
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
-                    <RadioIcon className="w-10 h-10 text-gray-400" />
+                  <div className={cn("rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg", isTV ? "w-28 h-28" : "w-20 h-20")}>
+                    <RadioIcon className={cn("text-gray-400", isTV ? "w-14 h-14" : "w-10 h-10")} />
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h1 className="text-3xl font-bold text-[#566a7f] dark:text-white mb-2">
+                  <h1 className={cn("font-bold text-[#566a7f] dark:text-white mb-2", isTV ? "text-5xl" : "text-3xl")}>
                     {radio.name}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-3 text-[#a1acb8] dark:text-slate-400">
-                    <span className="text-lg font-bold text-[#696cff]">{radio.frequency}</span>
+                  <div className={cn("flex flex-wrap items-center gap-3 text-[#a1acb8] dark:text-slate-400", isTV && "gap-4 text-lg")}>
+                    <span className={cn("font-bold text-[#696cff]", isTV ? "text-2xl" : "text-lg")}>{radio.frequency}</span>
                     {radio.location && (
                       <div className="flex items-center space-x-1">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className={cn(isTV ? "w-5 h-5" : "w-4 h-4")} />
                         <span>{radio.location}</span>
                       </div>
                     )}
                     {radio.category && (
-                      <span className="px-3 py-1 bg-[#696cff]/10 text-[#696cff] rounded-full text-xs font-bold uppercase tracking-wider">
+                      <span className={cn("bg-[#696cff]/10 text-[#696cff] rounded-full font-bold uppercase tracking-wider", isTV ? "px-4 py-2 text-sm" : "px-3 py-1 text-xs")}>
                         {radio.category}
                       </span>
                     )}
@@ -239,12 +242,13 @@ export const RadioMicrosite: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex flex-wrap items-center gap-3">
+              <div className={cn("flex flex-wrap items-center gap-3", isTV && "gap-4")}>
                 {radio.video_stream_url && (
                   <button
                     onClick={() => setIsTheaterMode(!isTheaterMode)}
                     className={cn(
-                      "p-3 rounded-full border transition-all",
+                      "p-3 rounded-full border transition-all focusable",
+                      isTV && "p-4",
                       isTheaterMode 
                         ? "bg-[#696cff] border-[#696cff] text-white shadow-lg shadow-[#696cff]/30" 
                         : "bg-gray-50 border-gray-200 text-gray-400 hover:text-[#696cff] hover:border-[#696cff]/30"
@@ -260,48 +264,48 @@ export const RadioMicrosite: React.FC = () => {
                     isFavorite 
                       ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-900 text-red-500' 
                       : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-400 hover:text-red-500'
-                  }`}
+                  } ${isTV ? 'focusable p-4' : 'focusable'}`}
                 >
-                  <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
+                  <Heart className={`${isTV ? 'w-7 h-7' : 'w-6 h-6'} ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
                 <button
                   onClick={handleShare}
-                  className="p-3 rounded-full border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-400 hover:text-blue-500 transition-all"
+                  className={cn("p-3 rounded-full border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-400 hover:text-blue-500 transition-all focusable", isTV && "p-4")}
                   title="Compartir"
                 >
-                  <Share2 className="w-6 h-6" />
+                  <Share2 className={cn(isTV ? "w-7 h-7" : "w-6 h-6")} />
                 </button>
                 <button
                   onClick={handlePlay}
-                  className={`p-5 rounded-2xl transition-all shadow-lg active:scale-95 ${
+                  className={cn(`rounded-2xl transition-all shadow-lg active:scale-95 focusable ${
                     isCurrentRadio && isPlaying
                       ? 'bg-[#696cff] text-white shadow-[#696cff]/30'
                       : 'bg-[#696cff] text-white hover:bg-[#5f61e6] shadow-[#696cff]/20'
-                  }`}
+                  }`, isTV ? 'p-6 rounded-[1.75rem]' : 'p-5')}
                 >
-                  {isCurrentRadio && isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 fill-current" />}
+                  {isCurrentRadio && isPlaying ? <Pause className={cn(isTV ? "w-9 h-9" : "w-7 h-7")} /> : <Play className={cn("fill-current", isTV ? "w-9 h-9" : "w-7 h-7")} />}
                 </button>
               </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className={cn("grid grid-cols-1 gap-8 lg:grid-cols-2", isTV && "gap-10")}>
             {/* Description Section */}
             <div className="space-y-6">
               {radio.description && (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors">
-                  <h2 className="text-xl font-bold text-[#566a7f] dark:text-white mb-4">
+                <div className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors", isTV && "rounded-[2rem] p-10")}>
+                  <h2 className={cn("font-bold text-[#566a7f] dark:text-white mb-4", isTV ? "text-3xl" : "text-xl")}>
                     Acerca de esta emisora
                   </h2>
-                  <p className="text-[#697a8d] dark:text-slate-300 leading-relaxed">
+                  <p className={cn("text-[#697a8d] dark:text-slate-300 leading-relaxed", isTV && "text-lg leading-8")}>
                     {radio.description}
                   </p>
                 </div>
               )}
               
               {/* Share Buttons */}
-              <div id="share-section" className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors">
-                <h3 className="text-lg font-bold text-[#566a7f] dark:text-white mb-4">
+              <div id="share-section" className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors", isTV && "rounded-[2rem] p-10")}>
+                <h3 className={cn("font-bold text-[#566a7f] dark:text-white mb-4", isTV ? "text-2xl" : "text-lg")}>
                   Compartir esta emisora
                 </h3>
                 <ShareButtons

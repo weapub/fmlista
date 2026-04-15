@@ -4,6 +4,8 @@ import { AudioPlayer } from '@/components/AudioPlayer';
 import { NewsSection } from '@/components/NewsSection';
 import { Radio } from '@/types/database';
 import { Radio as RadioIcon, Heart } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useDeviceStore } from '@/stores/deviceStore';
 
 interface HomeSectionsProps {
   favoriteRadios: Radio[];
@@ -45,15 +47,27 @@ export default function HomeSections({
   isLoadingMore,
   loaderRef,
 }: HomeSectionsProps) {
+  const { isTV } = useDeviceStore()
+
+  const sectionTitleClass = cn(
+    'font-semibold text-gray-900 dark:text-white',
+    isTV ? 'text-3xl mb-5' : 'text-xl mb-3'
+  )
+
+  const gridClass = cn(
+    'grid gap-6',
+    isTV ? 'grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-8' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+  )
+
   return (
     <>
       {favoriteRadios.length > 0 && (
-        <div className="mb-12">
-          <div className="flex items-center space-x-2 mb-4">
-            <Heart className="w-6 h-6 text-red-500 fill-current" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Mis Favoritos</h2>
+        <div className={cn('mb-12', isTV && 'mb-16')}>
+          <div className={cn('flex items-center space-x-2 mb-4', isTV && 'mb-6')}>
+            <Heart className={cn('text-red-500 fill-current', isTV ? 'w-8 h-8' : 'w-6 h-6')} />
+            <h2 className={cn('font-bold text-gray-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>Mis Favoritos</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={gridClass}>
             {favoriteRadios.map((radio) => (
               <RadioCard key={`fav-${radio.id}`} radio={radio} />
             ))}
@@ -61,15 +75,15 @@ export default function HomeSections({
         </div>
       )}
 
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tendencias</h2>
-          {trendingCategory && <span className="text-sm text-gray-500 dark:text-gray-400">Categoria: {trendingCategory}</span>}
+      <div className={cn('mb-8', isTV && 'mb-12')}>
+        <div className={cn('flex items-center justify-between gap-4', isTV && 'mb-5 flex-col items-start')}>
+          <h2 className={sectionTitleClass}>Tendencias</h2>
+          {trendingCategory && <span className={cn('text-gray-500 dark:text-gray-400', isTV ? 'text-lg' : 'text-sm')}>Categoría: {trendingCategory}</span>}
         </div>
         {trendingRadios.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">Sin emisoras</p>
+          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={gridClass}>
             {trendingRadios.map((radio) => (
               <RadioCard key={radio.id} radio={radio} />
             ))}
@@ -77,12 +91,12 @@ export default function HomeSections({
         )}
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Agregadas recientemente</h2>
+      <div className={cn('mb-8', isTV && 'mb-12')}>
+        <h2 className={sectionTitleClass}>Agregadas recientemente</h2>
         {recentRadios.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">Sin emisoras recientes</p>
+          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras recientes</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={gridClass}>
             {recentRadios.map((radio) => (
               <RadioCard key={radio.id} radio={radio} />
             ))}
@@ -90,19 +104,23 @@ export default function HomeSections({
         )}
       </div>
 
-      <div className="mb-6">
-        <p className="text-gray-600 dark:text-gray-400">Mostrando {filteredBySearch.length} de {radiosCount} emisoras</p>
+      <div className={cn('mb-6 rounded-3xl border border-slate-200/70 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/70', isTV && 'mb-8 px-7 py-5')}>
+        <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg font-medium')}>
+          Mostrando {filteredBySearch.length} de {radiosCount} emisoras
+        </p>
       </div>
 
       {filteredBySearch.length === 0 ? (
-        <div className="text-center py-12">
-          <RadioIcon className="w-16 h-16 text-gray-300 dark:text-slate-700 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron emisoras</h3>
-          <p className="text-gray-600 dark:text-gray-400">Intenta ajustar tus filtros o termino de busqueda</p>
+        <div className={cn('text-center py-12 rounded-[2rem] border border-dashed border-slate-200 bg-white/60 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/60', isTV && 'py-16')}>
+          <RadioIcon className={cn('text-gray-300 dark:text-slate-700 mx-auto mb-4', isTV ? 'w-20 h-20' : 'w-16 h-16')} />
+          <h3 className={cn('font-medium text-gray-900 dark:text-white mb-2', isTV ? 'text-2xl' : 'text-lg')}>No se encontraron emisoras</h3>
+          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>
+            Intenta ajustar tus filtros o término de búsqueda
+          </p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={gridClass}>
             {filteredBySearch.map((radio) => (
               <RadioCard key={radio.id} radio={radio} />
             ))}
@@ -111,7 +129,7 @@ export default function HomeSections({
           {hasMore && (
             <div ref={loaderRef} className="mt-12 pb-12">
               {isLoadingMore && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className={gridClass}>
                   {[...Array(3)].map((_, index) => (
                     <RadioCardSkeleton key={`more-${index}`} />
                   ))}
@@ -122,9 +140,11 @@ export default function HomeSections({
         </>
       )}
 
-      <div className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Noticias de Formosa</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">Actualidad desde los diarios mas populares de la provincia.</p>
+      <div className={cn('mt-12', isTV && 'mt-16')}>
+        <h2 className={sectionTitleClass}>Noticias de Formosa</h2>
+        <p className={cn('text-gray-600 dark:text-gray-400 mb-4', isTV && 'text-lg mb-6')}>
+          Actualidad desde los diarios más populares de la provincia.
+        </p>
         <NewsSection />
       </div>
 

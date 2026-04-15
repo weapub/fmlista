@@ -7,6 +7,7 @@ let candidateIndex = 0;
 let activeSource = '';
 const warmedOrigins = new Set<string>();
 const warmedStreams = new Set<string>();
+let reconnectRetryTimeout: number | null = null;
 
 const ensureAudioElement = () => {
   if (!audioElement) {
@@ -86,17 +87,90 @@ export const prewarmStream = (stream?: string | null) => {
 };
 
 export const useAudioPlayer = () => {
-  const { currentRadio, isPlaying, volume, setIsPlaying } = useRadioStore();
+  const { currentRadio, isPlaying, volume, setIsPlaying, radios, setCurrentRadio } = useRadioStore();
+
+  const clearReconnectRetry = () => {
+    if (typeof window === 'undefined' || reconnectRetryTimeout === null) return;
+    window.clearTimeout(reconnectRetryTimeout);
+    reconnectRetryTimeout = null;
+  };
+
+  const scheduleReconnectRetry = (delay = 1200) => {
+    if (typeof window === 'undefined') return;
+
+    clearReconnectRetry();
+    reconnectRetryTimeout = window.setTimeout(() => {
+      reconnectRetryTimeout = null;
+      resumePlaybackIfNeeded();
+    }, delay);
+  };
+
+  const resumePlaybackIfNeeded = () => {
+    const { currentRadio: activeRadio, isPlaying: shouldBePlaying } = useRadioStore.getState();
+    if (!activeRadio?.stream_url || !shouldBePlaying) return;
+    prewarmStream(activeRadio.stream_url);
+    void safePlay();
+  };
 
   useEffect(() => {
     const audio = ensureAudioElement();
     audio.volume = volume;
   }, [volume]);
 
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+
+    if (currentRadio) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentRadio.name,
+        artist: currentRadio.frequency || currentRadio.location || 'FM Lista',
+        album: currentRadio.category || 'Radio en vivo',
+        artwork: currentRadio.logo_url
+          ? [
+              { src: currentRadio.logo_url, sizes: '96x96', type: 'image/png' },
+              { src: currentRadio.logo_url, sizes: '192x192', type: 'image/png' },
+              { src: currentRadio.logo_url, sizes: '512x512', type: 'image/png' },
+            ]
+          : [],
+      });
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    } else {
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = 'none';
+    }
+
+    const goRelative = (direction: 1 | -1) => {
+      if (!currentRadio || !radios.length) return;
+      const currentIndex = radios.findIndex((radio) => radio.id === currentRadio.id);
+      if (currentIndex < 0) return;
+      const nextIndex = (currentIndex + direction + radios.length) % radios.length;
+      const nextRadio = radios[nextIndex];
+      if (!nextRadio) return;
+      prewarmStream(nextRadio.stream_url);
+      setCurrentRadio(nextRadio);
+      setIsPlaying(true);
+    };
+
+    navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+    navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+    navigator.mediaSession.setActionHandler('previoustrack', () => goRelative(-1));
+    navigator.mediaSession.setActionHandler('nexttrack', () => goRelative(1));
+    navigator.mediaSession.setActionHandler('stop', () => setIsPlaying(false));
+
+    return () => {
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('previoustrack', null);
+      navigator.mediaSession.setActionHandler('nexttrack', null);
+      navigator.mediaSession.setActionHandler('stop', null);
+    };
+  }, [currentRadio, isPlaying, radios, setCurrentRadio, setIsPlaying]);
+
   const safePlay = async () => {
     const audio = ensureAudioElement();
 
     try {
+      clearReconnectRetry();
       await audio.play();
     } catch (error) {
       if (error instanceof DOMException) {
@@ -105,8 +179,12 @@ export const useAudioPlayer = () => {
           tryNextCandidate();
           return;
         }
+        if (error.name === 'NotAllowedError') {
+          scheduleReconnectRetry(1800);
+          return;
+        }
       }
-      setIsPlaying(false);
+      scheduleReconnectRetry(2200);
     }
   };
 
@@ -143,17 +221,89 @@ export const useAudioPlayer = () => {
     };
 
     const handleStalled = () => {
-      if (useRadioStore.getState().isPlaying) {
-        void safePlay();
+      resumePlaybackIfNeeded();
+    };
+
+    const handleSuspend = () => {
+      resumePlaybackIfNeeded();
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+    };
+
+    const handleWaiting = () => {
+      scheduleReconnectRetry(1200);
+    };
+
+    const handlePause = () => {
+      const { isPlaying: shouldBePlaying } = useRadioStore.getState();
+      if (shouldBePlaying) {
+        scheduleReconnectRetry(900);
       }
+    };
+
+    const handlePlaying = () => {
+      clearReconnectRetry();
     };
 
     audio.addEventListener('error', handleError);
     audio.addEventListener('stalled', handleStalled);
+    audio.addEventListener('suspend', handleSuspend);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('playing', handlePlaying);
 
     return () => {
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('stalled', handleStalled);
+      audio.removeEventListener('suspend', handleSuspend);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('playing', handlePlaying);
+    };
+  }, [setIsPlaying]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+    const handleVisibilityReturn = () => {
+      if (document.visibilityState === 'visible') {
+        resumePlaybackIfNeeded();
+      }
+    };
+
+    const handleWindowFocus = () => {
+      resumePlaybackIfNeeded();
+    };
+
+    const handlePageShow = () => {
+      resumePlaybackIfNeeded();
+    };
+
+    const handleOnline = () => {
+      resumePlaybackIfNeeded();
+    };
+
+    const handleDeviceChange = () => {
+      scheduleReconnectRetry(700);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityReturn);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('online', handleOnline);
+    navigator.mediaDevices?.addEventListener?.('devicechange', handleDeviceChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityReturn);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('online', handleOnline);
+      navigator.mediaDevices?.removeEventListener?.('devicechange', handleDeviceChange);
+      clearReconnectRetry();
     };
   }, []);
 

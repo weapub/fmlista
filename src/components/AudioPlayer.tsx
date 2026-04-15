@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown, Users, Radio as RadioIcon } from 'lucide-react'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
@@ -27,6 +27,8 @@ export const AudioPlayer: React.FC = () => {
   // Real-time listener tracking (Los hooks ahora manejan internamente si el ID es nulo)
   const listenerCount = useRadioListeners(currentRadio?.id || '')
   useReportListener(currentRadio?.id || '', isPlaying)
+  const playButtonRef = useRef<HTMLButtonElement | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     // Auto-expand player on TV when playing starts
@@ -34,6 +36,63 @@ export const AudioPlayer: React.FC = () => {
       setIsPlayerExpanded(true)
     }
   }, [isTV, currentRadio, isPlaying, setIsPlayerExpanded])
+
+  useEffect(() => {
+    if (!currentRadio) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const isTypingTarget = !!target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+      if (isTypingTarget) return
+
+      switch (event.key) {
+        case 'MediaPlayPause':
+        case ' ':
+        case 'Enter':
+          event.preventDefault()
+          togglePlay()
+          break
+        case 'MediaTrackNext':
+        case 'ArrowRight':
+          if (!radios || radios.length === 0 || !currentRadio) return
+          event.preventDefault()
+          goNext()
+          break
+        case 'MediaTrackPrevious':
+        case 'ArrowLeft':
+          if (!radios || radios.length === 0 || !currentRadio) return
+          event.preventDefault()
+          goPrev()
+          break
+        case 'ArrowUp':
+          if (!isTV) return
+          event.preventDefault()
+          setVolume(Math.min(1, volume + 0.1))
+          break
+        case 'ArrowDown':
+          if (!isTV) return
+          event.preventDefault()
+          setVolume(Math.max(0, volume - 0.1))
+          break
+        case 'Escape':
+        case 'Backspace':
+          if (!isTV || !isPlayerExpanded) return
+          event.preventDefault()
+          setIsPlayerExpanded(false)
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentRadio, isTV, isPlayerExpanded, radios, setIsPlayerExpanded, togglePlay, volume, setVolume])
+
+  useEffect(() => {
+    if (!isTV) return
+
+    const focusTarget = isPlayerExpanded ? closeButtonRef.current : playButtonRef.current
+    focusTarget?.focus()
+  }, [isTV, isPlayerExpanded])
   
   // Checkpoint para evitar renderizar UI si no hay radio, pero después de los hooks
   if (!currentRadio) {
@@ -88,6 +147,7 @@ export const AudioPlayer: React.FC = () => {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-4 flex-shrink-0">
             <button 
+              ref={closeButtonRef}
               onClick={() => setIsPlayerExpanded(false)}
               className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors focusable"
             >
@@ -157,6 +217,7 @@ export const AudioPlayer: React.FC = () => {
               </button>
               
               <button
+                ref={playButtonRef}
                 onClick={(e) => handleTogglePlay(e)}
                 className={cn("p-4 sm:p-5 bg-[#696cff] text-white rounded-full shadow-lg hover:bg-[#5f61e6] hover:scale-105 transition-all focusable", isTV && "p-8 scale-110")}
               >
@@ -216,6 +277,7 @@ export const AudioPlayer: React.FC = () => {
               </button>
               <button
                 onClick={handleTogglePlay}
+                ref={playButtonRef}
                 className="p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
               >
                 {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
