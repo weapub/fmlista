@@ -4,6 +4,7 @@ import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, Chevr
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
+import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
 
 export const Navigation: React.FC = () => {
@@ -16,12 +17,8 @@ export const Navigation: React.FC = () => {
   const [favoriteRadio, setFavoriteRadio] = useState<RadioType | null>(null)
   const [latestRadios, setLatestRadios] = useState<RadioType[]>([])
   const [hasNotifications, setHasNotifications] = useState(true) // Mocked: Simula que hay novedades
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check local storage, default to light
-    if (localStorage.getItem('theme') === 'dark') return true
-    return false
-  })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isDark, toggleTheme } = useTheme()
   
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -100,16 +97,6 @@ export const Navigation: React.FC = () => {
     if (isProfileOpen) fetchDropdownData()
   }, [user, isProfileOpen])
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }, [darkMode])
-  
   const handleLogout = async () => {
     try {
       await signOut()
@@ -137,11 +124,11 @@ export const Navigation: React.FC = () => {
 
           <div className="hidden md:flex items-center gap-2 md:gap-3">
             <button
-              onClick={() => setDarkMode(!darkMode)}
+              onClick={toggleTheme}
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f5f9] text-[#697a8d] transition-all hover:bg-[#696cff]/10 hover:text-[#696cff] dark:bg-gray-800"
-              title={darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+              title={isDark ? 'Modo Claro' : 'Modo Oscuro'}
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             <Link
@@ -331,13 +318,13 @@ export const Navigation: React.FC = () => {
             <div className="space-y-4 p-5">
               <button
                 onClick={() => {
-                  setDarkMode(!darkMode)
+                  toggleTheme()
                   setMobileMenuOpen(false)
                 }}
                 className="flex items-center gap-3 w-full rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-left text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
               >
-                {darkMode ? <Sun className="h-5 w-5 text-[#696cff]" /> : <Moon className="h-5 w-5 text-[#696cff]" />}
-                <span>{darkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
+                {isDark ? <Sun className="h-5 w-5 text-[#696cff]" /> : <Moon className="h-5 w-5 text-[#696cff]" />}
+                <span>{isDark ? 'Modo Claro' : 'Modo Oscuro'}</span>
               </button>
 
               <Link

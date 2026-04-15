@@ -416,21 +416,21 @@ export default function ProfileEditor() {
     return (
       <AdminLayout title="Editor de Perfil" subtitle="Cargando datos...">
         <div className="max-w-5xl mx-auto w-full animate-pulse">
-          <div className="bg-white rounded-xl h-[600px] p-8 space-y-8 shadow-sm border border-gray-100">
-            <div className="h-8 bg-slate-50 rounded-full w-48" />
+          <div className="bg-white dark:bg-slate-900 rounded-xl h-[600px] p-8 space-y-8 shadow-sm border border-gray-100 dark:border-slate-800">
+            <div className="h-8 bg-slate-50 dark:bg-slate-800 rounded-full w-48" />
             <div className="grid grid-cols-2 gap-6">
-              <div className="h-12 bg-slate-50 rounded-lg" />
-              <div className="h-12 bg-slate-50 rounded-lg" />
+              <div className="h-12 bg-slate-50 dark:bg-slate-800 rounded-lg" />
+              <div className="h-12 bg-slate-50 dark:bg-slate-800 rounded-lg" />
             </div>
-            <div className="h-32 bg-slate-50 rounded-lg" />
+            <div className="h-32 bg-slate-50 dark:bg-slate-800 rounded-lg" />
           </div>
         </div>
       </AdminLayout>
     );
   }
 
-  const inputClasses = "w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]";
-  const labelClasses = "block text-sm font-semibold text-[#566a7f] mb-2";
+  const inputClasses = "w-full px-4 py-2 bg-white dark:bg-slate-900 border border-[#d9dee3] dark:border-slate-700 rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-white placeholder:text-[#b4bdc6] dark:placeholder:text-slate-500";
+  const labelClasses = "block text-sm font-semibold text-[#566a7f] dark:text-slate-200 mb-2";
 
   return (
     <AdminLayout 
@@ -441,7 +441,7 @@ export default function ProfileEditor() {
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => navigate('/admin')}
-            className="flex items-center space-x-2 text-[#697a8d] hover:text-[#696cff] transition-colors font-semibold"
+            className="flex items-center space-x-2 text-[#697a8d] dark:text-slate-300 hover:text-[#696cff] transition-colors font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver al Panel</span>
@@ -450,15 +450,15 @@ export default function ProfileEditor() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Card: Información Básica */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center space-x-3">
               <div className="p-2 bg-[#696cff]/10 rounded-lg">
                 <Settings className="w-5 h-5 text-[#696cff]" />
               </div>
-              <h2 className="text-lg font-bold text-[#566a7f]">Administración y Propietario</h2>
+              <h2 className="text-lg font-bold text-[#566a7f] dark:text-white">Administración y Propietario</h2>
             </div>
             
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/30">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/30 dark:bg-slate-950/30">
               {user?.role === ROLES.SUPER_ADMIN ? (
                 <>
                   <div>
@@ -474,7 +474,7 @@ export default function ProfileEditor() {
                         <option key={u.id} value={u.id}>{u.email}</option>
                       ))}
                     </select>
-                    <p className="text-[10px] text-[#a1acb8] mt-1">
+                    <p className="text-[10px] text-[#a1acb8] dark:text-slate-500 mt-1">
                       Usuario que tendrá acceso a gestionar esta emisora.
                     </p>
                   </div>
@@ -482,7 +482,7 @@ export default function ProfileEditor() {
                   <div>
                     <label className={labelClasses}>Plan Asignado</label>
                     <div className="relative">
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8]" />
+                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8] dark:text-slate-500" />
                       <select
                         name="plan_id"
                         value={formData.plan_id}
@@ -497,15 +497,15 @@ export default function ProfileEditor() {
                         ))}
                       </select>
                     </div>
-                    <p className="text-[10px] text-[#a1acb8] mt-1">
+                    <p className="text-[10px] text-[#a1acb8] dark:text-slate-500 mt-1">
                       Controla las funcionalidades premium de la radio.
                     </p>
                   </div>
                 </>
               ) : (
-                <div className="md:col-span-2 p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-3">
+                <div className="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-900 rounded-lg flex items-center gap-3">
                   <Info className="w-5 h-5 text-blue-500" />
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
                     Estás editando esta radio como administrador. Solo el Super Admin puede cambiar el propietario o el plan.
                   </p>
                 </div>
@@ -514,12 +514,12 @@ export default function ProfileEditor() {
           </div>
 
           {/* Card: Información Básica */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center space-x-3">
               <div className="p-2 bg-[#696cff]/10 rounded-lg">
                 <Info className="w-5 h-5 text-[#696cff]" />
               </div>
-              <h2 className="text-lg font-bold text-[#566a7f]">Información General</h2>
+              <h2 className="text-lg font-bold text-[#566a7f] dark:text-white">Información General</h2>
             </div>
             
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -552,7 +552,7 @@ export default function ProfileEditor() {
                     )}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-                    {slugStatus === 'checking' && <Loader2 className="w-4 h-4 animate-spin text-[#a1acb8]" />}
+                    {slugStatus === 'checking' && <Loader2 className="w-4 h-4 animate-spin text-[#a1acb8] dark:text-slate-500" />}
                     {slugStatus === 'available' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                     {(slugStatus === 'unavailable' || slugStatus === 'invalid') && <AlertCircle className="w-4 h-4 text-red-500" />}
                   </div>
@@ -561,7 +561,7 @@ export default function ProfileEditor() {
                   "text-[10px] mt-1 italic",
                   slugStatus === 'invalid' ? "text-red-500" : 
                   slugStatus === 'unavailable' ? "text-red-500" :
-                  slugStatus === 'available' ? "text-emerald-600" : "text-[#a1acb8]"
+                  slugStatus === 'available' ? "text-emerald-600" : "text-[#a1acb8] dark:text-slate-500"
                 )}>
                   {slugStatus === 'invalid' && "Formato inválido (solo minúsculas, números, puntos y guiones)."}
                   {slugStatus === 'unavailable' && "Este identificador ya está en uso."}
@@ -627,12 +627,12 @@ export default function ProfileEditor() {
           </div>
 
           {/* Card: Streaming */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center space-x-3">
               <div className="p-2 bg-[#03c3ec]/10 rounded-lg">
                 <Globe className="w-5 h-5 text-[#03c3ec]" />
               </div>
-              <h2 className="text-lg font-bold text-[#566a7f]">Transmisión</h2>
+              <h2 className="text-lg font-bold text-[#566a7f] dark:text-white">Transmisión</h2>
             </div>
             <div className="p-6 space-y-6">
               <div>
@@ -662,18 +662,18 @@ export default function ProfileEditor() {
           </div>
 
           {/* Card: Redes Sociales */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center space-x-3">
               <div className="p-2 bg-[#71dd37]/10 rounded-lg">
                 <Share2 className="w-5 h-5 text-[#71dd37]" />
               </div>
-              <h2 className="text-lg font-bold text-[#566a7f]">Contacto y Redes</h2>
+              <h2 className="text-lg font-bold text-[#566a7f] dark:text-white">Contacto y Redes</h2>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className={labelClasses}>WhatsApp</label>
                 <div className="relative">
-                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8]" />
+                  <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8] dark:text-slate-500" />
                   <input
                     type="text"
                     name="whatsapp"
@@ -720,25 +720,25 @@ export default function ProfileEditor() {
 
           {/* Card: Imágenes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
               <label className={labelClasses}>Logo de la Emisora</label>
               <div className="mt-2 flex flex-col items-center p-6 border-2 border-dashed border-[#d9dee3] rounded-xl hover:border-[#696cff] transition-colors group cursor-pointer" onClick={() => handleImageUpload('logo')}>
                   {formData.logo_url ? (
                     <img src={formData.logo_url} alt="Logo" className="w-24 h-24 object-contain rounded-lg shadow-sm" />
                   ) : (
-                    <ImageIcon className="w-12 h-12 text-[#a1acb8] group-hover:text-[#696cff]" />
+                    <ImageIcon className="w-12 h-12 text-[#a1acb8] dark:text-slate-500 group-hover:text-[#696cff]" />
                   )}
                 <span className="mt-3 text-xs font-bold text-[#696cff] uppercase">Cambiar Logo</span>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
               <label className={labelClasses}>Imagen de Portada</label>
               <div className="mt-2 flex flex-col items-center p-6 border-2 border-dashed border-[#d9dee3] rounded-xl hover:border-[#696cff] transition-colors group cursor-pointer" onClick={() => handleImageUpload('cover')}>
                   {formData.cover_url ? (
                     <img src={formData.cover_url} alt="Portada" className="w-full h-24 object-cover rounded-lg shadow-sm" />
                   ) : (
-                    <ImageIcon className="w-12 h-12 text-[#a1acb8] group-hover:text-[#696cff]" />
+                    <ImageIcon className="w-12 h-12 text-[#a1acb8] dark:text-slate-500 group-hover:text-[#696cff]" />
                   )}
                 <span className="mt-3 text-xs font-bold text-[#696cff] uppercase">Cambiar Portada</span>
               </div>
@@ -746,11 +746,11 @@ export default function ProfileEditor() {
           </div>
 
           {/* Barra de Acciones Fija Inferior o al final */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex justify-end space-x-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 flex justify-end space-x-4">
             <button
               type="button"
               onClick={() => navigate('/admin')}
-              className="px-6 py-2.5 border border-[#d9dee3] text-[#697a8d] rounded-lg hover:bg-gray-50 transition-all font-semibold"
+              className="px-6 py-2.5 border border-[#d9dee3] dark:border-slate-700 text-[#697a8d] dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-all font-semibold"
             >
               Cancelar
             </button>

@@ -107,7 +107,7 @@ export const RadioMicrosite: React.FC = () => {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors">
         <Navigation />
         <div className="animate-pulse">
           <div className="h-64 bg-gray-200"></div>
@@ -131,8 +131,8 @@ export const RadioMicrosite: React.FC = () => {
         <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
           <div className="text-center">
             <RadioIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Radio no encontrada</h2>
-            <p className="text-gray-600 mb-4">La emisora que buscas no existe o ha sido eliminada.</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Radio no encontrada</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">La emisora que buscas no existe o ha sido eliminada.</p>
             <button
               onClick={() => navigate('/')}
               className="px-6 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] transition-colors shadow-md shadow-[#696cff]/20"
@@ -148,7 +148,7 @@ export const RadioMicrosite: React.FC = () => {
   const shareUrl = `${window.location.origin}/radio/${radio.id}`
   
   return (
-    <div className="min-h-screen bg-[#f5f5f9] pb-32">
+    <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">
       <Navigation />
       
       {/* Cover Image */}
@@ -202,7 +202,7 @@ export const RadioMicrosite: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 mb-8 transition-colors">
             <div className="flex flex-col gap-6 lg:flex-row items-start justify-between">
               <div className="flex flex-col sm:flex-row sm:items-start items-center gap-4">
                 {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
@@ -219,10 +219,10 @@ export const RadioMicrosite: React.FC = () => {
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h1 className="text-3xl font-bold text-[#566a7f] mb-2">
+                  <h1 className="text-3xl font-bold text-[#566a7f] dark:text-white mb-2">
                     {radio.name}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-3 text-[#a1acb8]">
+                  <div className="flex flex-wrap items-center gap-3 text-[#a1acb8] dark:text-slate-400">
                     <span className="text-lg font-bold text-[#696cff]">{radio.frequency}</span>
                     {radio.location && (
                       <div className="flex items-center space-x-1">
@@ -256,17 +256,17 @@ export const RadioMicrosite: React.FC = () => {
                 )}
                 <button
                   onClick={toggleFavorite}
-                  className={`p-3 rounded-full border transition-all ${
+                className={`p-3 rounded-full border transition-all ${
                     isFavorite 
-                      ? 'bg-red-50 border-red-200 text-red-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-red-500'
+                      ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-900 text-red-500' 
+                      : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-400 hover:text-red-500'
                   }`}
                 >
                   <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
                 <button
                   onClick={handleShare}
-                  className="p-3 rounded-full border bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 transition-all"
+                  className="p-3 rounded-full border bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-400 hover:text-blue-500 transition-all"
                   title="Compartir"
                 >
                   <Share2 className="w-6 h-6" />
@@ -289,19 +289,19 @@ export const RadioMicrosite: React.FC = () => {
             {/* Description Section */}
             <div className="space-y-6">
               {radio.description && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                  <h2 className="text-xl font-bold text-[#566a7f] mb-4">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors">
+                  <h2 className="text-xl font-bold text-[#566a7f] dark:text-white mb-4">
                     Acerca de esta emisora
                   </h2>
-                  <p className="text-[#697a8d] leading-relaxed">
+                  <p className="text-[#697a8d] dark:text-slate-300 leading-relaxed">
                     {radio.description}
                   </p>
                 </div>
               )}
               
               {/* Share Buttons */}
-              <div id="share-section" className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h3 className="text-lg font-bold text-[#566a7f] mb-4">
+              <div id="share-section" className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors">
+                <h3 className="text-lg font-bold text-[#566a7f] dark:text-white mb-4">
                   Compartir esta emisora
                 </h3>
                 <ShareButtons

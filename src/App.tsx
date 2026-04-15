@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useTheme } from '@/hooks/useTheme'
 import { ROLES } from '@/types/auth'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'));
@@ -21,10 +22,15 @@ const AppSettings = React.lazy(() => import('@/pages/AppSettings'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 flex items-center justify-center transition-colors">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#696cff]"></div>
   </div>
 );
+
+const ThemeBootstrap = () => {
+  useTheme();
+  return null;
+};
 
 // Componente para proteger rutas exclusivas de Super Admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -52,6 +58,7 @@ export default function App() {
 
   return (
     <Router>
+      <ThemeBootstrap />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />

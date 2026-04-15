@@ -10,17 +10,17 @@ import { Radio } from '@/types/database'
 const HomeSections = React.lazy(() => import('./HomeSections'))
 
 const RadioCardSkeleton = () => (
-  <div className="bg-white rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100">
+  <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
     <div className="p-5 flex items-center gap-5">
-      <div className="w-20 h-20 bg-slate-100 rounded-2xl flex-shrink-0" />
+      <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl flex-shrink-0" />
       <div className="space-y-3">
-        <div className="h-5 bg-slate-100 rounded-full w-32" />
+        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-32" />
         <div className="space-y-2 pt-2">
-          <div className="h-3 bg-slate-100 rounded-full w-48" />
-          <div className="h-3 bg-slate-100 rounded-full w-24" />
+          <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full w-48" />
+          <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full w-24" />
         </div>
       </div>
-      <div className="ml-auto w-12 h-12 bg-slate-50 rounded-2xl" />
+      <div className="ml-auto w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
     </div>
   </div>
 );
@@ -143,10 +143,10 @@ export const Home: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f9]">
+      <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 transition-colors">
         <Navigation />
         <div className="container mx-auto px-4 py-8">
-          <div className="h-48 bg-white border border-slate-100 rounded-3xl mb-12 animate-pulse shadow-sm"></div>
+          <div className="h-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl mb-12 animate-pulse shadow-sm"></div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {[...Array(6)].map((_, i) => (
@@ -159,7 +159,7 @@ export const Home: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-[#f5f5f9] pb-32">
+    <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">
       <Navigation />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />

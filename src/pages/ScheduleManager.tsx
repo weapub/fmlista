@@ -230,11 +230,11 @@ export default function ScheduleManager() {
     return (
       <AdminLayout title="Configuración de Programación" subtitle="Cargando horarios...">
         <div className="max-w-6xl mx-auto w-full animate-pulse">
-          <div className="bg-white rounded-xl h-[400px] p-8 space-y-8 shadow-sm border border-gray-100">
-            <div className="h-8 bg-slate-50 rounded-full w-48" />
+          <div className="bg-white dark:bg-slate-900 rounded-xl h-[400px] p-8 space-y-8 shadow-sm border border-gray-100 dark:border-slate-800">
+            <div className="h-8 bg-slate-50 dark:bg-slate-800 rounded-full w-48" />
             <div className="space-y-4">
-              <div className="h-12 bg-slate-50 rounded-lg w-full" />
-              <div className="h-12 bg-slate-50 rounded-lg w-full" />
+              <div className="h-12 bg-slate-50 dark:bg-slate-800 rounded-lg w-full" />
+              <div className="h-12 bg-slate-50 dark:bg-slate-800 rounded-lg w-full" />
             </div>
           </div>
         </div>
@@ -242,8 +242,8 @@ export default function ScheduleManager() {
     );
   }
 
-  const inputClasses = "w-full px-4 py-2 bg-white border border-[#d9dee3] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] placeholder:text-[#b4bdc6]";
-  const labelClasses = "block text-sm font-semibold text-[#566a7f] mb-1";
+  const inputClasses = "w-full px-4 py-2 bg-white dark:bg-slate-900 border border-[#d9dee3] dark:border-slate-700 rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-white placeholder:text-[#b4bdc6] dark:placeholder:text-slate-500";
+  const labelClasses = "block text-sm font-semibold text-[#566a7f] dark:text-slate-200 mb-1";
 
   return (
     <AdminLayout 
@@ -254,16 +254,16 @@ export default function ScheduleManager() {
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => navigate('/admin')}
-            className="flex items-center space-x-2 text-[#697a8d] hover:text-[#696cff] transition-colors font-semibold"
+            className="flex items-center space-x-2 text-[#697a8d] dark:text-slate-300 hover:text-[#696cff] transition-colors font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver al Panel</span>
           </button>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-[#566a7f]">Programas Registrados</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+          <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-[#566a7f] dark:text-white">Programas Registrados</h2>
             <button
               onClick={() => setShowForm(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] shadow-sm shadow-[#696cff]/20 transition-all font-bold text-sm"
@@ -274,8 +274,8 @@ export default function ScheduleManager() {
           </div>
 
           {showForm && (
-            <div className="m-6 p-6 border border-[#d9dee3] rounded-xl bg-[#f5f5f9]/30">
-              <h3 className="text-lg font-bold text-[#566a7f] mb-6 flex items-center">
+            <div className="m-6 p-6 border border-[#d9dee3] dark:border-slate-700 rounded-xl bg-[#f5f5f9]/30 dark:bg-slate-950/30">
+              <h3 className="text-lg font-bold text-[#566a7f] dark:text-white mb-6 flex items-center">
                 <Clock className="w-5 h-5 mr-2 text-[#696cff]" />
                 {editingItem ? 'Editar Programa' : 'Agregar nuevo programa'}
               </h3>
@@ -307,7 +307,7 @@ export default function ScheduleManager() {
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                             formData.days_of_week.includes(day)
                               ? 'bg-[#696cff] text-white shadow-sm shadow-[#696cff]/20'
-                              : 'bg-white text-[#697a8d] border border-[#d9dee3] hover:bg-gray-50'
+                              : 'bg-white dark:bg-slate-900 text-[#697a8d] dark:text-slate-300 border border-[#d9dee3] dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'
                           }`}
                         >
                           {day.substring(0, 3)}
@@ -359,7 +359,7 @@ export default function ScheduleManager() {
                   <button
                     type="button"
                     onClick={cancelForm}
-                    className="px-4 py-2 text-[#697a8d] hover:bg-gray-100 rounded-lg transition-colors font-semibold text-sm"
+                    className="px-4 py-2 text-[#697a8d] dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-semibold text-sm"
                   >
                     Cancelar
                   </button>
@@ -380,14 +380,14 @@ export default function ScheduleManager() {
             {daysOfWeek.map((day) => {
               const daySchedule = groupScheduleByDay()[day] || [];
               return (
-                <div key={day} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                  <h3 className="text-sm font-bold text-[#566a7f] bg-gray-50/50 px-4 py-3 border-b border-gray-100 flex items-center uppercase tracking-wider">
+                <div key={day} className="bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+                  <h3 className="text-sm font-bold text-[#566a7f] dark:text-white bg-gray-50/50 dark:bg-slate-800/60 px-4 py-3 border-b border-gray-100 dark:border-slate-800 flex items-center uppercase tracking-wider">
                     <Calendar className="w-4 h-4 mr-2 text-[#696cff]" />
                     {day}
                   </h3>
                   <div className="p-4 flex-1">
                     {daySchedule.length === 0 ? (
-                      <p className="text-[#a1acb8] text-sm italic py-2">Sin programas asignados</p>
+                      <p className="text-[#a1acb8] dark:text-slate-500 text-sm italic py-2">Sin programas asignados</p>
                     ) : (
                       <div className="space-y-3">
                       {daySchedule.map((item) => (
@@ -400,23 +400,23 @@ export default function ScheduleManager() {
                               <div className="text-xs font-bold text-[#696cff] mb-0.5">
                                 {formatTime(item.start_time)} - {formatTime(item.end_time)}
                               </div>
-                              <div className="text-sm font-bold text-[#566a7f] leading-tight">{item.program_name}</div>
+                              <div className="text-sm font-bold text-[#566a7f] dark:text-white leading-tight">{item.program_name}</div>
                               {item.description && (
-                                <div className="text-[11px] text-[#a1acb8] mt-1 line-clamp-1">{item.description}</div>
+                                <div className="text-[11px] text-[#a1acb8] dark:text-slate-500 mt-1 line-clamp-1">{item.description}</div>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleEdit(item)}
-                              className="p-1.5 text-[#697a8d] hover:text-[#696cff] hover:bg-white rounded-md transition-all"
+                              className="p-1.5 text-[#697a8d] dark:text-slate-300 hover:text-[#696cff] hover:bg-white dark:hover:bg-slate-800 rounded-md transition-all"
                               title="Editar"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="p-1.5 text-[#697a8d] hover:text-[#ff3e1d] hover:bg-white rounded-md transition-all"
+                              className="p-1.5 text-[#697a8d] dark:text-slate-300 hover:text-[#ff3e1d] hover:bg-white dark:hover:bg-slate-800 rounded-md transition-all"
                               title="Eliminar"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
