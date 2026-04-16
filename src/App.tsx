@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useTheme } from '@/hooks/useTheme'
 import { ROLES } from '@/types/auth'
 import { shouldRenderMicrositeAtRoot } from '@/lib/microsites'
+import { supabase } from '@/lib/supabase'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'))
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then((m) => ({ default: m.PlansPage })))
@@ -63,10 +64,25 @@ const ProtectedRoute = ({
 
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
+  const checkSession = useAuthStore((state) => state.checkSession)
 
   useEffect(() => {
     checkDevice()
   }, [checkDevice])
+
+  useEffect(() => {
+    void checkSession()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      void checkSession()
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [checkSession])
 
   return (
     <Router>

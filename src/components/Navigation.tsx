@@ -37,6 +37,7 @@ export const Navigation: React.FC = () => {
   }, [])
 
   const userRole = user?.role as string
+  const isAdminUser = userRole === 'radio_admin' || userRole === 'super_admin'
 
   useEffect(() => {
     const fetchLogo = async () => {
@@ -141,9 +142,18 @@ export const Navigation: React.FC = () => {
               </Link>
             )}
 
-            {(userRole === 'radio_admin' || userRole === 'super_admin') && (
+            {isAdminUser && (
               <Link to="/admin" className={iconButtonClass} title="Panel de Control">
                 <Settings className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+              </Link>
+            )}
+
+            {isAdminUser && (
+              <Link
+                to="/admin"
+                className={cn('focusable inline-flex items-center justify-center rounded-xl bg-[#696cff] px-5 py-2 text-sm font-bold text-white shadow-md shadow-[#696cff]/20 transition-all hover:bg-[#5f61e6] active:scale-95', isTV && 'rounded-2xl px-6 py-3 text-base')}
+              >
+                Dashboard
               </Link>
             )}
 
@@ -331,7 +341,7 @@ export const Navigation: React.FC = () => {
                 </Link>
               )}
 
-              {(userRole === 'radio_admin' || userRole === 'super_admin') && (
+              {isAdminUser && (
                 <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
                   <Settings className="h-5 w-5 text-[#696cff]" />
                   <span>Panel de Control</span>

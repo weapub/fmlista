@@ -1,6 +1,39 @@
 {
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/(.*)" },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|SkypeUriPreview|Googlebot).*"
+        }
+      ],
+      "destination": "/api/seo?path=/"
+    },
+    {
+      "source": "/radio/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|SkypeUriPreview|Googlebot).*"
+        }
+      ],
+      "destination": "/api/seo?path=/radio/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|SkypeUriPreview|Googlebot).*"
+        }
+      ],
+      "destination": "/api/seo?path=/$1"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

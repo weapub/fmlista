@@ -14,6 +14,7 @@ import { AudioPlayer } from '@/components/AudioPlayer'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getMicrositeSlugFromHostname, getRadioPath } from '@/lib/microsites'
+import { useSeo } from '@/hooks/useSeo'
 
 export const RadioMicrosite: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>()
@@ -156,6 +157,37 @@ export const RadioMicrosite: React.FC = () => {
   const shareUrl = typeof window !== 'undefined'
     ? `${window.location.origin}${getRadioPath(radio)}`
     : getRadioPath(radio)
+  const seoTitle = `${radio.name} en vivo | ${radio.frequency || 'FM Lista'}`
+  const seoDescription = radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
+  const seoImage = radio.cover_url || radio.logo_url || '/apple-touch-icon.png'
+
+  useSeo({
+    title: seoTitle,
+    description: seoDescription,
+    url: shareUrl,
+    image: seoImage,
+    siteName: 'FM Lista',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'RadioStation',
+        name: radio.name,
+        description: seoDescription,
+        url: shareUrl,
+        image: seoImage,
+        logo: radio.logo_url || seoImage,
+        address: radio.location || undefined,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: seoTitle,
+        description: seoDescription,
+        url: shareUrl,
+        primaryImageOfPage: seoImage,
+      },
+    ],
+  })
   
   return (
     <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">

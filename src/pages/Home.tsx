@@ -6,6 +6,7 @@ import { NewsSection } from '@/components/NewsSection'
 import { useRadioStore } from '@/stores/radioStore'
 import { supabase } from '@/lib/supabase'
 import { Radio } from '@/types/database'
+import { useSeo } from '@/hooks/useSeo'
 
 const HomeSections = React.lazy(() => import('./HomeSections'))
 
@@ -39,8 +40,32 @@ export const Home: React.FC = () => {
   const [hasMore, setHasMore] = useState(true)
   const PAGE_SIZE = 9
   const loaderRef = useRef<HTMLDivElement>(null)
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'
+  const siteTitle = 'FM Lista | Radios en vivo de Formosa'
+  const siteDescription = 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
   
   const { filteredRadios, setRadios: setStoreRadios } = useRadioStore()
+
+  useSeo({
+    title: siteTitle,
+    description: siteDescription,
+    url: `${siteUrl}/`,
+    image: '/apple-touch-icon.png',
+    siteName: 'FM Lista',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'FM Lista',
+      url: `${siteUrl}/`,
+      description: siteDescription,
+      inLanguage: 'es-AR',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${siteUrl}/?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  })
   
   const fetchRadios = useCallback(async (pageNum: number) => {
     try {
