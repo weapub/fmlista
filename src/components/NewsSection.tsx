@@ -30,6 +30,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   const dragStartScrollRef = useRef(0);
   const movedDuringDragRef = useRef(false);
 
+  const resetDragState = () => {
+    isPointerDownRef.current = false;
+    isDraggingRef.current = false;
+  };
+
   useEffect(() => {
     const fetchNews = async () => {
       const mockNews: NewsItem[] = [
@@ -88,6 +93,24 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedNews]);
+
+  useEffect(() => {
+    const handleGlobalPointerRelease = () => {
+      resetDragState();
+    };
+
+    window.addEventListener('pointerup', handleGlobalPointerRelease);
+    window.addEventListener('pointercancel', handleGlobalPointerRelease);
+    window.addEventListener('touchend', handleGlobalPointerRelease, { passive: true });
+    window.addEventListener('touchcancel', handleGlobalPointerRelease, { passive: true });
+
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalPointerRelease);
+      window.removeEventListener('pointercancel', handleGlobalPointerRelease);
+      window.removeEventListener('touchend', handleGlobalPointerRelease);
+      window.removeEventListener('touchcancel', handleGlobalPointerRelease);
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedNews) return;
@@ -149,7 +172,6 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     movedDuringDragRef.current = false;
     dragStartXRef.current = event.clientX;
     dragStartScrollRef.current = track.scrollLeft;
-    track.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -165,23 +187,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   };
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    const track = trackRef.current;
-    if (track?.hasPointerCapture(event.pointerId)) {
-      track.releasePointerCapture(event.pointerId);
-    }
-
-    isPointerDownRef.current = false;
-    isDraggingRef.current = false;
+    resetDragState();
   };
 
   const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
-    const track = trackRef.current;
-    if (track?.hasPointerCapture(event.pointerId)) {
-      track.releasePointerCapture(event.pointerId);
-    }
-
-    isPointerDownRef.current = false;
-    isDraggingRef.current = false;
+    resetDragState();
   };
 
   const openNews = (item: NewsItem) => {
