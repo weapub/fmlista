@@ -752,6 +752,8 @@ export const PlansPage: React.FC = () => {
       
       {renderFAQ()}
 
+      {false && (
+      <>
       {/* AFIP Data Fiscal Section */}
       <div className="bg-gradient-to-br from-[#f5f5f9] to-[#e8e8f0] dark:from-[#232333] dark:to-[#1a1b2e] py-16 border-t border-gray-100 dark:border-[#444564] mb-20">
         <div className="max-w-6xl mx-auto px-4">
@@ -799,6 +801,9 @@ export const PlansPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      </>
+      )}
 
       {/* Proactive WhatsApp Help Button */}
       {showWhatsApp && (

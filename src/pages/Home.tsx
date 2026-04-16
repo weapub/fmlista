@@ -3,6 +3,7 @@ import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
 import { NewsSection } from '@/components/NewsSection'
+import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { supabase } from '@/lib/supabase'
 import { Radio } from '@/types/database'
@@ -209,6 +210,7 @@ export const Home: React.FC = () => {
           />
         </Suspense>
       </div>
+      <Footer className="pb-8" />
     </div>
   )
 }
