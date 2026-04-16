@@ -4,6 +4,7 @@ import { Play, Radio as RadioIcon, MapPin, Star } from 'lucide-react';
 import { useRadioStore } from '@/stores/radioStore';
 import { Radio } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { getRadioPath } from '@/lib/microsites';
 
 interface RadioCardProps {
   radio: Radio;
@@ -27,7 +28,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
   };
 
   const handleNavigate = () => {
-    navigate(`/radio/${radio.id}`);
+    navigate(getRadioPath(radio));
   };
 
   const isPlaceholder = (url?: string | null) => !!url && url.includes('via.placeholder.com');

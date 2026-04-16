@@ -6,6 +6,7 @@ import { useRadioStore } from '@/stores/radioStore'
 import { prewarmStream } from '@/hooks/useAudioPlayer'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { getRadioPath } from '@/lib/microsites'
 
 interface RadioCardProps {
   radio: Radio
@@ -40,7 +41,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
   }
 
   const handleCardClick = () => {
-    navigate(`/radio/${radio.id}`)
+    navigate(getRadioPath(radio))
   }
 
   const cardHint = useMemo(() => {

@@ -13,9 +13,10 @@ import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { getMicrositeSlugFromHostname, getRadioPath } from '@/lib/microsites'
 
 export const RadioMicrosite: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id, slug } = useParams<{ id?: string; slug?: string }>()
   const navigate = useNavigate()
   const [radio, setRadio] = useState<RadioWithSchedule | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -33,18 +34,23 @@ export const RadioMicrosite: React.FC = () => {
   
   useEffect(() => {
     const fetchRadio = async () => {
-      if (!id) return
+      const hostnameSlug = typeof window !== 'undefined' ? getMicrositeSlugFromHostname() : null
+      const identifier = hostnameSlug || slug || id
+
+      if (!identifier) return
       
       try {
         setIsLoading(true)
-        const data = await api.getRadioById(id)
+        const data = hostnameSlug || slug
+          ? await api.getRadioBySlug(identifier)
+          : await api.getRadioById(identifier)
         setRadio(data)
 
         const storedFavs = localStorage.getItem('radio_favorites');
         if (storedFavs) {
           try {
             const favorites = JSON.parse(storedFavs);
-            setIsFavorite(Array.isArray(favorites) && favorites.includes(id));
+            setIsFavorite(Array.isArray(favorites) && !!data?.id && favorites.includes(data.id));
           } catch (e) {
             console.error('Error parsing favorites:', e);
             localStorage.setItem('radio_favorites', '[]');
@@ -58,7 +64,7 @@ export const RadioMicrosite: React.FC = () => {
     }
     
     fetchRadio()
-  }, [id])
+  }, [id, slug])
   
   const handlePlay = () => {
     if (!radio) return
@@ -73,13 +79,13 @@ export const RadioMicrosite: React.FC = () => {
   }
   
   const toggleFavorite = () => {
-    if (!id) return
+    if (!radio?.id) return
     const favorites = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
     let newFavorites
     if (isFavorite) {
-      newFavorites = favorites.filter((favId: string) => favId !== id)
+      newFavorites = favorites.filter((favId: string) => favId !== radio.id)
     } else {
-      newFavorites = [...favorites, id]
+      newFavorites = [...favorites, radio.id]
     }
     localStorage.setItem('radio_favorites', JSON.stringify(newFavorites))
     setIsFavorite(!isFavorite)
@@ -147,7 +153,9 @@ export const RadioMicrosite: React.FC = () => {
     )
   }
   
-  const shareUrl = `${window.location.origin}/radio/${radio.id}`
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${getRadioPath(radio)}`
+    : getRadioPath(radio)
   
   return (
     <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">

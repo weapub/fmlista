@@ -7,6 +7,7 @@ import { Radio as RadioType } from '@/types/database'
 import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { getRadioPath } from '@/lib/microsites'
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate()
@@ -201,7 +202,7 @@ export const Navigation: React.FC = () => {
                         </div>
                         <button
                           onClick={() => {
-                            navigate(`/radio/${favoriteRadio.id}`)
+                            navigate(getRadioPath(favoriteRadio))
                             setIsProfileOpen(false)
                           }}
                           className={cn('focusable group/fav flex w-full items-center gap-3 rounded-lg p-2 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800', isTV && 'p-3')}
@@ -233,7 +234,7 @@ export const Navigation: React.FC = () => {
                             <button
                               key={radio.id}
                               onClick={() => {
-                                navigate(`/radio/${radio.id}`)
+                                navigate(getRadioPath(radio))
                                 setIsProfileOpen(false)
                               }}
                               className={cn('focusable group/item flex w-full items-center gap-3 rounded-lg p-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50', isTV && 'p-3')}

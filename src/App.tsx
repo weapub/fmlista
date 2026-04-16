@@ -5,6 +5,7 @@ import { useDeviceStore } from '@/stores/deviceStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useTheme } from '@/hooks/useTheme'
 import { ROLES } from '@/types/auth'
+import { shouldRenderMicrositeAtRoot } from '@/lib/microsites'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'))
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then((m) => ({ default: m.PlansPage })))
@@ -30,6 +31,14 @@ const PageLoader = () => (
 const ThemeBootstrap = () => {
   useTheme()
   return null
+}
+
+const HomeOrMicrosite = () => {
+  if (typeof window !== 'undefined' && shouldRenderMicrositeAtRoot()) {
+    return <RadioMicrosite />
+  }
+
+  return <Home />
 }
 
 const ProtectedRoute = ({
@@ -64,8 +73,9 @@ export default function App() {
       <ThemeBootstrap />
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeOrMicrosite />} />
           <Route path="/radio/:id" element={<RadioMicrosite />} />
+          <Route path="/:slug" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/login" element={<Login />} />
           <Route
