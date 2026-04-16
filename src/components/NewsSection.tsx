@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Newspaper, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
@@ -23,6 +23,13 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const { isTV } = useDeviceStore();
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
+  const isPointerDownRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollRef = useRef(0);
+  const movedDuringDragRef = useRef(false);
+  const pauseUntilRef = useRef(0);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -94,6 +101,97 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     };
   }, [selectedNews]);
 
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || news.length === 0) return;
+
+    let frameId = 0;
+    let lastTimestamp = 0;
+    const speed = 36;
+
+    const step = (timestamp: number) => {
+      if (!trackRef.current) return;
+      const activeTrack = trackRef.current;
+
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+      }
+
+      const elapsed = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+
+      if (!isDraggingRef.current && Date.now() > pauseUntilRef.current) {
+        activeTrack.scrollLeft += (speed * elapsed) / 1000;
+      }
+
+      const halfWidth = activeTrack.scrollWidth / 2;
+      if (activeTrack.scrollLeft >= halfWidth) {
+        activeTrack.scrollLeft -= halfWidth;
+      } else if (activeTrack.scrollLeft <= 0) {
+        activeTrack.scrollLeft += halfWidth;
+      }
+
+      frameId = window.requestAnimationFrame(step);
+    };
+
+    frameId = window.requestAnimationFrame(step);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [news]);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    isPointerDownRef.current = true;
+    isDraggingRef.current = true;
+    movedDuringDragRef.current = false;
+    dragStartXRef.current = event.clientX;
+    dragStartScrollRef.current = track.scrollLeft;
+    pauseUntilRef.current = Date.now() + 4000;
+
+    track.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    if (!track || !isPointerDownRef.current) return;
+
+    const deltaX = event.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 6) {
+      movedDuringDragRef.current = true;
+    }
+
+    track.scrollLeft = dragStartScrollRef.current - deltaX;
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    if (track?.hasPointerCapture(event.pointerId)) {
+      track.releasePointerCapture(event.pointerId);
+    }
+
+    isPointerDownRef.current = false;
+    isDraggingRef.current = false;
+  };
+
+  const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    if (track?.hasPointerCapture(event.pointerId)) {
+      track.releasePointerCapture(event.pointerId);
+    }
+
+    isPointerDownRef.current = false;
+    isDraggingRef.current = false;
+  };
+
+  const openNews = (item: NewsItem) => {
+    if (movedDuringDragRef.current) return;
+    setSelectedNews(item);
+  };
+
   const hasBreakingNews = news.some((item) => item.is_breaking);
 
   if (loading) return null;
@@ -135,8 +233,24 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
             </span>
           </div>
 
-          <div className={cn('relative w-full flex-1 overflow-hidden md:ml-4', isTV && 'md:ml-6')}>
-            <div className="flex whitespace-nowrap gap-12 animate-marquee-fast hover:[animation-play-state:paused]">
+          <div
+            ref={trackRef}
+            className={cn(
+              'relative w-full flex-1 overflow-x-hidden md:ml-4',
+              isTV && 'md:ml-6',
+              'cursor-grab touch-pan-x active:cursor-grabbing select-none'
+            )}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            onPointerLeave={(event) => {
+              if (isPointerDownRef.current) {
+                handlePointerUp(event);
+              }
+            }}
+          >
+            <div className="flex w-max whitespace-nowrap gap-12">
               {[...news, ...news].map((item, index) => (
                 <div
                   key={`${item.id}-${index}`}
@@ -157,7 +271,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
                   </span>
                   <button
                     type="button"
-                    onClick={() => setSelectedNews(item)}
+                    onClick={() => openNews(item)}
                     className={cn(
                       'truncate text-left transition-colors hover:text-[#696cff] focus:text-[#696cff] focus:outline-none',
                       item.is_breaking && 'font-bold text-red-600 dark:text-red-400',
