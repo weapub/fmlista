@@ -113,6 +113,53 @@ export const RadioMicrosite: React.FC = () => {
   }
 
   const isCurrentRadio = currentRadio?.id === radio?.id
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${radio ? getRadioPath(radio) : window.location.pathname}`
+    : radio ? getRadioPath(radio) : '/'
+  const seoTitle = radio
+    ? `${radio.name} en vivo | ${radio.frequency || 'FM Lista'}`
+    : 'FM Lista | Radios en vivo de Formosa'
+  const seoDescription = radio
+    ? radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
+    : 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
+  const seoImage = radio?.cover_url || radio?.logo_url || '/apple-touch-icon.png'
+
+  useSeo({
+    title: seoTitle,
+    description: seoDescription,
+    url: shareUrl,
+    image: seoImage,
+    siteName: 'FM Lista',
+    jsonLd: radio
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'RadioStation',
+            name: radio.name,
+            description: seoDescription,
+            url: shareUrl,
+            image: seoImage,
+            logo: radio.logo_url || seoImage,
+            address: radio.location || undefined,
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: seoTitle,
+            description: seoDescription,
+            url: shareUrl,
+            primaryImageOfPage: seoImage,
+          },
+        ]
+      : {
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: seoTitle,
+          description: seoDescription,
+          url: shareUrl,
+          primaryImageOfPage: seoImage,
+        },
+  })
   
   if (isLoading) {
     return (
@@ -153,41 +200,6 @@ export const RadioMicrosite: React.FC = () => {
       </div>
     )
   }
-  
-  const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}${getRadioPath(radio)}`
-    : getRadioPath(radio)
-  const seoTitle = `${radio.name} en vivo | ${radio.frequency || 'FM Lista'}`
-  const seoDescription = radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
-  const seoImage = radio.cover_url || radio.logo_url || '/apple-touch-icon.png'
-
-  useSeo({
-    title: seoTitle,
-    description: seoDescription,
-    url: shareUrl,
-    image: seoImage,
-    siteName: 'FM Lista',
-    jsonLd: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'RadioStation',
-        name: radio.name,
-        description: seoDescription,
-        url: shareUrl,
-        image: seoImage,
-        logo: radio.logo_url || seoImage,
-        address: radio.location || undefined,
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: seoTitle,
-        description: seoDescription,
-        url: shareUrl,
-        primaryImageOfPage: seoImage,
-      },
-    ],
-  })
   
   return (
     <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">
