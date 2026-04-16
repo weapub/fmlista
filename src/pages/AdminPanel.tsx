@@ -16,6 +16,7 @@ import {
   CreditCard,
   Users,
   History,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
@@ -160,6 +161,12 @@ const AdminPanel: React.FC = () => {
       icon: History,
       path: '/admin/payments',
       className: 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20',
+    },
+    {
+      label: 'Sitio',
+      icon: ExternalLink,
+      path: '/',
+      className: 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-[#323249] dark:text-[#cbcbe2] dark:hover:bg-[#3a3b55]',
     },
     {
       label: 'Nueva',

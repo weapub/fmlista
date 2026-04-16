@@ -15,6 +15,7 @@ import {
   Sun,
   Menu,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -144,6 +145,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subti
             <nav className="flex-1 px-4 pb-4 space-y-2 overflow-y-auto">{renderMenuLinks(true)}</nav>
 
             <div className="p-4 border-t border-gray-100 dark:border-[#444564] space-y-2">
+              <a
+                href="/"
+                className="flex items-center space-x-3 px-4 py-3 w-full rounded-xl text-[#697a8d] dark:text-[#a3a4cc] hover:bg-[#f5f5f9] dark:hover:bg-[#323249] transition-colors font-medium"
+              >
+                <ExternalLink className="w-5 h-5" />
+                <span>Ir al sitio</span>
+              </a>
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -197,6 +205,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subti
         </nav>
 
         <div className="p-4 border-t border-gray-100 dark:border-[#444564]">
+          <a
+            href="/"
+            className="mb-2 flex items-center space-x-3 px-4 py-2.5 w-full rounded-lg text-[#697a8d] dark:text-[#a3a4cc] hover:bg-[#f5f5f9] dark:hover:bg-[#323249] transition-colors font-medium"
+          >
+            <ExternalLink className="w-5 h-5" />
+            <span>Ir al sitio</span>
+          </a>
           <button
             onClick={handleLogout}
             className="flex items-center space-x-3 px-4 py-2.5 w-full text-[#ff3e1d] hover:bg-[#ff3e1d]/10 rounded-lg transition-colors font-medium"
@@ -240,6 +255,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subti
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
+            <a
+              href="/"
+              className="hidden sm:flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#697a8d] hover:bg-gray-100 dark:text-[#a3a4cc] dark:hover:bg-[#323249] transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Ver sitio</span>
+            </a>
             <button onClick={toggleTheme} className="p-2 rounded-lg text-[#697a8d] dark:text-[#a3a4cc] hover:bg-gray-100 dark:hover:bg-[#323249] transition-colors">
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
