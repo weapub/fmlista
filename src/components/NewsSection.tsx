@@ -29,10 +29,12 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   const dragStartXRef = useRef(0);
   const dragStartScrollRef = useRef(0);
   const movedDuringDragRef = useRef(false);
+  const isTouchDraggingRef = useRef(false);
 
   const resetDragState = () => {
     isPointerDownRef.current = false;
     isDraggingRef.current = false;
+    isTouchDraggingRef.current = false;
   };
 
   useEffect(() => {
@@ -176,7 +178,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const track = trackRef.current;
-    if (!track || !isPointerDownRef.current) return;
+    if (!track || !isPointerDownRef.current || isTouchDraggingRef.current) return;
 
     const deltaX = event.clientX - dragStartXRef.current;
     if (Math.abs(deltaX) > 6) {
@@ -191,6 +193,36 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   };
 
   const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    resetDragState();
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    const touch = event.touches[0];
+    if (!track || !touch) return;
+
+    isTouchDraggingRef.current = true;
+    isDraggingRef.current = true;
+    movedDuringDragRef.current = false;
+    dragStartXRef.current = touch.clientX;
+    dragStartScrollRef.current = track.scrollLeft;
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    const touch = event.touches[0];
+    if (!track || !touch || !isTouchDraggingRef.current) return;
+
+    const deltaX = touch.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 6) {
+      movedDuringDragRef.current = true;
+      event.preventDefault();
+    }
+
+    track.scrollLeft = dragStartScrollRef.current - deltaX;
+  };
+
+  const handleTouchEnd = () => {
     resetDragState();
   };
 
@@ -245,12 +277,16 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
             className={cn(
               'relative w-full flex-1 overflow-x-hidden md:ml-4',
               isTV && 'md:ml-6',
-              'cursor-grab touch-pan-x active:cursor-grabbing select-none'
+              'cursor-grab active:cursor-grabbing select-none'
             )}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerCancel}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
             onPointerLeave={(event) => {
               if (isPointerDownRef.current) {
                 handlePointerUp(event);
