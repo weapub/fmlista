@@ -29,7 +29,6 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   const dragStartXRef = useRef(0);
   const dragStartScrollRef = useRef(0);
   const movedDuringDragRef = useRef(false);
-  const pauseUntilRef = useRef(0);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -120,7 +119,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
       const elapsed = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
-      if (!isDraggingRef.current && Date.now() > pauseUntilRef.current) {
+      if (!isDraggingRef.current) {
         activeTrack.scrollLeft += (speed * elapsed) / 1000;
       }
 
@@ -150,8 +149,6 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     movedDuringDragRef.current = false;
     dragStartXRef.current = event.clientX;
     dragStartScrollRef.current = track.scrollLeft;
-    pauseUntilRef.current = Date.now() + 4000;
-
     track.setPointerCapture(event.pointerId);
   };
 
