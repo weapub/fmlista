@@ -112,19 +112,21 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
 
         <div
           className={cn(
-            'flex items-center overflow-hidden border bg-white transition-all duration-500 dark:bg-slate-900',
+            'flex overflow-hidden border bg-white transition-all duration-500 dark:bg-slate-900',
             hasBreakingNews
               ? 'border-red-500/50 shadow-lg shadow-red-500/10'
               : 'border-gray-100 shadow-sm dark:border-gray-800',
             minimal ? 'p-1' : 'p-4',
-            isTV ? 'rounded-[2rem] px-3 py-2' : 'rounded-2xl'
+            isTV ? 'rounded-[2rem] px-3 py-2' : 'rounded-2xl',
+            'flex-col items-stretch gap-3 md:flex-row md:items-center md:gap-0'
           )}
         >
           <div
             className={cn(
-              'z-10 flex flex-shrink-0 items-center gap-2 shadow-sm',
+              'z-10 flex flex-shrink-0 items-center gap-2 self-start shadow-sm',
               hasBreakingNews ? 'bg-red-500 text-white shadow-md' : 'bg-[#696cff]/10 text-[#696cff]',
-              isTV ? 'rounded-2xl px-5 py-3' : 'rounded-xl px-4 py-2'
+              isTV ? 'rounded-2xl px-5 py-3' : 'rounded-xl px-4 py-2',
+              'md:self-auto'
             )}
           >
             <Newspaper className={cn(isTV ? 'h-5 w-5' : 'h-4 w-4', hasBreakingNews && 'animate-bounce')} />
@@ -133,7 +135,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
             </span>
           </div>
 
-          <div className={cn('relative ml-4 flex-1 overflow-hidden', isTV && 'ml-6')}>
+          <div className={cn('relative w-full flex-1 overflow-hidden md:ml-4', isTV && 'md:ml-6')}>
             <div className="flex whitespace-nowrap gap-12 animate-marquee-fast hover:[animation-play-state:paused]">
               {[...news, ...news].map((item, index) => (
                 <div
