@@ -109,11 +109,16 @@ export const BillingManagement: React.FC = () => {
 
     setIsTriggering(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-billing-reminders');
+      const { data, error } = await supabase.functions.invoke('send-billing-reminders', {
+        body: { force: true, daysAhead: 7 },
+      });
       if (error) throw error;
-      alert(`Proceso completado. Recordatorios enviados: ${data?.processed || 0}`);
+      alert(`Proceso completado. Enviados: ${data?.sent || 0}. Omitidos: ${data?.skipped || 0}.`);
     } catch (error: any) {
-      alert(`Error al ejecutar el proceso: ${error.message}`);
+      const message = error?.message?.includes('Failed to send a request to the Edge Function')
+        ? 'No pudimos contactar la funcion send-billing-reminders. Revisa si esta desplegada y si existen los secrets RESEND_API_KEY y BILLING_FROM_EMAIL.'
+        : error.message;
+      alert(`Error al ejecutar el proceso: ${message}`);
     } finally {
       setIsTriggering(false);
     }
