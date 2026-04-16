@@ -20,6 +20,7 @@ interface AuthStore {
 }
 
 const GOOGLE_ROLE_KEY = 'google_oauth_role_hint'
+const OAUTH_ERROR_KEY = 'google_oauth_error'
 
 const mapAuthError = (error: unknown, mode: 'signIn' | 'signUp' | 'signOut' | 'oauth') => {
   const fallback =
@@ -74,6 +75,29 @@ const clearGoogleRoleHint = () => {
   if (typeof window === 'undefined') return
   window.localStorage.removeItem(GOOGLE_ROLE_KEY)
 }
+
+const setOAuthError = (message: string) => {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(OAUTH_ERROR_KEY, message)
+}
+
+const consumeOAuthError = () => {
+  if (typeof window === 'undefined') return null
+  const message = window.localStorage.getItem(OAUTH_ERROR_KEY)
+  if (message) {
+    window.localStorage.removeItem(OAUTH_ERROR_KEY)
+  }
+  return message
+}
+
+const buildFallbackUser = (
+  authUser: { id: string; email?: string | null },
+  fallbackRole: 'listener' | 'radio_admin' = 'listener'
+): User => ({
+  id: authUser.id,
+  email: authUser.email ?? '',
+  role: fallbackRole,
+})
 
 const ensureUserProfile = async (
   authUser: { id: string; email?: string | null },
@@ -221,6 +245,41 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   checkSession: async () => {
     try {
+      set({ isLoading: true })
+
+      if (typeof window !== 'undefined') {
+        const currentUrl = new URL(window.location.href)
+        const code = currentUrl.searchParams.get('code')
+        const oauthErrorDescription =
+          currentUrl.searchParams.get('error_description') ||
+          currentUrl.searchParams.get('error')
+
+        if (oauthErrorDescription) {
+          const mappedError = mapAuthError(new Error(oauthErrorDescription), 'oauth')
+          currentUrl.searchParams.delete('error')
+          currentUrl.searchParams.delete('error_description')
+          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+          clearGoogleRoleHint()
+          set({ error: mappedError, isLoading: false })
+          return
+        }
+
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+
+          currentUrl.searchParams.delete('code')
+          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+
+          if (exchangeError) {
+            const mappedError = mapAuthError(exchangeError, 'oauth')
+            clearGoogleRoleHint()
+            setOAuthError(mappedError)
+            set({ error: mappedError, isLoading: false })
+            return
+          }
+        }
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession()
@@ -232,14 +291,23 @@ export const useAuthStore = create<AuthStore>((set) => ({
           set({ user: userData, isLoading: false })
         } catch (error) {
           console.error('Error loading user profile from session:', error)
-          set({ isLoading: false })
+          const fallbackRole = getGoogleRoleHint()
+          clearGoogleRoleHint()
+          set({
+            user: buildFallbackUser(session.user, fallbackRole),
+            error: consumeOAuthError(),
+            isLoading: false,
+          })
         }
       } else {
-        set({ isLoading: false })
+        set({ error: consumeOAuthError(), isLoading: false })
       }
     } catch (error) {
       console.error('Error checking session:', error)
-      set({ isLoading: false })
+      set({
+        error: mapAuthError(error, 'oauth'),
+        isLoading: false,
+      })
     }
   },
 
