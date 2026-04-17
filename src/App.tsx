@@ -93,7 +93,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomeOrMicrosite />} />
           <Route path="/radio/:id" element={<RadioMicrosite />} />
-          <Route path="/:slug" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/terminos" element={<TermsAndConditions />} />
@@ -187,6 +186,7 @@ export default function App() {
             }
           />
           <Route path="/library" element={<UserLibrary />} />
+          <Route path="/:slug" element={<RadioMicrosite />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

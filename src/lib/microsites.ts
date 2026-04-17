@@ -6,7 +6,9 @@ const RESERVED_SLUGS = new Set([
   'library',
   'login',
   'planes',
+  'privacidad',
   'radio',
+  'terminos',
 ])
 
 const LOCALHOST_HOSTS = new Set(['localhost', '127.0.0.1'])
