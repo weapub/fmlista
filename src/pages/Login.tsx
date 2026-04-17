@@ -16,7 +16,7 @@ const GoogleIcon = () => (
 
 export const Login: React.FC = () => {
   const navigate = useNavigate()
-  const { signIn, signUp, signInWithGoogle, user, isLoading, error, clearError, checkSession } = useAuthStore()
+  const { signIn, signUp, signInWithGoogle, user, isLoading, error, clearError } = useAuthStore()
 
   const [isLogin, setIsLogin] = useState(true)
   const [formData, setFormData] = useState({
@@ -24,10 +24,6 @@ export const Login: React.FC = () => {
     password: '',
     role: ROLES.LISTENER as UserRole,
   })
-
-  useEffect(() => {
-    checkSession()
-  }, [checkSession])
 
   useEffect(() => {
     if (user) {
