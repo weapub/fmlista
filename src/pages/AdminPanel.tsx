@@ -56,6 +56,39 @@ const formatRenewalDate = (dateValue?: string | null) => {
   return date.toLocaleDateString('es-AR');
 };
 
+const getSubscriptionCta = (radio: RadioType) => {
+  const subscriptionStatus = (radio as any).subscription_status;
+  const hasPlan = Boolean((radio as any).plan_name);
+
+  if (subscriptionStatus === 'active') {
+    return {
+      label: 'Ver pagos',
+      path: '/admin/payments',
+      className:
+        'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/10 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
+      icon: History,
+    };
+  }
+
+  if (hasPlan) {
+    return {
+      label: 'Regularizar plan',
+      path: '/admin/payments',
+      className:
+        'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/10 dark:text-amber-400 dark:hover:bg-amber-900/20',
+      icon: CreditCard,
+    };
+  }
+
+  return {
+    label: 'Activar plan',
+    path: '/planes',
+    className:
+      'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20 dark:bg-[#696cff]/15 dark:text-[#8f92ff] dark:hover:bg-[#696cff]/25',
+    icon: ExternalLink,
+  };
+};
+
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -372,7 +405,10 @@ const AdminPanel: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                {filteredRadios.map((radio) => (
+                {filteredRadios.map((radio) => {
+                  const subscriptionCta = getSubscriptionCta(radio);
+
+                  return (
                   <div key={radio.id} className="group bg-white dark:bg-[#232333] rounded-xl border border-gray-100 dark:border-transparent overflow-hidden hover:shadow-md transition-all duration-300">
                     <div className="relative h-36 sm:h-32">
                       {radio.cover_url ? (
@@ -411,6 +447,17 @@ const AdminPanel: React.FC = () => {
                         )}
                       </div>
 
+                      <button
+                        onClick={() => navigate(subscriptionCta.path)}
+                        className={cn(
+                          'mb-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 sm:py-2.5 text-xs font-semibold transition-colors',
+                          subscriptionCta.className
+                        )}
+                      >
+                        <subscriptionCta.icon className="w-3.5 h-3.5" />
+                        <span>{subscriptionCta.label}</span>
+                      </button>
+
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => navigate(`/admin/profile/${radio.id}`)}
@@ -443,7 +490,7 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>
