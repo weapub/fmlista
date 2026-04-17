@@ -21,6 +21,8 @@ const ProfileEditor = React.lazy(() => import('@/pages/ProfileEditor'))
 const ScheduleManager = React.lazy(() => import('@/pages/ScheduleManager'))
 const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'))
 const AppSettings = React.lazy(() => import('@/pages/AppSettings'))
+const PrivacyPolicy = React.lazy(() => import('@/pages/PrivacyPolicy'))
+const TermsAndConditions = React.lazy(() => import('@/pages/TermsAndConditions'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
 
 const PageLoader = () => (
@@ -93,6 +95,8 @@ export default function App() {
           <Route path="/radio/:id" element={<RadioMicrosite />} />
           <Route path="/:slug" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
+          <Route path="/privacidad" element={<PrivacyPolicy />} />
+          <Route path="/terminos" element={<TermsAndConditions />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/admin"

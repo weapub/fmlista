@@ -166,13 +166,13 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
           </p>
           <div className="flex flex-col items-center gap-4 md:flex-row md:gap-6">
             <Link
-              to="#"
+              to="/privacidad"
               className="text-[11px] font-bold uppercase tracking-tighter text-[#a1acb8] hover:text-[#696cff] dark:text-slate-500"
             >
               Privacidad
             </Link>
             <Link
-              to="#"
+              to="/terminos"
               className="text-[11px] font-bold uppercase tracking-tighter text-[#a1acb8] hover:text-[#696cff] dark:text-slate-500"
             >
               Terminos
