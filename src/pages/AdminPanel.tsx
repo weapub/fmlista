@@ -47,6 +47,15 @@ const RadioCardSkeleton = () => (
   </div>
 );
 
+const formatRenewalDate = (dateValue?: string | null) => {
+  if (!dateValue) return null;
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toLocaleDateString('es-AR');
+};
+
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -192,6 +201,30 @@ const AdminPanel: React.FC = () => {
     return searchableFields.some((field) => field?.toLowerCase().includes(normalizedSearchTerm));
   });
 
+  const activeSubscriptionsCount = radios.filter(
+    (radio) => (radio as any).subscription_status === 'active'
+  ).length;
+
+  const radiosWithPlanCount = radios.filter((radio) => Boolean((radio as any).plan_name)).length;
+
+  const nextRenewalRadio = radios
+    .filter((radio) => Boolean((radio as any).next_billing_date))
+    .sort((a, b) => {
+      const dateA = new Date((a as any).next_billing_date).getTime();
+      const dateB = new Date((b as any).next_billing_date).getTime();
+      return dateA - dateB;
+    })[0];
+
+  const nextRenewalDate = formatRenewalDate((nextRenewalRadio as any)?.next_billing_date);
+  const planSummaryLabel =
+    radios.length === 0
+      ? 'Sin datos'
+      : radiosWithPlanCount === 0
+        ? 'Sin plan'
+        : radiosWithPlanCount === 1
+          ? '1 emisora con plan'
+          : `${radiosWithPlanCount} emisoras con plan`;
+
   if (isLoading) {
     return (
       <AdminLayout title="Panel de Administracion" subtitle="Cargando emisoras...">
@@ -254,21 +287,31 @@ const AdminPanel: React.FC = () => {
 
           <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 flex items-center space-x-4 transition-colors">
             <div className="p-3 bg-[#71dd37]/10 rounded-lg">
-              <Play className="w-6 h-6 text-[#71dd37]" />
+              <CheckCircle2 className="w-6 h-6 text-[#71dd37]" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Estado</p>
-              <p className="text-2xl font-bold text-[#71dd37]">En linea</p>
+              <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Suscripciones activas</p>
+              <p className="text-2xl font-bold text-[#71dd37]">{activeSubscriptionsCount}</p>
+              <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] mt-1">
+                {radios.length === 0
+                  ? 'Aun no hay emisoras registradas'
+                  : `${radios.length - activeSubscriptionsCount} sin cobertura activa`}
+              </p>
             </div>
           </div>
 
           <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 flex items-center space-x-4 transition-colors sm:col-span-2 xl:col-span-1">
             <div className="p-3 bg-[#03c3ec]/10 rounded-lg">
-              <Settings className="w-6 h-6 text-[#03c3ec]" />
+              <CreditCard className="w-6 h-6 text-[#03c3ec]" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Plan Actual</p>
-              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2] truncate">{radios[0]?.plan_name || 'Sin plan'}</p>
+              <p className="text-sm font-semibold text-[#a1acb8] dark:text-[#7e7e9a] uppercase">Cobertura y renovacion</p>
+              <p className="text-2xl font-bold text-[#566a7f] dark:text-[#cbcbe2] truncate">{planSummaryLabel}</p>
+              <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a] mt-1 truncate">
+                {nextRenewalDate && nextRenewalRadio
+                  ? `Proxima renovacion: ${nextRenewalRadio.name} el ${nextRenewalDate}`
+                  : 'Sin renovaciones programadas'}
+              </p>
             </div>
           </div>
         </div>
@@ -361,9 +404,9 @@ const AdminPanel: React.FC = () => {
                         )}>
                           {(radio as any).subscription_status === 'active' ? 'Suscripcion activa' : 'Sin suscripcion activa'}
                         </span>
-                        {(radio as any).next_billing_date && (
+                        {formatRenewalDate((radio as any).next_billing_date) && (
                           <span className="rounded-lg border border-slate-100 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase text-slate-500 dark:border-[#444564] dark:bg-[#2b2c40] dark:text-[#a3a4cc]">
-                            Renueva {(new Date((radio as any).next_billing_date)).toLocaleDateString('es-AR')}
+                            Renueva {formatRenewalDate((radio as any).next_billing_date)}
                           </span>
                         )}
                       </div>
