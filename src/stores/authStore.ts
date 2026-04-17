@@ -99,12 +99,34 @@ const buildFallbackUser = (
   role: fallbackRole,
 })
 
+const shouldPromoteRole = (
+  currentRole: User['role'],
+  desiredRole: 'listener' | 'radio_admin'
+) => {
+  return currentRole === 'listener' && desiredRole === 'radio_admin'
+}
+
 const ensureUserProfile = async (
   authUser: { id: string; email?: string | null },
   fallbackRole: 'listener' | 'radio_admin' = 'listener'
 ) => {
   try {
-    return await fetchUserProfile(authUser.id)
+    const profile = await fetchUserProfile(authUser.id)
+
+    if (shouldPromoteRole(profile.role, fallbackRole)) {
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ role: fallbackRole })
+        .eq('id', authUser.id)
+
+      if (!updateError) {
+        return await fetchUserProfile(authUser.id)
+      }
+
+      console.warn('Could not promote OAuth user role after login:', updateError)
+    }
+
+    return profile
   } catch (profileError) {
     const email = authUser.email ?? ''
     const { error: upsertError } = await supabase
