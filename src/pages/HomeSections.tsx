@@ -2,7 +2,7 @@ import React from 'react';
 import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { Radio } from '@/types/database';
-import { Compass, Radio as RadioIcon, Heart, Sparkles } from 'lucide-react';
+import { Compass, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
 
@@ -51,6 +51,7 @@ export default function HomeSections({
   const discoveryCategories = Array.from(
     new Set(filteredBySearch.map((radio) => radio.category).filter(Boolean))
   ).slice(0, 6);
+  const rankingRadios = trendingRadios.slice(0, 3);
 
   const sectionTitleClass = cn(
     'font-semibold text-gray-900 dark:text-white',
@@ -137,6 +138,79 @@ export default function HomeSections({
             ))}
           </div>
         </div>
+      )}
+
+      {rankingRadios.length > 0 && (
+        <section
+          className={cn(
+            'mb-10 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/85 p-5 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80',
+            isTV && 'mb-14 rounded-[2.5rem] p-8'
+          )}
+        >
+          <div className={cn('mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between', isTV && 'mb-7')}>
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">
+                <Trophy className="h-3.5 w-3.5" />
+                Ranking
+              </div>
+              <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
+                Las que más están sonando
+              </h2>
+            </div>
+
+            <div className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+              <TrendingUp className="h-4 w-4 text-[#696cff]" />
+              <span>{trendingCategory ? `Impulsadas por ${trendingCategory}` : 'Selección destacada del momento'}</span>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-[1.75rem] bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] p-5 text-white shadow-lg shadow-[#696cff]/20">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">Puesto 1</p>
+              <h3 className={cn('mt-2 font-black tracking-tight', isTV ? 'text-4xl' : 'text-3xl')}>
+                {rankingRadios[0].name}
+              </h3>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                {rankingRadios[0].frequency && (
+                  <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].frequency}</span>
+                )}
+                {rankingRadios[0].location && (
+                  <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].location}</span>
+                )}
+                {rankingRadios[0].category && (
+                  <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].category}</span>
+                )}
+              </div>
+              <p className={cn('mt-4 max-w-lg text-white/80', isTV && 'text-lg')}>
+                Una de las emisoras más fuertes del momento para arrancar rápido con algo destacado.
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              {rankingRadios.map((radio, index) => (
+                <div
+                  key={`ranking-${radio.id}`}
+                  className="flex items-center gap-4 rounded-[1.5rem] border border-slate-200/70 bg-slate-50/80 p-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/60"
+                >
+                  <div className={cn(
+                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-black',
+                    index === 0
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                  )}>
+                    #{index + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold text-slate-800 dark:text-white">{radio.name}</p>
+                    <p className="truncate text-sm text-slate-500 dark:text-slate-400">
+                      {[radio.frequency, radio.location, radio.category].filter(Boolean).join(' • ')}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       <div className={cn('mb-8', isTV && 'mb-12')}>
