@@ -21,6 +21,13 @@ interface AuthStore {
   clearError: () => void
 }
 
+interface OAuthCallbackParams {
+  accessToken: string | null
+  code: string | null
+  oauthErrorDescription: string | null
+  refreshToken: string | null
+}
+
 const GOOGLE_ROLE_KEY = 'google_oauth_role_hint'
 const OAUTH_ERROR_KEY = 'google_oauth_error'
 
@@ -90,6 +97,26 @@ const consumeOAuthError = () => {
     window.localStorage.removeItem(OAUTH_ERROR_KEY)
   }
   return message
+}
+
+const replaceBrowserUrl = (url: URL) => {
+  if (typeof window === 'undefined') return
+  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`)
+}
+
+const readOAuthCallbackParams = (url: URL): OAuthCallbackParams => {
+  const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''))
+
+  return {
+    accessToken: hashParams.get('access_token'),
+    code: url.searchParams.get('code'),
+    oauthErrorDescription:
+      url.searchParams.get('error_description') ||
+      url.searchParams.get('error') ||
+      hashParams.get('error_description') ||
+      hashParams.get('error'),
+    refreshToken: hashParams.get('refresh_token'),
+  }
 }
 
 const buildFallbackUser = (
@@ -313,23 +340,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       if (typeof window !== 'undefined') {
         const currentUrl = new URL(window.location.href)
-        const hashParams = new URLSearchParams(currentUrl.hash.replace(/^#/, ''))
-        const code = currentUrl.searchParams.get('code')
-        const oauthErrorDescription =
-          currentUrl.searchParams.get('error_description') ||
-          currentUrl.searchParams.get('error') ||
-          hashParams.get('error_description') ||
-          hashParams.get('error')
-
-        const accessToken = hashParams.get('access_token')
-        const refreshToken = hashParams.get('refresh_token')
+        const { accessToken, code, oauthErrorDescription, refreshToken } = readOAuthCallbackParams(currentUrl)
 
         if (oauthErrorDescription) {
           const mappedError = mapAuthError(new Error(oauthErrorDescription), 'oauth')
           currentUrl.searchParams.delete('error')
           currentUrl.searchParams.delete('error_description')
           currentUrl.hash = ''
-          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+          replaceBrowserUrl(currentUrl)
           clearGoogleRoleHint()
           set({ error: mappedError, isLoading: false })
           return
@@ -342,7 +360,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
           })
 
           currentUrl.hash = ''
-          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+          replaceBrowserUrl(currentUrl)
 
           if (setSessionError) {
             const mappedError = mapAuthError(setSessionError, 'oauth')
@@ -357,7 +375,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           currentUrl.searchParams.delete('code')
-          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+          replaceBrowserUrl(currentUrl)
 
           if (exchangeError) {
             const mappedError = mapAuthError(exchangeError, 'oauth')
