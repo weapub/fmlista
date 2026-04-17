@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 interface User {
@@ -16,6 +17,7 @@ interface AuthStore {
   signInWithGoogle: (roleHint?: 'listener' | 'radio_admin') => Promise<void>
   signOut: () => Promise<void>
   checkSession: () => Promise<void>
+  syncSession: (session: Session | null) => Promise<void>
   clearError: () => void
 }
 
@@ -148,6 +150,28 @@ const ensureUserProfile = async (
   }
 }
 
+const resolveSessionUser = async (
+  session: Session | null
+): Promise<{ user: User | null; error: string | null }> => {
+  if (!session?.user) {
+    return { user: null, error: consumeOAuthError() }
+  }
+
+  try {
+    const userData = await ensureUserProfile(session.user, getGoogleRoleHint())
+    clearGoogleRoleHint()
+    return { user: userData, error: null }
+  } catch (error) {
+    console.error('Error loading user profile from session:', error)
+    const fallbackRole = getGoogleRoleHint()
+    clearGoogleRoleHint()
+    return {
+      user: buildFallbackUser(session.user, fallbackRole),
+      error: consumeOAuthError(),
+    }
+  }
+}
+
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   isLoading: false,
@@ -265,6 +289,24 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
+  syncSession: async (session: Session | null) => {
+    try {
+      set({ isLoading: true, error: null })
+      const resolved = await resolveSessionUser(session)
+      set({
+        user: resolved.user,
+        error: resolved.error,
+        isLoading: false,
+      })
+    } catch (error) {
+      console.error('Error syncing auth session:', error)
+      set({
+        error: mapAuthError(error, 'oauth'),
+        isLoading: false,
+      })
+    }
+  },
+
   checkSession: async () => {
     try {
       set({ isLoading: true })
@@ -306,24 +348,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
         data: { session },
       } = await supabase.auth.getSession()
 
-      if (session?.user) {
-        try {
-          const userData = await ensureUserProfile(session.user, getGoogleRoleHint())
-          clearGoogleRoleHint()
-          set({ user: userData, isLoading: false })
-        } catch (error) {
-          console.error('Error loading user profile from session:', error)
-          const fallbackRole = getGoogleRoleHint()
-          clearGoogleRoleHint()
-          set({
-            user: buildFallbackUser(session.user, fallbackRole),
-            error: consumeOAuthError(),
-            isLoading: false,
-          })
-        }
-      } else {
-        set({ error: consumeOAuthError(), isLoading: false })
-      }
+      const resolved = await resolveSessionUser(session)
+      set({
+        user: resolved.user,
+        error: resolved.error,
+        isLoading: false,
+      })
     } catch (error) {
       console.error('Error checking session:', error)
       set({

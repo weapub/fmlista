@@ -67,6 +67,7 @@ const ProtectedRoute = ({
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
   const checkSession = useAuthStore((state) => state.checkSession)
+  const syncSession = useAuthStore((state) => state.syncSession)
 
   useEffect(() => {
     checkDevice()
@@ -77,14 +78,14 @@ export default function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      void checkSession()
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      void syncSession(session)
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [checkSession])
+  }, [checkSession, syncSession])
 
   return (
     <Router>
