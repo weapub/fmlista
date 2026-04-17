@@ -72,7 +72,7 @@ export const Login: React.FC = () => {
   const handleGoogleAuth = async () => {
     try {
       clearError()
-      await signInWithGoogle(isLogin ? ROLES.LISTENER : (formData.role as 'listener' | 'radio_admin'))
+      await signInWithGoogle(formData.role as 'listener' | 'radio_admin')
     } catch (authError) {
       console.error('Google authentication error:', authError)
     }
@@ -149,28 +149,29 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {!isLogin && (
-              <div>
-                <label htmlFor="role" className="block text-xs font-black text-[#566a7f] uppercase tracking-widest mb-2 ml-1">
-                  Tipo de cuenta
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    className="block w-full pl-12 pr-4 py-4 bg-slate-50 border-gray-100 rounded-xl text-[#566a7f] focus:bg-white focus:ring-4 focus:ring-[#696cff]/10 focus:border-[#696cff] transition-all outline-none font-bold appearance-none"
-                  >
-                    <option value="listener">Oyente</option>
-                    <option value="radio_admin">Administrador de Radio</option>
-                  </select>
+            <div>
+              <label htmlFor="role" className="block text-xs font-black text-[#566a7f] uppercase tracking-widest mb-2 ml-1">
+                Tipo de cuenta
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
                 </div>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  className="block w-full pl-12 pr-4 py-4 bg-slate-50 border-gray-100 rounded-xl text-[#566a7f] focus:bg-white focus:ring-4 focus:ring-[#696cff]/10 focus:border-[#696cff] transition-all outline-none font-bold appearance-none"
+                >
+                  <option value="listener">Oyente</option>
+                  <option value="radio_admin">Administrador de Radio</option>
+                </select>
               </div>
-            )}
+              <p className="mt-2 ml-1 text-xs text-[#a1acb8]">
+                Con Google usaremos este tipo de cuenta si es tu primer acceso o si tu perfil todavia figura como oyente.
+              </p>
+            </div>
 
             {error && (
               <div className="bg-red-50 border border-red-100 rounded-xl p-4">
