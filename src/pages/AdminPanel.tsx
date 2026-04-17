@@ -54,6 +54,7 @@ const AdminPanel: React.FC = () => {
   const [radios, setRadios] = useState<RadioType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -176,6 +177,21 @@ const AdminPanel: React.FC = () => {
     },
   ];
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredRadios = radios.filter((radio) => {
+    if (!normalizedSearchTerm) return true;
+
+    const searchableFields = [
+      radio.name,
+      radio.frequency,
+      radio.location,
+      (radio as any).plan_name,
+      (radio as any).subscription_status,
+    ];
+
+    return searchableFields.some((field) => field?.toLowerCase().includes(normalizedSearchTerm));
+  });
+
   if (isLoading) {
     return (
       <AdminLayout title="Panel de Administracion" subtitle="Cargando emisoras...">
@@ -191,7 +207,13 @@ const AdminPanel: React.FC = () => {
   }
 
   return (
-    <AdminLayout title="Panel de Administracion" subtitle="Gestion de emisoras y contenido">
+    <AdminLayout
+      title="Panel de Administracion"
+      subtitle="Gestion de emisoras y contenido"
+      searchPlaceholder="Buscar por nombre, frecuencia, ubicacion o plan..."
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+    >
       <div className="max-w-6xl mx-auto space-y-5 sm:space-y-8">
         {notification && (
           <div
@@ -255,7 +277,9 @@ const AdminPanel: React.FC = () => {
           <div className="p-4 sm:p-6 border-b border-gray-50 dark:border-[#444564] flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg sm:text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Mis Emisoras</h2>
-              <span className="text-xs sm:text-sm text-[#a1acb8] dark:text-[#7e7e9a]">{radios.length} registradas</span>
+              <span className="text-xs sm:text-sm text-[#a1acb8] dark:text-[#7e7e9a]">
+                {filteredRadios.length} de {radios.length} registradas
+              </span>
             </div>
 
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
@@ -287,9 +311,25 @@ const AdminPanel: React.FC = () => {
                   Comenzar ahora
                 </button>
               </div>
+            ) : filteredRadios.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Radio className="w-10 h-10 text-gray-300" />
+                </div>
+                <h3 className="text-lg font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-1">No encontramos coincidencias</h3>
+                <p className="text-[#a1acb8] dark:text-[#7e7e9a] mb-6 text-sm">
+                  Prueba con otro nombre, frecuencia, ubicacion o plan.
+                </p>
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="bg-[#696cff]/10 text-[#696cff] px-6 py-3 rounded-xl hover:bg-[#696cff]/20 transition-all font-bold"
+                >
+                  Limpiar busqueda
+                </button>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                {radios.map((radio) => (
+                {filteredRadios.map((radio) => (
                   <div key={radio.id} className="group bg-white dark:bg-[#232333] rounded-xl border border-gray-100 dark:border-transparent overflow-hidden hover:shadow-md transition-all duration-300">
                     <div className="relative h-36 sm:h-32">
                       {radio.cover_url ? (

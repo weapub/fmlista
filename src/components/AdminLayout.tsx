@@ -25,6 +25,9 @@ interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 interface MenuItem {
@@ -35,7 +38,14 @@ interface MenuItem {
   superAdminOnly?: boolean;
 }
 
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
+export const AdminLayout: React.FC<AdminLayoutProps> = ({
+  children,
+  title,
+  subtitle,
+  searchPlaceholder = 'Buscar en el panel...',
+  searchValue = '',
+  onSearchChange,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, user } = useAuthStore();
@@ -248,7 +258,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subti
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1acb8] dark:text-[#7e7e9a] group-focus-within:text-[#696cff] transition-colors" />
               <input
                 type="text"
-                placeholder="Buscar en el panel..."
+                placeholder={searchPlaceholder}
+                value={searchValue}
+                onChange={(event) => onSearchChange?.(event.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-[#f5f5f9] dark:bg-[#232333] border border-transparent dark:border-transparent rounded-lg focus:bg-white dark:focus:bg-[#323249] focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-sm text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a]"
               />
             </div>
