@@ -313,19 +313,44 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       if (typeof window !== 'undefined') {
         const currentUrl = new URL(window.location.href)
+        const hashParams = new URLSearchParams(currentUrl.hash.replace(/^#/, ''))
         const code = currentUrl.searchParams.get('code')
         const oauthErrorDescription =
           currentUrl.searchParams.get('error_description') ||
-          currentUrl.searchParams.get('error')
+          currentUrl.searchParams.get('error') ||
+          hashParams.get('error_description') ||
+          hashParams.get('error')
+
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
 
         if (oauthErrorDescription) {
           const mappedError = mapAuthError(new Error(oauthErrorDescription), 'oauth')
           currentUrl.searchParams.delete('error')
           currentUrl.searchParams.delete('error_description')
+          currentUrl.hash = ''
           window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
           clearGoogleRoleHint()
           set({ error: mappedError, isLoading: false })
           return
+        }
+
+        if (accessToken && refreshToken) {
+          const { error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+
+          currentUrl.hash = ''
+          window.history.replaceState({}, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+
+          if (setSessionError) {
+            const mappedError = mapAuthError(setSessionError, 'oauth')
+            clearGoogleRoleHint()
+            setOAuthError(mappedError)
+            set({ error: mappedError, isLoading: false })
+            return
+          }
         }
 
         if (code) {
