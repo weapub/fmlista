@@ -67,6 +67,26 @@ export interface Plan {
   active?: boolean;
 }
 
+export interface RadioCatalogEntry {
+  id: ID;
+  name: string;
+  frequency?: string | null;
+  city?: string | null;
+  province: string;
+  category?: string | null;
+  stream_url?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  logo_url?: string | null;
+  description?: string | null;
+  status: 'draft' | 'verified' | 'published';
+  notes?: string | null;
+  created_by?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 export interface Json {
   [key: string]: any;
 }

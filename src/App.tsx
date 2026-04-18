@@ -13,6 +13,7 @@ const PlansPage = React.lazy(() => import('@/pages/PlansPage').then((m) => ({ de
 const Login = React.lazy(() => import('@/pages/Login').then((m) => ({ default: m.Login })))
 const AdminPanel = React.lazy(() => import('@/pages/AdminPanel'))
 const BillingManagement = React.lazy(() => import('@/pages/admin/BillingManagement').then((m) => ({ default: m.BillingManagement })))
+const RadioCatalog = React.lazy(() => import('@/pages/admin/RadioCatalog'))
 const AdminPlans = React.lazy(() => import('@/pages/AdminPlans'))
 const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement').then((m) => ({ default: m.UserManagement })))
 const PaymentHistory = React.lazy(() => import('@/pages/admin/PaymentHistory').then((m) => ({ default: m.PaymentHistory })))
@@ -113,6 +114,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
                 <BillingManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/catalogo"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                <RadioCatalog />
               </ProtectedRoute>
             }
           />
