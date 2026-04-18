@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Radio, Plan } from '@/types/database';
 import { supabase } from '@/lib/supabase';
@@ -18,6 +18,7 @@ export default function ProfileEditor() {
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable' | 'invalid'>('idle');
   const [saving, setSaving] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -37,6 +38,11 @@ export default function ProfileEditor() {
     user_id: '',
     plan_id: ''
   });
+
+  const draftStorageKey = useMemo(() => {
+    const scope = id && id !== 'new' ? id : 'new';
+    return `radio-editor-draft:${scope}:${user?.id ?? 'anon'}`;
+  }, [id, user?.id]);
 
   const categories = [
     'Noticias',
@@ -81,6 +87,36 @@ export default function ProfileEditor() {
       }
     }
   }, [id, user, navigate]);
+
+  useEffect(() => {
+    if (loading || typeof window === 'undefined') return;
+
+    try {
+      const storedDraft = window.localStorage.getItem(draftStorageKey);
+      if (!storedDraft) return;
+
+      const parsedDraft = JSON.parse(storedDraft);
+      if (!parsedDraft || typeof parsedDraft !== 'object') return;
+
+      setFormData((current) => ({
+        ...current,
+        ...parsedDraft,
+      }));
+      setDraftRestored(true);
+    } catch (error) {
+      console.error('Error restoring radio draft:', error);
+    }
+  }, [draftStorageKey, loading]);
+
+  useEffect(() => {
+    if (loading || typeof window === 'undefined') return;
+
+    try {
+      window.localStorage.setItem(draftStorageKey, JSON.stringify(formData));
+    } catch (error) {
+      console.error('Error persisting radio draft:', error);
+    }
+  }, [draftStorageKey, formData, loading]);
 
   const fetchUsers = async () => {
     const { data } = await supabase
@@ -398,6 +434,10 @@ export default function ProfileEditor() {
         if (subError) throw subError;
       }
 
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(draftStorageKey);
+      }
+
       navigate('/admin');
     } catch (error: any) {
       console.error('Error saving radio:', error);
@@ -432,12 +472,65 @@ export default function ProfileEditor() {
   const inputClasses = "w-full px-4 py-2 bg-white dark:bg-slate-900 border border-[#d9dee3] dark:border-slate-700 rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-white placeholder:text-[#b4bdc6] dark:placeholder:text-slate-500";
   const labelClasses = "block text-sm font-semibold text-[#566a7f] dark:text-slate-200 mb-2";
 
+  const handleDiscardDraft = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(draftStorageKey);
+    }
+
+    setDraftRestored(false);
+
+    if (!id || id === 'new') {
+      setFormData({
+        name: '',
+        slug: '',
+        frequency: '',
+        description: '',
+        location: '',
+        category: '',
+        stream_url: '',
+        video_stream_url: '',
+        logo_url: '',
+        cover_url: '',
+        whatsapp: '',
+        social_facebook: '',
+        social_instagram: '',
+        social_twitter: '',
+        address: '',
+        user_id: '',
+        plan_id: ''
+      });
+      return;
+    }
+
+    void fetchRadio();
+  };
+
   return (
     <AdminLayout 
       title={id === 'new' ? 'Crear Emisora' : 'Editar Emisora'} 
       subtitle={formData.name || 'Nueva Radio'}
     >
       <div className="max-w-5xl mx-auto space-y-6">
+        {draftRestored && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/20">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Recuperamos tu borrador automaticamente.</p>
+                <p className="text-sm text-amber-700 dark:text-amber-200">
+                  Puedes seguir cargando la emisora o descartar este borrador y volver al estado inicial.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleDiscardDraft}
+                className="rounded-lg border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/30"
+              >
+                Descartar borrador
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => navigate('/admin')}
