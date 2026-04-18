@@ -351,31 +351,37 @@ export const RadioMicrosite: React.FC = () => {
           <div className={cn("grid grid-cols-1 gap-8 lg:grid-cols-2", isTV && "gap-10")}>
             {/* Description Section */}
             <div className="space-y-6">
-              <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-3", isTV && "gap-5")}>
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
-                  <div className="mb-3 inline-flex rounded-xl bg-[#696cff]/10 p-2 text-[#696cff]">
+              <div className={cn("grid grid-cols-1 gap-4 lg:grid-cols-3", isTV && "gap-5")}>
+                <div className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="inline-flex rounded-2xl bg-[#696cff]/10 p-3 text-[#696cff]">
                     <Mic2 className="h-5 w-5" />
                   </div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Identidad</p>
-                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Identidad</p>
+                  <p className="mt-2 text-base font-bold text-[#566a7f] dark:text-white">
                     {radio.category || 'Programación generalista'}
                   </p>
-                </div>
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
-                  <div className="mb-3 inline-flex rounded-xl bg-emerald-500/10 p-2 text-emerald-600">
-                    <BadgeCheck className="h-5 w-5" />
-                  </div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Cobertura</p>
-                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
-                    {radio.location || 'Disponible online en todo momento'}
+                  <p className="mt-1 text-sm leading-relaxed text-[#697a8d] dark:text-slate-300">
+                    Una propuesta con personalidad clara para oyentes que buscan una senal reconocible.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
-                  <div className="mb-3 inline-flex rounded-xl bg-amber-500/10 p-2 text-amber-600">
+                <div className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="inline-flex rounded-2xl bg-emerald-500/10 p-3 text-emerald-600">
+                    <BadgeCheck className="h-5 w-5" />
+                  </div>
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Cobertura</p>
+                  <p className="mt-2 text-base font-bold text-[#566a7f] dark:text-white">
+                    {radio.location || 'Disponible online en todo momento'}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-[#697a8d] dark:text-slate-300">
+                    Ideal para seguir la escena local o entrar desde cualquier lugar sin perder contexto.
+                  </p>
+                </div>
+                <div className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="inline-flex rounded-2xl bg-amber-500/10 p-3 text-amber-600">
                     <WandSparkles className="h-5 w-5" />
                   </div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Descubrimiento</p>
-                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Descubrimiento</p>
+                  <p className="mt-2 text-base font-bold text-[#566a7f] dark:text-white">
                     {radio.frequency ? `Súmate a ${radio.frequency}` : `Conoce ${radio.name}`}
                   </p>
                 </div>
