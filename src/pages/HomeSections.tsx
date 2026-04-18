@@ -2,11 +2,13 @@ import React from 'react';
 import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { Radio } from '@/types/database';
-import { Compass, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
+import { Compass, MapPin, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
 
 interface HomeSectionsProps {
+  citySpotlightLabel: string | null;
+  citySpotlightRadios: Radio[];
   favoriteRadios: Radio[];
   trendingRadios: Radio[];
   trendingCategory: string | null;
@@ -36,6 +38,8 @@ const RadioCardSkeleton = () => (
 );
 
 export default function HomeSections({
+  citySpotlightLabel,
+  citySpotlightRadios,
   favoriteRadios,
   trendingRadios,
   trendingCategory,
@@ -87,7 +91,7 @@ export default function HomeSections({
             </div>
 
             {discoveryCategories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
                 {discoveryCategories.map((category) => (
                   <span
                     key={category}
@@ -140,6 +144,39 @@ export default function HomeSections({
         </div>
       )}
 
+      {citySpotlightLabel && citySpotlightRadios.length > 0 && (
+        <section
+          className={cn(
+            'mb-10 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-gradient-to-br from-[#fff8ec] via-white to-[#fff0f0] p-5 shadow-sm dark:border-slate-800 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950',
+            isTV && 'mb-14 rounded-[2.5rem] p-8'
+          )}
+        >
+          <div className={cn('mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between', isTV && 'mb-7')}>
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-rose-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-rose-600 dark:bg-rose-500/15 dark:text-rose-300">
+                <MapPin className="h-3.5 w-3.5" />
+                Emisoras de tu ciudad
+              </div>
+              <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
+                Sonando en {citySpotlightLabel}
+              </h2>
+              <p className={cn('mt-2 max-w-2xl text-slate-500 dark:text-slate-400', isTV ? 'text-lg' : 'text-sm')}>
+                Una selección local para entrar rápido a las radios más cercanas a tu búsqueda o ubicación elegida.
+              </p>
+            </div>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {citySpotlightRadios.length} emisoras destacadas
+            </span>
+          </div>
+
+          <div className={cn('grid gap-4', isTV ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1 md:grid-cols-2')}>
+            {citySpotlightRadios.map((radio) => (
+              <RadioCard key={`city-${radio.id}`} radio={radio} className="shadow-none" />
+            ))}
+          </div>
+        </section>
+      )}
+
       {rankingRadios.length > 0 && (
         <section
           className={cn(
@@ -165,7 +202,7 @@ export default function HomeSections({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="rounded-[1.75rem] bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] p-5 text-white shadow-lg shadow-[#696cff]/20">
+            <div className={cn('rounded-[1.75rem] bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6] p-5 text-white shadow-lg shadow-[#696cff]/20', isTV && 'p-7')}>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">Puesto 1</p>
               <h3 className={cn('mt-2 font-black tracking-tight', isTV ? 'text-4xl' : 'text-3xl')}>
                 {rankingRadios[0].name}
@@ -190,7 +227,11 @@ export default function HomeSections({
               {rankingRadios.map((radio, index) => (
                 <div
                   key={`ranking-${radio.id}`}
-                  className="flex items-center gap-4 rounded-[1.5rem] border border-slate-200/70 bg-slate-50/80 p-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/60"
+                  className={cn(
+                    'flex items-center gap-4 rounded-[1.5rem] border border-slate-200/70 bg-slate-50/80 p-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/60',
+                    !isTV && 'sm:p-4',
+                    isTV && 'p-5'
+                  )}
                 >
                   <div className={cn(
                     'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-black',
@@ -249,7 +290,8 @@ export default function HomeSections({
       <div
         className={cn(
           'mb-6 rounded-3xl border border-slate-200/70 bg-white/70 px-5 py-4 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/70',
-          isTV && 'mb-8 px-7 py-5'
+          isTV && 'mb-8 px-7 py-5',
+          !isTV && 'sticky top-20 z-10'
         )}
       >
         <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg font-medium')}>

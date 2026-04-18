@@ -45,7 +45,11 @@ export const Home: React.FC = () => {
   const siteTitle = 'FM Lista | Radios en vivo de Formosa'
   const siteDescription = 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
   
-  const { filteredRadios, setRadios: setStoreRadios } = useRadioStore()
+  const {
+    filteredRadios,
+    selectedLocation,
+    setRadios: setStoreRadios,
+  } = useRadioStore()
 
   useSeo({
     title: siteTitle,
@@ -167,6 +171,26 @@ export const Home: React.FC = () => {
       radio.location?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
     ), [filteredRadios, deferredSearchTerm])
 
+  const spotlightLocation = useMemo(() => {
+    if (selectedLocation) return selectedLocation
+
+    const counts = filteredBySearch.reduce<Record<string, number>>((acc, radio) => {
+      if (!radio.location) return acc
+      acc[radio.location] = (acc[radio.location] ?? 0) + 1
+      return acc
+    }, {})
+
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
+  }, [filteredBySearch, selectedLocation])
+
+  const citySpotlightRadios = useMemo(() => {
+    if (!spotlightLocation) return []
+
+    return filteredBySearch
+      .filter((radio) => radio.location === spotlightLocation)
+      .slice(0, 4)
+  }, [filteredBySearch, spotlightLocation])
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 transition-colors">
@@ -198,6 +222,8 @@ export const Home: React.FC = () => {
           </div>
         }>
           <HomeSections
+            citySpotlightLabel={spotlightLocation}
+            citySpotlightRadios={citySpotlightRadios}
             favoriteRadios={favoriteRadios}
             trendingRadios={trendingRadios}
             trendingCategory={trendingCategory}

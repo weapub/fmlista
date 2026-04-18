@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Play, Pause, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2, MonitorPlay } from 'lucide-react'
+import { Play, Pause, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2, MonitorPlay, BadgeCheck, Mic2, WandSparkles } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { api } from '@/lib/api'
 import { RadioWithSchedule } from '@/types/database'
@@ -123,6 +123,13 @@ export const RadioMicrosite: React.FC = () => {
     ? radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
     : 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
   const seoImage = radio?.cover_url || radio?.logo_url || '/apple-touch-icon.png'
+  const editorialHighlights = radio
+    ? [
+        radio.category ? `${radio.name} conecta con oyentes que buscan ${radio.category.toLowerCase()} y una identidad sonora bien marcada.` : null,
+        radio.location ? `${radio.location} aparece como base editorial de esta emisora, ideal para quienes quieren seguir de cerca la escena local.` : null,
+        radio.frequency ? `Su frecuencia ${radio.frequency} ayuda a reforzar recordación de marca tanto en aire como en digital.` : null,
+      ].filter(Boolean) as string[]
+    : []
 
   useSeo({
     title: seoTitle,
@@ -344,6 +351,36 @@ export const RadioMicrosite: React.FC = () => {
           <div className={cn("grid grid-cols-1 gap-8 lg:grid-cols-2", isTV && "gap-10")}>
             {/* Description Section */}
             <div className="space-y-6">
+              <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-3", isTV && "gap-5")}>
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="mb-3 inline-flex rounded-xl bg-[#696cff]/10 p-2 text-[#696cff]">
+                    <Mic2 className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Identidad</p>
+                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
+                    {radio.category || 'Programación generalista'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="mb-3 inline-flex rounded-xl bg-emerald-500/10 p-2 text-emerald-600">
+                    <BadgeCheck className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Cobertura</p>
+                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
+                    {radio.location || 'Disponible online en todo momento'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+                  <div className="mb-3 inline-flex rounded-xl bg-amber-500/10 p-2 text-amber-600">
+                    <WandSparkles className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Descubrimiento</p>
+                  <p className="mt-2 text-sm font-semibold text-[#566a7f] dark:text-white">
+                    {radio.frequency ? `Súmate a ${radio.frequency}` : `Conoce ${radio.name}`}
+                  </p>
+                </div>
+              </div>
+
               {radio.description && (
                 <div className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors", isTV && "rounded-[2rem] p-10")}>
                   <h2 className={cn("font-bold text-[#566a7f] dark:text-white mb-4", isTV ? "text-3xl" : "text-xl")}>
@@ -354,12 +391,33 @@ export const RadioMicrosite: React.FC = () => {
                   </p>
                 </div>
               )}
+
+              {editorialHighlights.length > 0 && (
+                <div className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors", isTV && "rounded-[2rem] p-10")}>
+                  <h2 className={cn("font-bold text-[#566a7f] dark:text-white mb-4", isTV ? "text-3xl" : "text-xl")}>
+                    Por qué seguir esta emisora
+                  </h2>
+                  <div className="space-y-3">
+                    {editorialHighlights.map((highlight) => (
+                      <div key={highlight} className="flex items-start gap-3 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-800/60">
+                        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#696cff]" />
+                        <p className={cn("text-[#697a8d] dark:text-slate-300 leading-relaxed", isTV && "text-lg leading-8")}>
+                          {highlight}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* Share Buttons */}
               <div id="share-section" className={cn("bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-8 transition-colors", isTV && "rounded-[2rem] p-10")}>
                 <h3 className={cn("font-bold text-[#566a7f] dark:text-white mb-4", isTV ? "text-2xl" : "text-lg")}>
                   Compartir esta emisora
                 </h3>
+                <p className="mb-4 text-sm text-[#697a8d] dark:text-slate-300">
+                  Llévala a WhatsApp, redes o compártela directo con tu audiencia para ayudar a que el micrositio siga creciendo.
+                </p>
                 <ShareButtons
                   url={shareUrl}
                   title={radio.name}
