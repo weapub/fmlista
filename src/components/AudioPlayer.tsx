@@ -25,7 +25,7 @@ export const AudioPlayer: React.FC = () => {
   const { togglePlay, setVolume } = useAudioPlayer()
   
   // Real-time listener tracking (Los hooks ahora manejan internamente si el ID es nulo)
-  const listenerCount = useRadioListeners(currentRadio?.id || '')
+  const listenerCount = useRadioListeners(currentRadio?.id || '', isPlayerExpanded)
   useReportListener(currentRadio?.id || '', isPlaying)
   const playButtonRef = useRef<HTMLButtonElement | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)

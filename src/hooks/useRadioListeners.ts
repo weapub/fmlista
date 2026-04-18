@@ -9,11 +9,14 @@ const activeChannels = new Map<string, {
   subscribers: Set<(count: number) => void>
 }>();
 
-export const useRadioListeners = (radioId: string | undefined) => {
+export const useRadioListeners = (radioId: string | undefined, enabled = true) => {
   const [listenerCount, setListenerCount] = useState(0);
 
   useEffect(() => {
-    if (!radioId) return;
+    if (!radioId || !enabled) {
+      setListenerCount(0);
+      return;
+    }
 
     let channelData = activeChannels.get(radioId);
 
@@ -54,7 +57,7 @@ export const useRadioListeners = (radioId: string | undefined) => {
         }
       }
     };
-  }, [radioId]);
+  }, [radioId, enabled]);
 
   return listenerCount;
 };
