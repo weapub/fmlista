@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Play, Pause, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2, MonitorPlay, BadgeCheck, Mic2, WandSparkles } from 'lucide-react'
+import { Play, Pause, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2, MonitorPlay, BadgeCheck, Mic2 } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { api } from '@/lib/api'
 import { RadioWithSchedule } from '@/types/database'
@@ -351,7 +351,7 @@ export const RadioMicrosite: React.FC = () => {
           <div className={cn("grid grid-cols-1 gap-8 lg:grid-cols-2", isTV && "gap-10")}>
             {/* Description Section */}
             <div className="space-y-6">
-              <div className={cn("grid grid-cols-1 gap-4 lg:grid-cols-3", isTV && "gap-5")}>
+              <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2", isTV && "gap-5")}>
                 <div className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
                   <div className="inline-flex rounded-2xl bg-[#696cff]/10 p-3 text-[#696cff]">
                     <Mic2 className="h-5 w-5" />
@@ -374,15 +374,6 @@ export const RadioMicrosite: React.FC = () => {
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-[#697a8d] dark:text-slate-300">
                     Ideal para seguir la escena local o entrar desde cualquier lugar sin perder contexto.
-                  </p>
-                </div>
-                <div className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
-                  <div className="inline-flex rounded-2xl bg-amber-500/10 p-3 text-amber-600">
-                    <WandSparkles className="h-5 w-5" />
-                  </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-[#a1acb8] dark:text-slate-500">Descubrimiento</p>
-                  <p className="mt-2 text-base font-bold text-[#566a7f] dark:text-white">
-                    {radio.frequency ? `Súmate a ${radio.frequency}` : `Conoce ${radio.name}`}
                   </p>
                 </div>
               </div>
