@@ -153,19 +153,24 @@ const AdminPanel: React.FC = () => {
     fetchUserRadios();
   }, [user, navigate]);
 
-  const handleDeleteRadio = async (radioId: string) => {
-    if (!window.confirm('Estas seguro de que quieres eliminar esta emisora?')) {
+  const handleDeleteRadio = async (radio: RadioType) => {
+    const confirmMessage =
+      user?.role === ROLES.SUPER_ADMIN
+        ? `Vas a eliminar la emisora "${radio.name}" junto con sus anuncios, suscripciones y cobros asociados. Deseas continuar?`
+        : `Estas seguro de que quieres eliminar la emisora "${radio.name}"?`;
+
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
     const originalRadios = [...radios];
-    setRadios((prev) => prev.filter((radio) => radio.id !== radioId));
+    setRadios((prev) => prev.filter((currentRadio) => currentRadio.id !== radio.id));
 
     try {
-      await api.deleteRadio(radioId);
+      await api.deleteRadio(radio.id);
     } catch (error) {
       console.error('Error deleting radio:', error);
-      alert('Error al eliminar la emisora');
+      alert('No pudimos eliminar la emisora. Revisa si tiene datos relacionados con permisos o vuelve a intentarlo.');
       setRadios(originalRadios);
     }
   };
@@ -481,7 +486,7 @@ const AdminPanel: React.FC = () => {
                           <span>Anuncios</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteRadio(radio.id)}
+                          onClick={() => handleDeleteRadio(radio)}
                           className="py-3 sm:py-2.5 text-[#ff3e1d] hover:bg-[#ff3e1d]/5 rounded-xl transition-colors text-xs font-semibold flex items-center justify-center space-x-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

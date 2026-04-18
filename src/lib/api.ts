@@ -97,11 +97,19 @@ export const api = {
   },
   
   async deleteRadio(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('radios')
-      .delete()
-      .eq('id', id)
-    
+    const cleanupSteps = [
+      supabase.from('advertisements').delete().eq('radio_id', id),
+      supabase.from('invoices').delete().eq('radio_id', id),
+      supabase.from('subscriptions').delete().eq('radio_id', id),
+    ]
+
+    for (const step of cleanupSteps) {
+      const { error } = await step
+      if (error) throw error
+    }
+
+    const { error } = await supabase.from('radios').delete().eq('id', id)
+
     if (error) throw error
   },
   
