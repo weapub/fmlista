@@ -76,10 +76,46 @@ export const RadioCatalog: React.FC = () => {
   const [editingEntry, setEditingEntry] = useState<RadioCatalogEntry | null>(null);
   const [formData, setFormData] = useState<CatalogFormData>(defaultFormData);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  const draftStorageKey = useMemo(() => {
+    const scope = editingEntry?.id ?? 'new';
+    return `radio-catalog-draft:${scope}:${user?.id ?? 'anon'}`;
+  }, [editingEntry?.id, user?.id]);
 
   useEffect(() => {
     void fetchEntries();
   }, []);
+
+  useEffect(() => {
+    if (loading || typeof window === 'undefined') return;
+
+    try {
+      const storedDraft = window.localStorage.getItem(draftStorageKey);
+      if (!storedDraft) return;
+
+      const parsedDraft = JSON.parse(storedDraft);
+      if (!parsedDraft || typeof parsedDraft !== 'object') return;
+
+      setFormData((current) => ({
+        ...current,
+        ...parsedDraft,
+      }));
+      setDraftRestored(true);
+    } catch (error) {
+      console.error('Error restoring radio catalog draft:', error);
+    }
+  }, [draftStorageKey, loading]);
+
+  useEffect(() => {
+    if (loading || typeof window === 'undefined') return;
+
+    try {
+      window.localStorage.setItem(draftStorageKey, JSON.stringify(formData));
+    } catch (error) {
+      console.error('Error persisting radio catalog draft:', error);
+    }
+  }, [draftStorageKey, formData, loading]);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -105,6 +141,7 @@ export const RadioCatalog: React.FC = () => {
   const resetForm = () => {
     setEditingEntry(null);
     setFormData(defaultFormData);
+    setDraftRestored(false);
   };
 
   const handleInputChange =
@@ -145,6 +182,9 @@ export const RadioCatalog: React.FC = () => {
     if (error) {
       showFeedback('error', `No pudimos guardar la radio: ${error.message}`);
     } else {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(draftStorageKey);
+      }
       showFeedback('success', editingEntry ? 'Radio actualizada en el catalogo.' : 'Radio agregada al catalogo.');
       resetForm();
       await fetchEntries();
@@ -170,7 +210,37 @@ export const RadioCatalog: React.FC = () => {
       status: entry.status ?? 'draft',
       notes: entry.notes ?? '',
     });
+    setDraftRestored(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDiscardDraft = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(draftStorageKey);
+    }
+
+    setDraftRestored(false);
+
+    if (editingEntry) {
+      setFormData({
+        name: editingEntry.name ?? '',
+        frequency: editingEntry.frequency ?? '',
+        city: editingEntry.city ?? '',
+        province: editingEntry.province ?? 'Formosa',
+        category: editingEntry.category ?? '',
+        stream_url: editingEntry.stream_url ?? '',
+        website: editingEntry.website ?? '',
+        facebook: editingEntry.facebook ?? '',
+        instagram: editingEntry.instagram ?? '',
+        logo_url: editingEntry.logo_url ?? '',
+        description: editingEntry.description ?? '',
+        status: editingEntry.status ?? 'draft',
+        notes: editingEntry.notes ?? '',
+      });
+      return;
+    }
+
+    setFormData(defaultFormData);
   };
 
   const handleDelete = async (entry: RadioCatalogEntry) => {
@@ -267,6 +337,26 @@ export const RadioCatalog: React.FC = () => {
       onSearchChange={setSearchTerm}
     >
       <div className="mx-auto max-w-7xl space-y-6">
+        {draftRestored && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-900/20">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Recuperamos tu borrador del catalogo.</p>
+                <p className="text-sm text-amber-700 dark:text-amber-200">
+                  Puedes seguir cargando la radio o descartar el borrador y volver al formulario limpio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleDiscardDraft}
+                className="rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/30"
+              >
+                Descartar borrador
+              </button>
+            </div>
+          </div>
+        )}
+
         {feedback && (
           <div
             className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
