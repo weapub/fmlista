@@ -347,6 +347,8 @@ export const RadioMicrosite: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <AdBanner position="microsite_top" className="mb-8" radioId={radio.id} />
           
           <div className={cn("grid grid-cols-1 gap-8 lg:grid-cols-2", isTV && "gap-10")}>
             {/* Description Section */}

@@ -235,6 +235,7 @@ export const Home: React.FC = () => {
             loaderRef={loaderRef}
           />
         </Suspense>
+        <AdBanner position="home_middle" className="mt-6 mb-10" />
       </div>
       <Footer className="pb-8" />
     </div>
