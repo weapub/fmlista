@@ -302,7 +302,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </p>
             </div>
             <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10 sm:col-span-2 lg:col-span-1', isTV && 'p-8')}>
-              <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">Curaduría Local</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">POR LOCALIDAD</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
                 Descubrí nuevas voces y géneros con nuestro buscador inteligente por ciudad.
               </p>

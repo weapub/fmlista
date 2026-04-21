@@ -163,7 +163,7 @@ export default function HomeSections({
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-rose-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-rose-600 dark:bg-rose-500/15 dark:text-rose-300">
                 <MapPin className="h-3.5 w-3.5" />
-                Por Localidad
+                POR LOCALIDAD
               </div>
               <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
                 Sonando en {citySpotlightLabel}
