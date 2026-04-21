@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, ChevronDown, Play, Heart, Sparkles } from 'lucide-react'
+import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, ChevronDown, Play, Heart, Sparkles, BookOpen } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
@@ -134,6 +134,10 @@ export const Navigation: React.FC = () => {
 
             <Link to="/" className={iconButtonClass} title="Inicio">
               <Home className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+            </Link>
+
+            <Link to="/blog" className={iconButtonClass} title="Guia de uso">
+              <BookOpen className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
             </Link>
 
             {user && (
@@ -332,6 +336,11 @@ export const Navigation: React.FC = () => {
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
                 <Home className="h-5 w-5 text-[#696cff]" />
                 <span>Inicio</span>
+              </Link>
+
+              <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                <BookOpen className="h-5 w-5 text-[#696cff]" />
+                <span>Blog y Guia</span>
               </Link>
 
               {user && (

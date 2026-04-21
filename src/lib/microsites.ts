@@ -3,6 +3,7 @@ import { Radio } from '@/types/database'
 const RESERVED_SLUGS = new Set([
   '',
   'admin',
+  'blog',
   'library',
   'login',
   'planes',

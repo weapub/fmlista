@@ -24,6 +24,8 @@ const UserLibrary = React.lazy(() => import('@/pages/UserLibrary'))
 const AppSettings = React.lazy(() => import('@/pages/AppSettings'))
 const PrivacyPolicy = React.lazy(() => import('@/pages/PrivacyPolicy'))
 const TermsAndConditions = React.lazy(() => import('@/pages/TermsAndConditions'))
+const Blog = React.lazy(() => import('@/pages/Blog'))
+const BlogArticlePage = React.lazy(() => import('@/pages/BlogArticlePage'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
 
 const PageLoader = () => (
@@ -98,6 +100,8 @@ export default function App() {
           <Route path="/" element={<HomeOrMicrosite />} />
           <Route path="/radio/:id" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogArticlePage />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/terminos" element={<TermsAndConditions />} />
           <Route path="/login" element={<Login />} />
