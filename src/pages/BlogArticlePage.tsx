@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { Footer } from '@/components/Footer'
 import { Navigation } from '@/components/Navigation'
-import { BLOG_ARTICLES, CATEGORY_LABELS, getBlogArticleById } from '@/lib/blogArticles'
+import { BLOG_ARTICLES, CATEGORY_LABELS, formatBlogDate, getBlogArticleById } from '@/lib/blogArticles'
 import { useSeo } from '@/hooks/useSeo'
 
 const BlogArticlePage: React.FC = () => {
@@ -24,6 +24,26 @@ const BlogArticlePage: React.FC = () => {
     url: canonicalUrl,
     image: '/apple-touch-icon.png',
     siteName: 'FM Lista',
+    type: 'article',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title,
+      description: article.description,
+      datePublished: article.publishedAt,
+      dateModified: article.updatedAt ?? article.publishedAt,
+      inLanguage: 'es-AR',
+      mainEntityOfPage: canonicalUrl,
+      image: [`${typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'}/apple-touch-icon.png`],
+      author: {
+        '@type': 'Organization',
+        name: 'FM Lista',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'FM Lista',
+      },
+    },
   })
 
   return (
@@ -36,18 +56,36 @@ const BlogArticlePage: React.FC = () => {
             {CATEGORY_LABELS[article.category]}
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight text-[#566a7f] dark:text-white">{article.title}</h1>
+          <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-[#a1acb8] dark:text-slate-400">
+            Publicado: {formatBlogDate(article.publishedAt)} · {article.readingMinutes} min de lectura
+          </p>
           <p className="mt-4 text-base leading-7 text-[#697a8d] dark:text-slate-300">{article.description}</p>
 
           <ol className="mt-8 space-y-4">
             {article.steps.map((step, index) => (
               <li
-                key={step}
+                key={`${article.id}-step-${index}`}
                 className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-[#566a7f] dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100"
               >
                 <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#696cff] text-xs font-black text-white">
                   {index + 1}
                 </span>
-                {step}
+                {step.text}
+                {step.screenshot && (
+                  <figure className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                    <img
+                      src={step.screenshot.src}
+                      alt={step.screenshot.alt}
+                      loading="lazy"
+                      className="w-full object-cover"
+                    />
+                    {step.screenshot.caption && (
+                      <figcaption className="border-t border-slate-200 px-4 py-2 text-xs font-medium text-[#697a8d] dark:border-slate-700 dark:text-slate-300">
+                        {step.screenshot.caption}
+                      </figcaption>
+                    )}
+                  </figure>
+                )}
               </li>
             ))}
           </ol>
@@ -80,6 +118,9 @@ const BlogArticlePage: React.FC = () => {
                 >
                   <p className="font-bold text-[#566a7f] dark:text-white">{relatedArticle.title}</p>
                   <p className="mt-2 text-sm text-[#697a8d] dark:text-slate-300">{relatedArticle.description}</p>
+                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-[#a1acb8] dark:text-slate-500">
+                    {formatBlogDate(relatedArticle.publishedAt)} · {relatedArticle.readingMinutes} min
+                  </p>
                 </Link>
               ))}
             </div>

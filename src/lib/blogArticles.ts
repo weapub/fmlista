@@ -5,7 +5,19 @@ export type BlogArticle = {
   category: Exclude<BlogCategory, 'all'>
   title: string
   description: string
-  steps: string[]
+  steps: BlogStep[]
+  publishedAt: string
+  updatedAt?: string
+  readingMinutes: number
+}
+
+export type BlogStep = {
+  text: string
+  screenshot?: {
+    src: string
+    alt: string
+    caption?: string
+  }
 }
 
 export const BLOG_ARTICLES: BlogArticle[] = [
@@ -15,11 +27,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     title: 'Desde la vista del usuario',
     description: 'Como descubrir radios y moverse por el sitio principal.',
     steps: [
-      'Usa el buscador del inicio para encontrar radios por nombre o ciudad.',
-      'Toca una etiqueta de localidad para filtrar automaticamente por esa ciudad.',
-      'Entra a cada tarjeta para abrir el micrositio con player, noticias y programacion.',
-      'Guarda favoritas para recuperarlas rapido desde Mi Biblioteca.',
+      { text: 'Usa el buscador del inicio para encontrar radios por nombre o ciudad.' },
+      { text: 'Toca una etiqueta de localidad para filtrar automaticamente por esa ciudad.' },
+      { text: 'Entra a cada tarjeta para abrir el micrositio con player, noticias y programacion.' },
+      { text: 'Guarda favoritas para recuperarlas rapido desde Mi Biblioteca.' },
     ],
+    publishedAt: '2026-04-21',
+    readingMinutes: 3,
   },
   {
     id: 'microsites',
@@ -27,11 +41,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     title: 'Micrositios por radio',
     description: 'Cada emisora puede tener su propia experiencia publica.',
     steps: [
-      'Accede por ruta tipo /ladocta o por subdominio cuando este configurado.',
-      'Comparte el link del micrositio para difusion en WhatsApp y redes.',
-      'Manten la portada, logos y datos clave actualizados para mejor conversion.',
-      'Publica contenido local para mejorar alcance y retencion de audiencia.',
+      { text: 'Accede por ruta tipo /ladocta o por subdominio cuando este configurado.' },
+      { text: 'Comparte el link del micrositio para difusion en WhatsApp y redes.' },
+      { text: 'Manten la portada, logos y datos clave actualizados para mejor conversion.' },
+      { text: 'Publica contenido local para mejorar alcance y retencion de audiencia.' },
     ],
+    publishedAt: '2026-04-21',
+    readingMinutes: 3,
   },
   {
     id: 'radio-admin-flow',
@@ -39,11 +55,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     title: 'Administrador de radio',
     description: 'Flujo recomendado para dejar una emisora lista y operativa.',
     steps: [
-      'Ingresa al panel y completa perfil, identidad visual y stream URL.',
-      'Configura programacion, noticias y anuncios desde el menu lateral.',
-      'Revisa estado del plan y vencimientos en el modulo de pagos.',
-      'Valida el micrositio final en movil, desktop y TV antes de promocionar.',
+      { text: 'Ingresa al panel y completa perfil, identidad visual y stream URL.' },
+      { text: 'Configura programacion, noticias y anuncios desde el menu lateral.' },
+      { text: 'Revisa estado del plan y vencimientos en el modulo de pagos.' },
+      { text: 'Valida el micrositio final en movil, desktop y TV antes de promocionar.' },
     ],
+    publishedAt: '2026-04-21',
+    readingMinutes: 4,
   },
   {
     id: 'super-admin-flow',
@@ -51,11 +69,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     title: 'Super administrador',
     description: 'Control global de catalogo, usuarios y monetizacion.',
     steps: [
-      'Gestiona altas y bajas de radios desde Catalogo.',
-      'Asigna o degrada planes segun el estado comercial de cada emisora.',
-      'Controla facturacion y eventos de pago para resolver incidencias rapido.',
-      'Supervisa calidad de datos y politicas para mantener estabilidad del sistema.',
+      { text: 'Gestiona altas y bajas de radios desde Catalogo.' },
+      { text: 'Asigna o degrada planes segun el estado comercial de cada emisora.' },
+      { text: 'Controla facturacion y eventos de pago para resolver incidencias rapido.' },
+      { text: 'Supervisa calidad de datos y politicas para mantener estabilidad del sistema.' },
     ],
+    publishedAt: '2026-04-21',
+    readingMinutes: 4,
   },
 ]
 
@@ -67,3 +87,10 @@ export const CATEGORY_LABELS: Record<BlogCategory, string> = {
 }
 
 export const getBlogArticleById = (id?: string) => BLOG_ARTICLES.find((article) => article.id === id)
+
+export const formatBlogDate = (dateValue: string) =>
+  new Date(`${dateValue}T00:00:00`).toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })

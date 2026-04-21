@@ -3,29 +3,36 @@ import { Link } from 'react-router-dom'
 import { Footer } from '@/components/Footer'
 import { Navigation } from '@/components/Navigation'
 import { useSeo } from '@/hooks/useSeo'
-import { BLOG_ARTICLES, CATEGORY_LABELS, BlogCategory } from '@/lib/blogArticles'
+import { BLOG_ARTICLES, CATEGORY_LABELS, BlogCategory, BlogStep, formatBlogDate } from '@/lib/blogArticles'
 
 const GuideCard = ({
   id,
   title,
   description,
   steps,
+  publishedAt,
+  readingMinutes,
 }: {
   id: string
   title: string
   description: string
-  steps: string[]
+  steps: BlogStep[]
+  publishedAt: string
+  readingMinutes: number
 }) => (
   <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#a1acb8] dark:text-slate-400">
+      {formatBlogDate(publishedAt)} · {readingMinutes} min de lectura
+    </p>
     <h2 className="text-2xl font-black tracking-tight text-[#566a7f] dark:text-white">{title}</h2>
     <p className="mt-3 text-sm leading-7 text-[#697a8d] dark:text-slate-300">{description}</p>
     <ol className="mt-5 space-y-2 text-sm text-[#697a8d] dark:text-slate-300">
       {steps.map((step, index) => (
-        <li key={step}>
+        <li key={`${title}-step-${index}`}>
           <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#696cff]/10 text-xs font-black text-[#696cff]">
             {index + 1}
           </span>
-          {step}
+          {step.text}
         </li>
       ))}
     </ol>
@@ -63,7 +70,7 @@ const Blog: React.FC = () => {
 
       if (!normalizedTerm) return true
 
-      const haystack = `${article.title} ${article.description} ${article.steps.join(' ')}`.toLowerCase()
+      const haystack = `${article.title} ${article.description} ${article.steps.map((step) => step.text).join(' ')}`.toLowerCase()
       return haystack.includes(normalizedTerm)
     })
   }, [activeCategory, searchTerm])
@@ -135,6 +142,8 @@ const Blog: React.FC = () => {
               title={article.title}
               description={article.description}
               steps={article.steps}
+              publishedAt={article.publishedAt}
+              readingMinutes={article.readingMinutes}
             />
           ))}
           {filteredArticles.length === 0 && (
