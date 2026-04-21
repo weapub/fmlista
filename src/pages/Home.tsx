@@ -33,6 +33,7 @@ export const Home: React.FC = () => {
   const [recentRadios, setRecentRadios] = useState<Radio[]>([])
   const [trendingRadios, setTrendingRadios] = useState<Radio[]>([])
   const [trendingCategory, setTrendingCategory] = useState<string | null>(null)
+  const [rankingLimit, setRankingLimit] = useState(3)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -104,15 +105,24 @@ export const Home: React.FC = () => {
       const favoriteIds = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
       
       // Consultas paralelas para máxima velocidad
-      const [recentRes, trendingRes, favsRes] = await Promise.all([
+      const [recentRes, trendingRes, favsRes, rankingConfigRes, rankingLimitRes] = await Promise.all([
         supabase.from('radios').select('*').order('created_at', { ascending: false }).limit(6),
         // Para tendencias, traemos las últimas 6 de la categoría más popular
         supabase.from('radios').select('*').limit(6),
         // Cargar favoritos si existen
         favoriteIds.length > 0 
           ? supabase.from('radios').select('*').in('id', favoriteIds)
-          : Promise.resolve({ data: [] })
+          : Promise.resolve({ data: [] }),
+        supabase.from('app_settings').select('value').eq('key', 'home_ranking_radios').maybeSingle(),
+        supabase.from('app_settings').select('value').eq('key', 'home_ranking_limit').maybeSingle()
       ])
+
+      const parsedRankingLimit = Number(rankingLimitRes.data?.value)
+      if ([3, 5, 10].includes(parsedRankingLimit)) {
+        setRankingLimit(parsedRankingLimit)
+      } else {
+        setRankingLimit(3)
+      }
 
       if (recentRes.data) setRecentRadios(recentRes.data)
       if (favsRes.data) setFavoriteRadios(favsRes.data)
@@ -121,6 +131,36 @@ export const Home: React.FC = () => {
         // Cálculo simple de categoría tendencia basado en los resultados obtenidos
         const category = trendingRes.data[0]?.category || null
         setTrendingCategory(category)
+      }
+
+      const rawRankingValue = rankingConfigRes.data?.value
+      if (typeof rawRankingValue === 'string' && rawRankingValue.length > 0) {
+        try {
+          const rankingIds = JSON.parse(rawRankingValue)
+          if (Array.isArray(rankingIds) && rankingIds.length > 0) {
+            const normalizedIds = rankingIds.filter((id) => typeof id === 'string')
+            if (normalizedIds.length > 0) {
+              const { data: configuredRadios, error: configuredRadiosError } = await supabase
+                .from('radios')
+                .select('*')
+                .in('id', normalizedIds)
+
+              if (!configuredRadiosError && configuredRadios && configuredRadios.length > 0) {
+                const byId = new Map(configuredRadios.map((radio) => [radio.id, radio]))
+                const orderedConfigured = normalizedIds
+                  .map((id) => byId.get(id))
+                  .filter((radio): radio is Radio => Boolean(radio))
+
+                if (orderedConfigured.length > 0) {
+                  setTrendingRadios(orderedConfigured)
+                  setTrendingCategory('Ranking manual')
+                }
+              }
+            }
+          }
+        } catch (parseError) {
+          console.warn('No se pudo parsear home_ranking_radios:', parseError)
+        }
       }
     } catch (error) {
       console.error('Error fetching special sections:', error)
@@ -227,6 +267,7 @@ export const Home: React.FC = () => {
             favoriteRadios={favoriteRadios}
             trendingRadios={trendingRadios}
             trendingCategory={trendingCategory}
+            rankingLimit={rankingLimit}
             recentRadios={recentRadios}
             filteredBySearch={filteredBySearch}
             radiosCount={radios.length}

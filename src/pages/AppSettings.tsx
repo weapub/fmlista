@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
-import { ArrowLeft, Save, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Image as ImageIcon, ChevronUp, ChevronDown, Plus, X } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 
 export default function AppSettings() {
@@ -15,6 +15,10 @@ export default function AppSettings() {
   const [appTitle, setAppTitle] = useState('');
   const [appSlogan, setAppSlogan] = useState('');
   const [appDescription, setAppDescription] = useState('');
+  const [availableRadios, setAvailableRadios] = useState<Array<{ id: string; name: string; frequency?: string | null; location?: string | null }>>([]);
+  const [manualRankingIds, setManualRankingIds] = useState<string[]>([]);
+  const [selectedRadioToAdd, setSelectedRadioToAdd] = useState('');
+  const [manualRankingLimit, setManualRankingLimit] = useState<number>(3);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -43,9 +47,16 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_slogan', 'app_description']);
+        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_slogan', 'app_description', 'home_ranking_radios', 'home_ranking_limit']);
 
       if (error) throw error;
+
+      const { data: radiosData, error: radiosError } = await supabase
+        .from('radios')
+        .select('id, name, frequency, location')
+        .order('name', { ascending: true });
+
+      if (radiosError) throw radiosError;
       
       const logoSetting = data?.find(s => s.key === 'app_logo');
       const footerLogoSetting = data?.find(s => s.key === 'app_footer_logo');
@@ -53,6 +64,10 @@ export default function AppSettings() {
       const titleSetting = data?.find(s => s.key === 'app_title');
       const sloganSetting = data?.find(s => s.key === 'app_slogan');
       const descriptionSetting = data?.find(s => s.key === 'app_description');
+      const rankingSetting = data?.find((s) => s.key === 'home_ranking_radios');
+      const rankingLimitSetting = data?.find((s) => s.key === 'home_ranking_limit');
+
+      setAvailableRadios(radiosData || []);
 
       if (logoSetting) {
         setLogoUrl(logoSetting.value);
@@ -88,11 +103,50 @@ export default function AppSettings() {
       } else {
         setAppDescription('Todas las radios de Formosa en un solo lugar. Escucha tu música y programas favoritos donde quieras.');
       }
+      if (rankingSetting?.value) {
+        try {
+          const parsed = JSON.parse(rankingSetting.value);
+          if (Array.isArray(parsed)) {
+            const validIds = (radiosData || []).map((radio) => radio.id);
+            const filteredIds = parsed.filter((id) => typeof id === 'string' && validIds.includes(id));
+            setManualRankingIds(filteredIds);
+          }
+        } catch (parseError) {
+          console.warn('No se pudo parsear home_ranking_radios:', parseError);
+        }
+      }
+
+      if (rankingLimitSetting?.value) {
+        const parsedLimit = Number(rankingLimitSetting.value);
+        if ([3, 5, 10].includes(parsedLimit)) {
+          setManualRankingLimit(parsedLimit);
+        }
+      }
     } catch (error) {
       console.error('Error fetching settings:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddRadioToRanking = () => {
+    if (!selectedRadioToAdd) return;
+    setManualRankingIds((prev) => (prev.includes(selectedRadioToAdd) ? prev : [...prev, selectedRadioToAdd]));
+    setSelectedRadioToAdd('');
+  };
+
+  const handleRemoveRadioFromRanking = (radioId: string) => {
+    setManualRankingIds((prev) => prev.filter((id) => id !== radioId));
+  };
+
+  const moveRankingItem = (index: number, direction: -1 | 1) => {
+    setManualRankingIds((prev) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' | 'hero' = 'main') => {
@@ -151,7 +205,9 @@ export default function AppSettings() {
         { key: 'app_logo', value: logoUrl },
         { key: 'app_title', value: appTitle },
         { key: 'app_slogan', value: appSlogan },
-        { key: 'app_description', value: appDescription }
+        { key: 'app_description', value: appDescription },
+        { key: 'home_ranking_radios', value: JSON.stringify(manualRankingIds) },
+        { key: 'home_ranking_limit', value: String(manualRankingLimit) }
       ];
 
       if (footerLogoUrl) settingsToUpsert.push({ key: 'app_footer_logo', value: footerLogoUrl });
@@ -343,6 +399,111 @@ export default function AppSettings() {
                     className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a] resize-none"
                   />
                 </div>
+              </div>
+
+              <div className="border-t border-gray-50 dark:border-[#444564] pt-10">
+                <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-3">
+                  Ranking manual de radios mas escuchadas
+                </label>
+                <p className="text-sm text-[#a1acb8] dark:text-[#7e7e9a] mb-4">
+                  Selecciona que radios aparecen en el ranking del inicio y define el orden exacto.
+                </p>
+
+                <div className="mb-5 max-w-xs">
+                  <label className="block text-xs font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-2">
+                    Cantidad visible en ranking
+                  </label>
+                  <select
+                    value={manualRankingLimit}
+                    onChange={(e) => setManualRankingLimit(Number(e.target.value))}
+                    className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2]"
+                  >
+                    <option value={3}>Top 3</option>
+                    <option value={5}>Top 5</option>
+                    <option value={10}>Top 10</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-3 mb-5">
+                  <select
+                    value={selectedRadioToAdd}
+                    onChange={(e) => setSelectedRadioToAdd(e.target.value)}
+                    className="w-full md:flex-1 px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2]"
+                  >
+                    <option value="">Seleccionar radio para agregar...</option>
+                    {availableRadios
+                      .filter((radio) => !manualRankingIds.includes(radio.id))
+                      .map((radio) => (
+                        <option key={radio.id} value={radio.id}>
+                          {radio.name} {radio.frequency ? `(${radio.frequency})` : ''}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAddRadioToRanking}
+                    disabled={!selectedRadioToAdd}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#696cff] text-white font-semibold hover:bg-[#5f61e6] disabled:opacity-50 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar
+                  </button>
+                </div>
+
+                {manualRankingIds.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-[#d9dee3] dark:border-[#444564] px-4 py-6 text-sm text-[#a1acb8] dark:text-[#7e7e9a]">
+                    No hay ranking manual configurado. Se usara el ranking automatico por defecto.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {manualRankingIds.map((radioId, index) => {
+                      const radio = availableRadios.find((item) => item.id === radioId);
+                      if (!radio) return null;
+
+                      return (
+                        <div
+                          key={radio.id}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-[#d9dee3] dark:border-[#444564] bg-white dark:bg-[#232333] px-3 py-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] truncate">
+                              #{index + 1} {radio.name}
+                            </p>
+                            <p className="text-xs text-[#a1acb8] dark:text-[#7e7e9a]">
+                              {radio.frequency || 'Sin frecuencia'} {radio.location ? `· ${radio.location}` : ''}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveRankingItem(index, -1)}
+                              disabled={index === 0}
+                              className="p-2 rounded-md border border-[#d9dee3] dark:border-[#444564] text-[#566a7f] dark:text-[#cbcbe2] disabled:opacity-40"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveRankingItem(index, 1)}
+                              disabled={index === manualRankingIds.length - 1}
+                              className="p-2 rounded-md border border-[#d9dee3] dark:border-[#444564] text-[#566a7f] dark:text-[#cbcbe2] disabled:opacity-40"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveRadioFromRanking(radio.id)}
+                              className="p-2 rounded-md border border-red-200 text-red-500 hover:bg-red-50 dark:border-red-500/40 dark:hover:bg-red-500/10"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 

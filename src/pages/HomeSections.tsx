@@ -1,10 +1,11 @@
-import React from 'react';
+﻿import React from 'react';
 import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { Radio } from '@/types/database';
 import { Compass, MapPin, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { useRadioStore } from '@/stores/radioStore';
 
 interface HomeSectionsProps {
   citySpotlightLabel: string | null;
@@ -12,6 +13,7 @@ interface HomeSectionsProps {
   favoriteRadios: Radio[];
   trendingRadios: Radio[];
   trendingCategory: string | null;
+  rankingLimit: number;
   recentRadios: Radio[];
   filteredBySearch: Radio[];
   radiosCount: number;
@@ -43,6 +45,7 @@ export default function HomeSections({
   favoriteRadios,
   trendingRadios,
   trendingCategory,
+  rankingLimit,
   recentRadios,
   filteredBySearch,
   radiosCount,
@@ -51,11 +54,12 @@ export default function HomeSections({
   loaderRef,
 }: HomeSectionsProps) {
   const { isTV } = useDeviceStore();
+  const { selectedLocation, setSelectedLocation } = useRadioStore();
   const featuredDiscovery = filteredBySearch.slice(0, 2);
   const discoveryCategories = Array.from(
     new Set(filteredBySearch.map((radio) => radio.category).filter(Boolean))
   ).slice(0, 6);
-  const rankingRadios = trendingRadios.slice(0, 3);
+  const rankingRadios = trendingRadios.slice(0, rankingLimit);
 
   const sectionTitleClass = cn(
     'font-semibold text-gray-900 dark:text-white',
@@ -66,6 +70,10 @@ export default function HomeSections({
     'grid gap-6',
     isTV ? 'grid-cols-1 gap-8 xl:grid-cols-2 2xl:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
   );
+
+  const handleLocationTagClick = (location: string) => {
+    setSelectedLocation(selectedLocation === location ? null : location);
+  };
 
   return (
     <>
@@ -86,7 +94,7 @@ export default function HomeSections({
                 Explora algo distinto hoy
               </h2>
               <p className={cn('mt-2 max-w-2xl text-slate-500 dark:text-slate-400', isTV ? 'text-lg' : 'text-sm')}>
-                Una selección rápida para salir de lo de siempre y encontrar nuevas voces, estilos y ciudades.
+                Una selecciÃ³n rÃ¡pida para salir de lo de siempre y encontrar nuevas voces, estilos y ciudades.
               </p>
             </div>
 
@@ -155,13 +163,13 @@ export default function HomeSections({
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-rose-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-rose-600 dark:bg-rose-500/15 dark:text-rose-300">
                 <MapPin className="h-3.5 w-3.5" />
-                Emisoras de tu ciudad
+                Por Localidad
               </div>
               <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
                 Sonando en {citySpotlightLabel}
               </h2>
               <p className={cn('mt-2 max-w-2xl text-slate-500 dark:text-slate-400', isTV ? 'text-lg' : 'text-sm')}>
-                Una selección local para entrar rápido a las radios más cercanas a tu búsqueda o ubicación elegida.
+                Una selecciÃ³n local para entrar rÃ¡pido a las radios mÃ¡s cercanas a tu bÃºsqueda o ubicaciÃ³n elegida.
               </p>
             </div>
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -191,13 +199,13 @@ export default function HomeSections({
                 Ranking
               </div>
               <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
-                Las que más están sonando
+                Las que mÃ¡s estÃ¡n sonando
               </h2>
             </div>
 
             <div className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
               <TrendingUp className="h-4 w-4 text-[#696cff]" />
-              <span>{trendingCategory ? `Impulsadas por ${trendingCategory}` : 'Selección destacada del momento'}</span>
+              <span>{trendingCategory ? `Impulsadas por ${trendingCategory}` : 'SelecciÃ³n destacada del momento'}</span>
             </div>
           </div>
 
@@ -212,14 +220,25 @@ export default function HomeSections({
                   <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].frequency}</span>
                 )}
                 {rankingRadios[0].location && (
-                  <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].location}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleLocationTagClick(rankingRadios[0].location!)}
+                    className={cn(
+                      'rounded-full px-3 py-1 font-bold transition-colors',
+                      selectedLocation === rankingRadios[0].location
+                        ? 'bg-white text-[#696cff]'
+                        : 'bg-white/15 hover:bg-white/30'
+                    )}
+                  >
+                    {rankingRadios[0].location}
+                  </button>
                 )}
                 {rankingRadios[0].category && (
                   <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{rankingRadios[0].category}</span>
                 )}
               </div>
               <p className={cn('mt-4 max-w-lg text-white/80', isTV && 'text-lg')}>
-                Una de las emisoras más fuertes del momento para arrancar rápido con algo destacado.
+                Una de las emisoras mÃ¡s fuertes del momento para arrancar rÃ¡pido con algo destacado.
               </p>
             </div>
 
@@ -241,11 +260,26 @@ export default function HomeSections({
                   )}>
                     #{index + 1}
                   </div>
-                  <div className="min-w-0 flex-1">
+                                    <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-slate-800 dark:text-white">{radio.name}</p>
-                    <p className="truncate text-sm text-slate-500 dark:text-slate-400">
-                      {[radio.frequency, radio.location, radio.category].filter(Boolean).join(' • ')}
-                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                      {radio.frequency && <span>{radio.frequency}</span>}
+                      {radio.location && (
+                        <button
+                          type="button"
+                          onClick={() => handleLocationTagClick(radio.location!)}
+                          className={cn(
+                            'rounded-full px-2 py-0.5 text-xs font-semibold transition-colors',
+                            selectedLocation === radio.location
+                              ? 'bg-[#696cff]/15 text-[#696cff] dark:bg-[#696cff]/25 dark:text-[#aeb0ff]'
+                              : 'bg-slate-200/70 text-slate-600 hover:bg-[#696cff]/10 hover:text-[#696cff] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-[#696cff]/20'
+                          )}
+                        >
+                          {radio.location}
+                        </button>
+                      )}
+                      {radio.category && <span>{radio.category}</span>}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -340,3 +374,5 @@ export default function HomeSections({
     </>
   );
 }
+
+
