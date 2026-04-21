@@ -3,6 +3,7 @@ import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
 import { NewsSection } from '@/components/NewsSection'
+import { WeatherSection } from '@/components/WeatherSection'
 import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { supabase } from '@/lib/supabase'
@@ -253,6 +254,7 @@ export const Home: React.FC = () => {
       <Navigation />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <WeatherSection className="mb-8" />
         <NewsSection className="mb-10" />
         <AdBanner position="home_top" className="mb-12" />
         <Suspense fallback={
