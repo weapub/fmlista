@@ -471,33 +471,6 @@ export default function AdsManager() {
                   </div>
                 </div>
 
-                {/* Date Range - Scheduling */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-2">
-                      Fecha de Inicio (Opcional)
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.start_date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-[#566a7f] dark:text-[#cbcbe2] mb-2">
-                      Fecha de Fin (Opcional)
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.end_date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-200 dark:border-[#444564] rounded-lg dark:bg-[#1a1b2e] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#696cff] focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
                 {/* Checkboxes */}
                 <div className="flex flex-col sm:flex-row gap-6 bg-gray-50 dark:bg-[#1a1b2e] p-4 rounded-lg border border-gray-200 dark:border-[#444564]">
                   <label className="flex items-center gap-3 cursor-pointer">

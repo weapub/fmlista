@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { Advertisement } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { useAuthStore } from '@/stores/authStore';
 
 interface AdBannerProps {
   position: 'home_top' | 'home_middle' | 'microsite_top' | 'microsite_sidebar';
@@ -13,6 +14,8 @@ interface AdBannerProps {
 export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', radioId }) => {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const { isTV } = useDeviceStore()
+  const { user } = useAuthStore()
+  const isAdminUser = user?.role === 'radio_admin' || user?.role === 'super_admin'
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -55,6 +58,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
   };
 
   if (ads.length === 0) {
+    if (!isAdminUser) return null;
+
     return (
       <div className={cn('my-8 flex w-full flex-col items-center space-y-4', className)}>
         <div className={cn('group w-full max-w-4xl border border-dashed border-slate-200 bg-white p-10 text-center transition-colors hover:bg-[#f5f5f9] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800', isTV ? 'rounded-[2rem] p-12 max-w-5xl' : 'rounded-2xl')}>
