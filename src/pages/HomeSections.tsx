@@ -94,7 +94,7 @@ export default function HomeSections({
                 Explora algo distinto hoy
               </h2>
               <p className={cn('mt-2 max-w-2xl text-slate-500 dark:text-slate-400', isTV ? 'text-lg' : 'text-sm')}>
-                Una selecciÃ³n rÃ¡pida para salir de lo de siempre y encontrar nuevas voces, estilos y ciudades.
+                Una seleccion rapida para salir de lo de siempre y encontrar nuevas voces, estilos y ciudades.
               </p>
             </div>
 
@@ -169,7 +169,7 @@ export default function HomeSections({
                 Sonando en {citySpotlightLabel}
               </h2>
               <p className={cn('mt-2 max-w-2xl text-slate-500 dark:text-slate-400', isTV ? 'text-lg' : 'text-sm')}>
-                Una selecciÃ³n local para entrar rÃ¡pido a las radios mÃ¡s cercanas a tu bÃºsqueda o ubicaciÃ³n elegida.
+                Una seleccion local para entrar rapido a las radios mas cercanas a tu busqueda o ubicacion elegida.
               </p>
             </div>
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -199,13 +199,13 @@ export default function HomeSections({
                 Ranking
               </div>
               <h2 className={cn('font-bold text-slate-900 dark:text-white', isTV ? 'text-4xl' : 'text-2xl')}>
-                Las que mÃ¡s estÃ¡n sonando
+                Las que mas estan sonando
               </h2>
             </div>
 
             <div className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
               <TrendingUp className="h-4 w-4 text-[#696cff]" />
-              <span>{trendingCategory ? `Impulsadas por ${trendingCategory}` : 'SelecciÃ³n destacada del momento'}</span>
+              <span>{trendingCategory ? `Impulsadas por ${trendingCategory}` : 'Seleccion destacada del momento'}</span>
             </div>
           </div>
 
@@ -238,7 +238,7 @@ export default function HomeSections({
                 )}
               </div>
               <p className={cn('mt-4 max-w-lg text-white/80', isTV && 'text-lg')}>
-                Una de las emisoras mÃ¡s fuertes del momento para arrancar rÃ¡pido con algo destacado.
+                Una de las emisoras mas fuertes del momento para arrancar rapido con algo destacado.
               </p>
             </div>
 
