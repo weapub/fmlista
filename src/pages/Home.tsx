@@ -229,23 +229,6 @@ export const Home: React.FC = () => {
       .slice(0, 4)
   }, [filteredBySearch, spotlightLocation])
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 transition-colors">
-        <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="h-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl mb-12 animate-pulse shadow-sm"></div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <RadioCardSkeleton key={i} />
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
   return (
     <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">
       <Navigation />
@@ -264,20 +247,31 @@ export const Home: React.FC = () => {
             <div className="h-96 rounded-3xl bg-white animate-pulse" />
           </div>
         }>
-          <HomeSections
-            citySpotlightLabel={spotlightLocation}
-            citySpotlightRadios={citySpotlightRadios}
-            favoriteRadios={favoriteRadios}
-            trendingRadios={trendingRadios}
-            trendingCategory={trendingCategory}
-            rankingLimit={rankingLimit}
-            recentRadios={recentRadios}
-            filteredBySearch={filteredBySearch}
-            radiosCount={radios.length}
-            hasMore={hasMore}
-            isLoadingMore={isLoadingMore}
-            loaderRef={loaderRef}
-          />
+          {isLoading ? (
+            <div className="space-y-8 pt-10">
+              <div className="h-32 rounded-3xl bg-white animate-pulse dark:bg-slate-900" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(6)].map((_, i) => (
+                  <RadioCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <HomeSections
+              citySpotlightLabel={spotlightLocation}
+              citySpotlightRadios={citySpotlightRadios}
+              favoriteRadios={favoriteRadios}
+              trendingRadios={trendingRadios}
+              trendingCategory={trendingCategory}
+              rankingLimit={rankingLimit}
+              recentRadios={recentRadios}
+              filteredBySearch={filteredBySearch}
+              radiosCount={radios.length}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              loaderRef={loaderRef}
+            />
+          )}
         </Suspense>
         <AdBanner position="home_middle" className="mt-6 mb-10" />
       </main>

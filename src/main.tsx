@@ -49,7 +49,7 @@ const registerServiceWorkerDeferred = () => {
 
   // Fallback tardío para no afectar el LCP ni la cadena crítica inicial.
   const delayedFallback = () => {
-    setTimeout(schedule, 10000)
+    setTimeout(schedule, 60000)
   }
 
   if (document.readyState === 'complete') delayedFallback()
