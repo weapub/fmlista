@@ -4,7 +4,6 @@ import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
 import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
-import { supabase } from '@/lib/supabase'
 import { Radio } from '@/types/database'
 import { useSeo } from '@/hooks/useSeo'
 
@@ -12,6 +11,7 @@ const HomeSections = React.lazy(() => import('./HomeSections'))
 const NewsSection = React.lazy(() => import('@/components/NewsSection').then((m) => ({ default: m.NewsSection })))
 const WeatherSection = React.lazy(() => import('@/components/WeatherSection').then((m) => ({ default: m.WeatherSection })))
 const RADIO_LIST_SELECT = 'id,name,slug,logo_url,cover_url,frequency,location,category,stream_url,created_at'
+const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 const RadioCardSkeleton = () => (
   <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
@@ -79,6 +79,7 @@ export const Home: React.FC = () => {
     try {
       if (pageNum === 0) setIsLoading(true)
       else setIsLoadingMore(true)
+      const supabase = await getSupabase()
 
       const { data, error } = await supabase
         .from('radios')
@@ -104,6 +105,7 @@ export const Home: React.FC = () => {
 
   const fetchSpecialSections = useCallback(async () => {
     try {
+      const supabase = await getSupabase()
       const favoriteIds = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
       
       // Consultas paralelas para máxima velocidad
@@ -253,7 +255,7 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f9] dark:bg-slate-950 pb-32 transition-colors">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
           <WeatherSection className="mb-8" />
@@ -284,7 +286,7 @@ export const Home: React.FC = () => {
           />
         </Suspense>
         <AdBanner position="home_middle" className="mt-6 mb-10" />
-      </div>
+      </main>
       <Footer className="pb-8" />
     </div>
   )

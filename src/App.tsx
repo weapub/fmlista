@@ -1,12 +1,10 @@
-import React, { Suspense, useEffect } from 'react'
-import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
+import React, { Suspense, useEffect, useState } from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
-import { useAuthStore } from '@/stores/authStore'
 import { useTheme } from '@/hooks/useTheme'
 import { ROLES } from '@/types/auth'
 import { shouldRenderMicrositeAtRoot } from '@/lib/microsites'
-import { supabase } from '@/lib/supabase'
 
 const RadioMicrosite = React.lazy(() => import('@/pages/RadioMicrosite'))
 const PlansPage = React.lazy(() => import('@/pages/PlansPage').then((m) => ({ default: m.PlansPage })))
@@ -27,6 +25,8 @@ const TermsAndConditions = React.lazy(() => import('@/pages/TermsAndConditions')
 const Blog = React.lazy(() => import('@/pages/Blog'))
 const BlogArticlePage = React.lazy(() => import('@/pages/BlogArticlePage'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
+const ProtectedRoute = React.lazy(() => import('@/components/ProtectedRoute'))
+const AuthSessionBootstrap = React.lazy(() => import('@/components/AuthSessionBootstrap'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-[#f5f5f9] flex items-center justify-center transition-colors dark:bg-slate-950">
@@ -47,54 +47,53 @@ const HomeOrMicrosite = () => {
   return <Home />
 }
 
-const ProtectedRoute = ({
-  children,
-  allowedRoles,
-}: {
-  children: React.ReactNode
-  allowedRoles: string[]
-}) => {
-  const { user, isLoading } = useAuthStore()
-
-  if (isLoading) {
-    return <PageLoader />
-  }
-
-  if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" replace />
-  }
-
-  return <>{children}</>
-}
-
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
-  const checkSession = useAuthStore((state) => state.checkSession)
-  const syncSession = useAuthStore((state) => state.syncSession)
+  const [shouldInitAuth, setShouldInitAuth] = useState(false)
 
   useEffect(() => {
     checkDevice()
   }, [checkDevice])
 
   useEffect(() => {
-    void checkSession()
+    if (typeof window === 'undefined') return
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      window.setTimeout(() => {
-        void syncSession(session)
-      }, 0)
+    let initialized = false
+    const initializeAuth = () => {
+      if (initialized) return
+      initialized = true
+      detachInteractionListeners()
+      setShouldInitAuth(true)
+    }
+
+    const interactionEvents: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'touchstart']
+    const onFirstInteraction = () => initializeAuth()
+    const detachInteractionListeners = () => {
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, onFirstInteraction)
+      })
+    }
+
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, onFirstInteraction, { once: true, passive: true })
     })
 
+    const timeoutId = window.setTimeout(initializeAuth, 5000)
+
     return () => {
-      subscription.unsubscribe()
+      window.clearTimeout(timeoutId)
+      detachInteractionListeners()
     }
-  }, [checkSession, syncSession])
+  }, [])
 
   return (
     <Router>
       <ThemeBootstrap />
+      {shouldInitAuth && (
+        <Suspense fallback={null}>
+          <AuthSessionBootstrap />
+        </Suspense>
+      )}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomeOrMicrosite />} />

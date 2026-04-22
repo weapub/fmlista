@@ -9,13 +9,19 @@ const registerServiceWorkerDeferred = () => {
   const runRegistration = async () => {
     try {
       const { registerSW } = await import('virtual:pwa-register')
-      registerSW({ immediate: true })
+      registerSW({ immediate: false })
     } catch (error) {
       console.error('SW registration failed:', error)
     }
   }
 
+  let executed = false
   const schedule = () => {
+    if (executed) return
+    executed = true
+
+    detachInteractionListeners()
+
     const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback
     if (idle) {
       idle(() => {
@@ -29,11 +35,25 @@ const registerServiceWorkerDeferred = () => {
     }, 1200)
   }
 
-  if (document.readyState === 'complete') {
-    schedule()
-  } else {
-    window.addEventListener('load', schedule, { once: true })
+  const interactionEvents: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'touchstart']
+  const onFirstInteraction = () => schedule()
+  const detachInteractionListeners = () => {
+    interactionEvents.forEach((eventName) => {
+      window.removeEventListener(eventName, onFirstInteraction)
+    })
   }
+
+  interactionEvents.forEach((eventName) => {
+    window.addEventListener(eventName, onFirstInteraction, { once: true, passive: true })
+  })
+
+  // Fallback tardío para no afectar el LCP ni la cadena crítica inicial.
+  const delayedFallback = () => {
+    setTimeout(schedule, 10000)
+  }
+
+  if (document.readyState === 'complete') delayedFallback()
+  else window.addEventListener('load', delayedFallback, { once: true })
 }
 
 registerServiceWorkerDeferred()

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { Advertisement } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
 import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization';
+
+const getSupabase = async () => (await import('@/lib/supabase')).supabase;
 
 interface AdBannerProps {
   position: 'home_top' | 'home_middle' | 'microsite_top' | 'microsite_sidebar';
@@ -20,6 +21,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
 
   useEffect(() => {
     const fetchAds = async () => {
+      const supabase = await getSupabase();
       let query = supabase
         .from('advertisements')
         .select('*')
@@ -51,7 +53,13 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
       }
     };
 
-    fetchAds();
+    const timeoutId = window.setTimeout(() => {
+      void fetchAds();
+    }, 1200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [position, radioId]);
 
   const handleClick = async (_ad: Advertisement) => {
@@ -89,7 +97,15 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
 
   return (
     <div className={cn('my-6 flex w-full flex-col items-center space-y-6', className)}>
-      {ads.map((ad) => (
+      {ads.filter((ad) => !!ad.image_url).map((ad) => {
+        const optimizedUrl = getOptimizedAdUrl(ad.image_url)
+        if (!optimizedUrl) return null
+
+        const isSidebar = position.includes('sidebar')
+        const width = isSidebar ? (isTV ? 900 : 700) : (isTV ? 1600 : 1200)
+        const height = isSidebar ? (isTV ? 760 : 600) : (isTV ? 280 : 200)
+
+        return (
         <React.Fragment key={ad.id}>
           {ad.link_url ? (
             <a
@@ -100,30 +116,34 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
               className={cn('block w-full transition-all duration-300 hover:scale-[1.01] animate-in fade-in slide-in-from-bottom-2 focusable', isTV ? 'max-w-5xl rounded-[2rem]' : 'max-w-4xl')}
             >
               <img
-                src={getOptimizedAdUrl(ad.image_url)}
+                src={optimizedUrl}
                 alt={ad.title}
                 loading="lazy"
                 decoding="async"
                 fetchPriority="low"
+                width={width}
+                height={height}
                 className={cn('h-auto w-full object-cover border border-white/5 shadow-lg', isTV ? 'rounded-[2rem]' : 'rounded-xl')}
-                style={{ maxHeight: position.includes('sidebar') ? (isTV ? '760px' : '600px') : (isTV ? '280px' : '200px') }}
+                style={{ maxHeight: `${height}px` }}
               />
             </a>
           ) : (
             <div className={cn('w-full transition-opacity duration-500 animate-in fade-in', isTV ? 'max-w-5xl' : 'max-w-4xl')}>
               <img
-                src={getOptimizedAdUrl(ad.image_url)}
+                src={optimizedUrl}
                 alt={ad.title}
                 loading="lazy"
                 decoding="async"
                 fetchPriority="low"
+                width={width}
+                height={height}
                 className={cn('h-auto w-full object-cover shadow-sm', isTV ? 'rounded-[2rem]' : 'rounded-lg')}
-                style={{ maxHeight: position.includes('sidebar') ? (isTV ? '760px' : '600px') : (isTV ? '280px' : '200px') }}
+                style={{ maxHeight: `${height}px` }}
               />
             </div>
           )}
         </React.Fragment>
-      ))}
+      )})}
     </div>
   );
 };

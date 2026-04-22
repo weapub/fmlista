@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Mail, MessageCircle, Radio, Twitter } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+
+const getSupabase = async () => (await import('@/lib/supabase')).supabase;
 
 interface FooterProps {
   className?: string;
@@ -16,6 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
 
   useEffect(() => {
     const fetchFooterSettings = async () => {
+      const supabase = await getSupabase();
       const { data } = await supabase
         .from('app_settings')
         .select('key, value')
@@ -49,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
                 {settings.logo ? (
-                  <img src={settings.logo} alt="Logo" className="h-7 w-7 object-contain brightness-0 invert" />
+                  <img src={settings.logo} alt="Logo" width={28} height={28} className="h-7 w-7 object-contain brightness-0 invert" />
                 ) : (
                   <Radio className="h-6 w-6 text-white" />
                 )}
@@ -60,21 +62,30 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
             <div className="flex items-center gap-4">
               <a
                 href="#"
+                aria-label="Facebook de FM Lista"
+                title="Facebook de FM Lista"
                 className="rounded-lg bg-[#f5f5f9] p-2 text-[#697a8d] transition-all hover:bg-[#696cff] hover:text-white dark:bg-slate-900 dark:text-slate-300"
               >
                 <Facebook className="h-4 w-4" />
+                <span className="sr-only">Facebook de FM Lista</span>
               </a>
               <a
                 href="#"
+                aria-label="Instagram de FM Lista"
+                title="Instagram de FM Lista"
                 className="rounded-lg bg-[#f5f5f9] p-2 text-[#697a8d] transition-all hover:bg-[#696cff] hover:text-white dark:bg-slate-900 dark:text-slate-300"
               >
                 <Instagram className="h-4 w-4" />
+                <span className="sr-only">Instagram de FM Lista</span>
               </a>
               <a
                 href="#"
+                aria-label="X (Twitter) de FM Lista"
+                title="X (Twitter) de FM Lista"
                 className="rounded-lg bg-[#f5f5f9] p-2 text-[#697a8d] transition-all hover:bg-[#696cff] hover:text-white dark:bg-slate-900 dark:text-slate-300"
               >
                 <Twitter className="h-4 w-4" />
+                <span className="sr-only">X (Twitter) de FM Lista</span>
               </a>
             </div>
           </div>
@@ -193,6 +204,8 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               <img
                 src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg"
                 alt="AFIP Data Fiscal"
+                width={96}
+                height={48}
                 className="h-12 w-auto rounded-md border border-slate-200 dark:border-slate-700"
               />
             </a>

@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, ChevronDown, Play, Heart, Sparkles, BookOpen } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
-import { supabase } from '@/lib/supabase'
 import { Radio as RadioType } from '@/types/database'
 import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getRadioPath } from '@/lib/microsites'
 import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
+
+const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate()
@@ -42,6 +43,7 @@ export const Navigation: React.FC = () => {
 
   useEffect(() => {
     const fetchLogo = async () => {
+      const supabase = await getSupabase()
       const { data } = await supabase
         .from('app_settings')
         .select('key, value')
@@ -68,6 +70,7 @@ export const Navigation: React.FC = () => {
       }
 
       try {
+        const supabase = await getSupabase()
         const favoriteIds = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
         if (favoriteIds.length > 0) {
           const { data: favData } = await supabase

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
 
 interface User {
   id: string
@@ -30,6 +29,7 @@ interface OAuthCallbackParams {
 
 const GOOGLE_ROLE_KEY = 'google_oauth_role_hint'
 const OAUTH_ERROR_KEY = 'google_oauth_error'
+const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 const mapAuthError = (error: unknown, mode: 'signIn' | 'signUp' | 'signOut' | 'oauth') => {
   const fallback =
@@ -63,6 +63,7 @@ const mapAuthError = (error: unknown, mode: 'signIn' | 'signUp' | 'signOut' | 'o
 }
 
 const fetchUserProfile = async (userId: string) => {
+  const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('users')
     .select('id, email, role')
@@ -139,6 +140,7 @@ const ensureUserProfile = async (
   authUser: { id: string; email?: string | null },
   fallbackRole: 'listener' | 'radio_admin' = 'listener'
 ) => {
+  const supabase = await getSupabase()
   try {
     const profile = await fetchUserProfile(authUser.id)
 
@@ -207,6 +209,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signIn: async (email: string, password: string) => {
     try {
       set({ isLoading: true, error: null })
+      const supabase = await getSupabase()
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -236,6 +239,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signUp: async (email: string, password: string, role: 'listener' | 'radio_admin' = 'listener') => {
     try {
       set({ isLoading: true, error: null })
+      const supabase = await getSupabase()
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -271,6 +275,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signInWithGoogle: async (roleHint: 'listener' | 'radio_admin' = 'listener') => {
     try {
       set({ isLoading: true, error: null })
+      const supabase = await getSupabase()
 
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(GOOGLE_ROLE_KEY, roleHint)
@@ -297,6 +302,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signOut: async () => {
     try {
       set({ isLoading: true })
+      const supabase = await getSupabase()
 
       const { error } = await supabase.auth.signOut()
 
@@ -354,6 +360,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         }
 
         if (accessToken && refreshToken) {
+          const supabase = await getSupabase()
           const { error: setSessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -372,6 +379,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         }
 
         if (code) {
+          const supabase = await getSupabase()
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           currentUrl.searchParams.delete('code')
@@ -389,7 +397,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       const {
         data: { session },
-      } = await supabase.auth.getSession()
+      } = await (await getSupabase()).auth.getSession()
 
       const resolved = await resolveSessionUser(session)
       set({

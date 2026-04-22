@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Search, Filter, Radio, Megaphone, MapPin, Tag, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
@@ -11,6 +10,8 @@ interface HeroProps {
   searchTerm: string
   onSearchChange: (value: string) => void
 }
+
+const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const { isTV } = useDeviceStore()
@@ -106,26 +107,6 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   )
 
   useEffect(() => {
-    if (!optimizedHeroImage || typeof document === 'undefined') return
-
-    const existing = document.head.querySelector('link[data-hero-preload="true"]')
-    if (existing) {
-      existing.remove()
-    }
-
-    const preload = document.createElement('link')
-    preload.setAttribute('data-hero-preload', 'true')
-    preload.rel = 'preload'
-    preload.as = 'image'
-    preload.href = optimizedHeroImage
-    document.head.appendChild(preload)
-
-    return () => {
-      preload.remove()
-    }
-  }, [optimizedHeroImage])
-
-  useEffect(() => {
     setShowSuggestions(suggestions.length > 0 && !!searchTerm)
   }, [suggestions, searchTerm])
 
@@ -137,6 +118,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const supabase = await getSupabase()
         const { data } = await supabase
           .from('app_settings')
           .select('value')
@@ -355,7 +337,11 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             </div>
           )}
 
-          <div className={cn('mt-16 grid gap-6 text-pretty sm:grid-cols-2 lg:grid-cols-3', isTV && 'mt-20 gap-8')}>
+          <section className={cn('mt-16', isTV && 'mt-20')} aria-labelledby="hero-benefits-heading">
+            <h2 id="hero-benefits-heading" className="sr-only">
+              Beneficios de FM Lista
+            </h2>
+          <div className={cn('grid gap-6 text-pretty sm:grid-cols-2 lg:grid-cols-3', isTV && 'gap-8')}>
             <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">Sonido Cristalino</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
@@ -375,6 +361,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </p>
             </div>
           </div>
+          </section>
         </div>
       </div>
     </div>
