@@ -193,7 +193,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               rel="noreferrer"
             >
               <img
-                src="https://www.afip.gob.ar/images/f960/DATAWEB.jpg"
+                src="/api/afip-dataweb"
                 alt="AFIP Data Fiscal"
                 width={96}
                 height={48}

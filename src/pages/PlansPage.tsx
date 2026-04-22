@@ -787,7 +787,7 @@ export const PlansPage: React.FC = () => {
                   title="Datos Fiscales - AFIP"
                 >
                   <img 
-                    src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg" 
+                    src="/api/afip-dataweb" 
                     alt="Datos Fiscales AFIP" 
                     className="w-32 h-32 object-cover hover:scale-105 transition-transform cursor-pointer"
                   />

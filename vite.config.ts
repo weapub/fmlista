@@ -203,6 +203,36 @@ export default defineConfig(({ command }) => ({
                 statuses: [0, 200]
               }
             }
+          },
+          // Cache Supabase transformed images (/render/image/public)
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/render\/image\/public\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'supabase-render-images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // Cache local AFIP proxy with long TTL
+          {
+            urlPattern: /\/api\/afip-dataweb$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'afip-dataweb-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       }
