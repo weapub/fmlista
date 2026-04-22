@@ -16,7 +16,7 @@ interface RadioCardProps {
 
 export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatured }) => {
   const navigate = useNavigate()
-  const { currentRadio, setCurrentRadio, isPlaying, setIsPlaying } = useRadioStore()
+  const { currentRadio, setCurrentRadio, isPlaying, setIsPlaying, selectedLocation, setSelectedLocation } = useRadioStore()
   const { isTV } = useDeviceStore()
   const [logoError, setLogoError] = useState(false)
 
@@ -42,6 +42,12 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
 
   const handleCardClick = () => {
     navigate(getRadioPath(radio))
+  }
+
+  const handleLocationClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (!radio.location) return
+    setSelectedLocation(selectedLocation === radio.location ? null : radio.location)
   }
 
   const cardHint = useMemo(() => {
@@ -82,9 +88,8 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
       onKeyDown={handleKeyDown}
       onMouseEnter={handlePrewarm}
       onFocus={handlePrewarm}
-      onTouchStart={handlePrewarm}
       className={cn(
-        'group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white p-6 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] transition duration-300 hover:-translate-y-1 hover:border-[#696cff]/30 hover:shadow-2xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20 dark:bg-gray-900',
+        'group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white p-6 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] transition duration-300 hover:-translate-y-1 hover:border-[#696cff]/30 hover:shadow-2xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20 dark:bg-gray-900 [content-visibility:auto] [contain-intrinsic-size:280px]',
         isTV && 'min-h-[18rem] cursor-default border-white/10 bg-white/95 p-7 dark:bg-slate-900/95',
         isFeatured && 'border-yellow-300/50 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-900 dark:to-yellow-950/20',
         className
@@ -102,6 +107,10 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
               src={radio.logo_url}
               alt={radio.name}
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              width={80}
+              height={80}
               className="h-20 w-20 rounded-3xl border border-gray-100 object-cover dark:border-gray-800"
               onError={() => setLogoError(true)}
             />
@@ -132,9 +141,19 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
               {radio.frequency}
             </span>
             {radio.location && (
-              <span className="radio-card-subtitle rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+              <button
+                type="button"
+                onClick={handleLocationClick}
+                className={cn(
+                  'radio-card-subtitle rounded-full px-2.5 py-1 font-medium transition-colors',
+                  selectedLocation === radio.location
+                    ? 'bg-[#696cff]/15 text-[#696cff] dark:bg-[#696cff]/25 dark:text-[#aeb0ff]'
+                    : 'bg-slate-50 text-slate-500 hover:bg-[#696cff]/10 hover:text-[#696cff] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-[#696cff]/20'
+                )}
+                aria-label={`Filtrar por ciudad ${radio.location}`}
+              >
                 {radio.location}
-              </span>
+              </button>
             )}
           </div>
 

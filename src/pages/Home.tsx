@@ -11,6 +11,7 @@ import { useSeo } from '@/hooks/useSeo'
 const HomeSections = React.lazy(() => import('./HomeSections'))
 const NewsSection = React.lazy(() => import('@/components/NewsSection').then((m) => ({ default: m.NewsSection })))
 const WeatherSection = React.lazy(() => import('@/components/WeatherSection').then((m) => ({ default: m.WeatherSection })))
+const RADIO_LIST_SELECT = 'id,name,slug,logo_url,cover_url,frequency,location,category,stream_url,created_at'
 
 const RadioCardSkeleton = () => (
   <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
@@ -81,7 +82,7 @@ export const Home: React.FC = () => {
 
       const { data, error } = await supabase
         .from('radios')
-        .select('*')
+        .select(RADIO_LIST_SELECT)
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
         .order('created_at', { ascending: false })
 
@@ -107,12 +108,12 @@ export const Home: React.FC = () => {
       
       // Consultas paralelas para máxima velocidad
       const [recentRes, trendingRes, favsRes, rankingConfigRes, rankingLimitRes] = await Promise.all([
-        supabase.from('radios').select('*').order('created_at', { ascending: false }).limit(6),
+        supabase.from('radios').select(RADIO_LIST_SELECT).order('created_at', { ascending: false }).limit(6),
         // Para tendencias, traemos las últimas 6 de la categoría más popular
-        supabase.from('radios').select('*').limit(6),
+        supabase.from('radios').select(RADIO_LIST_SELECT).limit(6),
         // Cargar favoritos si existen
         favoriteIds.length > 0 
-          ? supabase.from('radios').select('*').in('id', favoriteIds)
+          ? supabase.from('radios').select(RADIO_LIST_SELECT).in('id', favoriteIds)
           : Promise.resolve({ data: [] }),
         supabase.from('app_settings').select('value').eq('key', 'home_ranking_radios').maybeSingle(),
         supabase.from('app_settings').select('value').eq('key', 'home_ranking_limit').maybeSingle()
@@ -143,14 +144,14 @@ export const Home: React.FC = () => {
             if (normalizedIds.length > 0) {
               const { data: configuredRadios, error: configuredRadiosError } = await supabase
                 .from('radios')
-                .select('*')
+                .select(RADIO_LIST_SELECT)
                 .in('id', normalizedIds)
 
               if (!configuredRadiosError && configuredRadios && configuredRadios.length > 0) {
                 const byId = new Map(configuredRadios.map((radio) => [radio.id, radio]))
                 const orderedConfigured = normalizedIds
                   .map((id) => byId.get(id))
-                  .filter((radio): radio is Radio => Boolean(radio))
+                  .filter(Boolean) as Radio[]
 
                 if (orderedConfigured.length > 0) {
                   setTrendingRadios(orderedConfigured)
