@@ -13,6 +13,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const { isTV } = useDeviceStore()
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [heroImage, setHeroImage] = useState<string>('')
   const {
@@ -29,8 +30,32 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [loopNum, setLoopNum] = useState(0)
   const [typingSpeed, setTypingSpeed] = useState(100)
   const phrases = ['en alta definición.', 'vayas donde vayas.', 'como nunca antes.', 'en tiempo real.']
+  const typingEnabled = !isTV && !isMobileViewport
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const mediaQuery = window.matchMedia('(max-width: 768px)')
+    const applyViewport = () => setIsMobileViewport(mediaQuery.matches)
+    applyViewport()
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', applyViewport)
+      return () => mediaQuery.removeEventListener('change', applyViewport)
+    }
+
+    mediaQuery.addListener(applyViewport)
+    return () => mediaQuery.removeListener(applyViewport)
+  }, [])
+
+  useEffect(() => {
+    if (!typingEnabled) {
+      setText('en tiempo real.')
+      setIsDeleting(false)
+      setLoopNum(0)
+      return
+    }
+
     const handleTyping = () => {
       const i = loopNum % phrases.length
       const fullText = phrases[i]
@@ -48,7 +73,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
     const timer = setTimeout(handleTyping, typingSpeed)
     return () => clearTimeout(timer)
-  }, [text, isDeleting, loopNum, typingSpeed])
+  }, [typingEnabled, text, isDeleting, loopNum, typingSpeed])
 
   const categories = useMemo(
     () => Array.from(new Set(radios.map((r) => r.category).filter(Boolean))).sort(),
@@ -108,7 +133,14 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
       {heroImage && (
         <div className="absolute inset-0 mix-blend-overlay opacity-40">
-          <img src={heroImage} alt="Hero Background" loading="lazy" className="h-full w-full object-cover" />
+          <img
+            src={heroImage}
+            alt="Hero Background"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
         </div>
       )}
 
@@ -121,7 +153,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           <h1 className={cn('mt-8 min-h-[1.2em] text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
             Tu frecuencia, <br className="sm:hidden" />
             <span className="text-white/70"> {text}</span>
-            <span className="ml-1 inline-block h-[0.9em] w-[3px] animate-pulse align-middle bg-white/50" />
+            {typingEnabled && <span className="ml-1 inline-block h-[0.9em] w-[3px] animate-pulse align-middle bg-white/50" />}
           </h1>
 
           <p className={cn('mx-auto mt-6 max-w-2xl text-base font-medium leading-relaxed text-white/80 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>

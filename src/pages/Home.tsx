@@ -2,8 +2,6 @@ import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense, use
 import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
-import { NewsSection } from '@/components/NewsSection'
-import { WeatherSection } from '@/components/WeatherSection'
 import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { supabase } from '@/lib/supabase'
@@ -11,6 +9,8 @@ import { Radio } from '@/types/database'
 import { useSeo } from '@/hooks/useSeo'
 
 const HomeSections = React.lazy(() => import('./HomeSections'))
+const NewsSection = React.lazy(() => import('@/components/NewsSection').then((m) => ({ default: m.NewsSection })))
+const WeatherSection = React.lazy(() => import('@/components/WeatherSection').then((m) => ({ default: m.WeatherSection })))
 
 const RadioCardSkeleton = () => (
   <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
@@ -254,8 +254,12 @@ export const Home: React.FC = () => {
       <Navigation />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <WeatherSection className="mb-8" />
-        <NewsSection className="mb-10" />
+        <Suspense fallback={<div className="mb-8 h-24 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
+          <WeatherSection className="mb-8" />
+        </Suspense>
+        <Suspense fallback={<div className="mb-10 h-16 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
+          <NewsSection className="mb-10" />
+        </Suspense>
         <AdBanner position="home_top" className="mb-12" />
         <Suspense fallback={
           <div className="space-y-8 pt-10">
