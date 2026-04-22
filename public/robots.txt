@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sensitive/private areas
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+Disallow: /library
+Disallow: /api/
+
+Sitemap: https://www.fmlista.com.ar/sitemap.xml

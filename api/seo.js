@@ -7,6 +7,17 @@ const SUPABASE_ANON_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+const SECURITY_CSP =
+  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://api.allorigins.win; font-src 'self' data:; media-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'; require-trusted-types-for 'script'; trusted-types default"
+
+function setSecurityHeaders(res) {
+  res.setHeader('Content-Security-Policy', SECURITY_CSP)
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+}
+
 const RESERVED_SLUGS = new Set([
   'admin',
   'login',
@@ -157,6 +168,7 @@ async function resolveRadioSeo(req, baseUrl, path) {
 
 export default async function handler(req, res) {
   try {
+    setSecurityHeaders(res)
     const baseUrl = getBaseUrl(req)
     const path = getPath(req)
     const seo = await resolveRadioSeo(req, baseUrl, path)
@@ -165,6 +177,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
     res.status(200).send(renderHtml(seo))
   } catch (error) {
+    setSecurityHeaders(res)
     const fallback = buildHomeSeo(getBaseUrl(req))
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
     res.status(200).send(renderHtml(fallback))
