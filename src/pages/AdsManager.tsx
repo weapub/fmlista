@@ -122,6 +122,7 @@ export default function AdsManager() {
         .from('radio-images')
         .upload(fileName, file, {
           contentType: file.type,
+          cacheControl: '31536000',
           upsert: true
         });
 

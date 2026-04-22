@@ -170,6 +170,7 @@ export default function AppSettings() {
         .from('radio-images')
         .upload(fileName, file, {
           contentType: contentType,
+          cacheControl: '31536000',
           upsert: true
         });
 

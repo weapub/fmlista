@@ -309,7 +309,11 @@ export default function ProfileEditor() {
         const fileName = `${user?.id}/${radioFolder}/${type}_${Date.now()}.jpg`;
         const { error: uploadError } = await supabase.storage
           .from('radio-images')
-          .upload(fileName, optimizedFile);
+          .upload(fileName, optimizedFile, {
+            contentType: 'image/jpeg',
+            cacheControl: '31536000',
+            upsert: true
+          });
 
         if (uploadError) throw uploadError;
 
@@ -419,19 +423,34 @@ export default function ProfileEditor() {
         if (error) throw error;
       }
 
-      // Actualizar Plan si es Super Admin
-      if (user.role === ROLES.SUPER_ADMIN && formData.plan_id && radioId) {
-        const { error: subError } = await supabase
-          .from('subscriptions')
-          .upsert({
-            radio_id: radioId,
-            plan_id: formData.plan_id,
-            status: 'active',
-            next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'radio_id' });
+      // Actualizar o quitar plan si es Super Admin
+      if (user.role === ROLES.SUPER_ADMIN && radioId) {
+        if (formData.plan_id) {
+          const { error: subError } = await supabase
+            .from('subscriptions')
+            .upsert({
+              radio_id: radioId,
+              plan_id: formData.plan_id,
+              status: 'active',
+              next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'radio_id' });
 
-        if (subError) throw subError;
+          if (subError) throw subError;
+        } else {
+          const { error: subError } = await supabase
+            .from('subscriptions')
+            .update({
+              plan_id: null,
+              status: 'canceled',
+              next_billing_date: null,
+              current_period_end: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('radio_id', radioId);
+
+          if (subError) throw subError;
+        }
       }
 
       if (typeof window !== 'undefined') {
