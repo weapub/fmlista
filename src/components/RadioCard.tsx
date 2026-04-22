@@ -7,6 +7,7 @@ import { prewarmStream } from '@/hooks/useAudioPlayer'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getRadioPath } from '@/lib/microsites'
+import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
 
 interface RadioCardProps {
   radio: Radio
@@ -21,6 +22,10 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
   const [logoError, setLogoError] = useState(false)
 
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
+  const optimizedLogoUrl = useMemo(
+    () => optimizeSupabaseImageUrl(radio.logo_url, { width: 160, height: 160, quality: 70, resize: 'cover' }),
+    [radio.logo_url]
+  )
 
   const handlePrewarm = () => {
     prewarmStream(radio.stream_url)
@@ -104,7 +109,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         <div className="relative flex-shrink-0">
           {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
             <img
-              src={radio.logo_url}
+              src={optimizedLogoUrl || radio.logo_url}
               alt={radio.name}
               loading="lazy"
               decoding="async"

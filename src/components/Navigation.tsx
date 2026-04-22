@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getRadioPath } from '@/lib/microsites'
+import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate()
@@ -109,13 +110,15 @@ export const Navigation: React.FC = () => {
     isTV ? 'h-14 w-14 rounded-2xl' : 'h-10 w-10'
   )
 
+  const optimizedAppLogo = optimizeSupabaseImageUrl(appLogo, { width: 96, height: 96, quality: 70, resize: 'contain' })
+
   return (
     <nav className={cn('sticky top-0 z-40 border-b border-gray-100 bg-white/80 shadow-sm backdrop-blur-md transition-colors dark:border-gray-800 dark:bg-gray-950/80', isTV && 'bg-white/90 dark:bg-gray-950/90')}>
       <div className={cn('mx-auto max-w-6xl px-4', isTV && 'max-w-[90rem] px-8')}>
         <div className={cn('flex items-center justify-between gap-4 py-3 md:py-4', isTV && 'py-5')}>
           <Link to="/" className="focusable group flex items-center gap-3 rounded-2xl">
             <div className={cn('flex items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20 transition-transform group-hover:scale-110', isTV ? 'h-14 w-14 rounded-2xl' : 'h-10 w-10')}>
-              <img src={appLogo} alt="Logo" className={cn('object-contain brightness-0 invert', isTV ? 'h-9 w-9' : 'h-7 w-7')} />
+              <img src={optimizedAppLogo || appLogo} alt="Logo" className={cn('object-contain brightness-0 invert', isTV ? 'h-9 w-9' : 'h-7 w-7')} />
             </div>
             <div className="flex flex-col">
               <p className={cn('leading-none tracking-tight text-[#566a7f] font-bold dark:text-white', isTV ? 'text-2xl' : 'text-lg')}>{appTitle}</p>
@@ -309,7 +312,7 @@ export const Navigation: React.FC = () => {
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
-                  <img src={appLogo} alt="Logo" className="h-7 w-7 object-contain brightness-0 invert" />
+                  <img src={optimizedAppLogo || appLogo} alt="Logo" className="h-7 w-7 object-contain brightness-0 invert" />
                 </div>
                 <div>
                   <p className="font-bold leading-tight text-[#566a7f] dark:text-white">{appTitle}</p>

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
 
 interface HeroProps {
   searchTerm: string
@@ -93,6 +94,11 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       .slice(0, 5)
   }, [searchTerm, radios])
 
+  const optimizedHeroImage = useMemo(
+    () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
+    [heroImage, isTV]
+  )
+
   useEffect(() => {
     setShowSuggestions(suggestions.length > 0 && !!searchTerm)
   }, [suggestions, searchTerm])
@@ -134,7 +140,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       {heroImage && (
         <div className="absolute inset-0 mix-blend-overlay opacity-40">
           <img
-            src={heroImage}
+            src={optimizedHeroImage || heroImage}
             alt="Hero Background"
             loading="eager"
             fetchPriority="high"
