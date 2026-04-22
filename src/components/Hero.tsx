@@ -5,13 +5,12 @@ import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
+import { fetchAppSettings } from '@/lib/publicSupabase'
 
 interface HeroProps {
   searchTerm: string
   onSearchChange: (value: string) => void
 }
-
-const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const { isTV } = useDeviceStore()
@@ -118,17 +117,13 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const supabase = await getSupabase()
-        const { data } = await supabase
-          .from('app_settings')
-          .select('value')
-          .eq('key', 'app_hero_image')
-          .single()
+        const settings = await fetchAppSettings(['app_hero_image'])
+        const heroImageValue = settings.app_hero_image
 
-        if (data?.value) {
-          setHeroImage(data.value)
+        if (heroImageValue) {
+          setHeroImage(heroImageValue)
           if (typeof window !== 'undefined') {
-            window.localStorage.setItem('app_hero_image_url', data.value)
+            window.localStorage.setItem('app_hero_image_url', heroImageValue)
           }
         }
       } catch (e) {

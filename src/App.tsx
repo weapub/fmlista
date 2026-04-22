@@ -78,7 +78,7 @@ export default function App() {
       window.addEventListener(eventName, onFirstInteraction, { once: true, passive: true })
     })
 
-    const timeoutId = window.setTimeout(initializeAuth, 5000)
+    const timeoutId = window.setTimeout(initializeAuth, 15000)
 
     return () => {
       window.clearTimeout(timeoutId)

@@ -6,12 +6,12 @@ import { Footer } from '@/components/Footer'
 import { useRadioStore } from '@/stores/radioStore'
 import { Radio } from '@/types/database'
 import { useSeo } from '@/hooks/useSeo'
+import { fetchAppSettings, queryPublicTable } from '@/lib/publicSupabase'
 
 const HomeSections = React.lazy(() => import('./HomeSections'))
 const NewsSection = React.lazy(() => import('@/components/NewsSection').then((m) => ({ default: m.NewsSection })))
 const WeatherSection = React.lazy(() => import('@/components/WeatherSection').then((m) => ({ default: m.WeatherSection })))
 const RADIO_LIST_SELECT = 'id,name,slug,logo_url,cover_url,frequency,location,category,stream_url,created_at'
-const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
 const RadioCardSkeleton = () => (
   <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
@@ -79,15 +79,11 @@ export const Home: React.FC = () => {
     try {
       if (pageNum === 0) setIsLoading(true)
       else setIsLoadingMore(true)
-      const supabase = await getSupabase()
-
-      const { data, error } = await supabase
-        .from('radios')
-        .select(RADIO_LIST_SELECT)
-        .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
+      const data = await queryPublicTable<Radio>('radios', {
+        select: RADIO_LIST_SELECT,
+        order: [{ column: 'created_at', ascending: false }],
+        range: { from: pageNum * PAGE_SIZE, to: (pageNum + 1) * PAGE_SIZE - 1 },
+      })
 
       if (data) {
         setRadios(prev => {
@@ -105,51 +101,49 @@ export const Home: React.FC = () => {
 
   const fetchSpecialSections = useCallback(async () => {
     try {
-      const supabase = await getSupabase()
       const favoriteIds = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
       
       // Consultas paralelas para máxima velocidad
-      const [recentRes, trendingRes, favsRes, rankingConfigRes, rankingLimitRes] = await Promise.all([
-        supabase.from('radios').select(RADIO_LIST_SELECT).order('created_at', { ascending: false }).limit(6),
+      const [recentRes, trendingRes, favsRes, rankingConfigRes] = await Promise.all([
+        queryPublicTable<Radio>('radios', { select: RADIO_LIST_SELECT, order: [{ column: 'created_at', ascending: false }], limit: 6 }),
         // Para tendencias, traemos las últimas 6 de la categoría más popular
-        supabase.from('radios').select(RADIO_LIST_SELECT).limit(6),
+        queryPublicTable<Radio>('radios', { select: RADIO_LIST_SELECT, limit: 6 }),
         // Cargar favoritos si existen
         favoriteIds.length > 0 
-          ? supabase.from('radios').select(RADIO_LIST_SELECT).in('id', favoriteIds)
-          : Promise.resolve({ data: [] }),
-        supabase.from('app_settings').select('value').eq('key', 'home_ranking_radios').maybeSingle(),
-        supabase.from('app_settings').select('value').eq('key', 'home_ranking_limit').maybeSingle()
+          ? queryPublicTable<Radio>('radios', { select: RADIO_LIST_SELECT, filters: [{ column: 'id', op: 'in', value: favoriteIds }] })
+          : Promise.resolve([]),
+        fetchAppSettings(['home_ranking_radios', 'home_ranking_limit'])
       ])
 
-      const parsedRankingLimit = Number(rankingLimitRes.data?.value)
+      const parsedRankingLimit = Number(rankingConfigRes.home_ranking_limit)
       if ([3, 5, 10].includes(parsedRankingLimit)) {
         setRankingLimit(parsedRankingLimit)
       } else {
         setRankingLimit(3)
       }
 
-      if (recentRes.data) setRecentRadios(recentRes.data)
-      if (favsRes.data) setFavoriteRadios(favsRes.data)
-      if (trendingRes.data) {
-        setTrendingRadios(trendingRes.data)
+      if (recentRes) setRecentRadios(recentRes)
+      if (favsRes) setFavoriteRadios(favsRes)
+      if (trendingRes) {
+        setTrendingRadios(trendingRes)
         // Cálculo simple de categoría tendencia basado en los resultados obtenidos
-        const category = trendingRes.data[0]?.category || null
+        const category = trendingRes[0]?.category || null
         setTrendingCategory(category)
       }
 
-      const rawRankingValue = rankingConfigRes.data?.value
+      const rawRankingValue = rankingConfigRes.home_ranking_radios
       if (typeof rawRankingValue === 'string' && rawRankingValue.length > 0) {
         try {
           const rankingIds = JSON.parse(rawRankingValue)
           if (Array.isArray(rankingIds) && rankingIds.length > 0) {
             const normalizedIds = rankingIds.filter((id) => typeof id === 'string')
             if (normalizedIds.length > 0) {
-              const { data: configuredRadios, error: configuredRadiosError } = await supabase
-                .from('radios')
-                .select(RADIO_LIST_SELECT)
-                .in('id', normalizedIds)
+              const configuredRadios = await queryPublicTable<Radio>('radios', {
+                select: RADIO_LIST_SELECT,
+                filters: [{ column: 'id', op: 'in', value: normalizedIds }],
+              })
 
-              if (!configuredRadiosError && configuredRadios && configuredRadios.length > 0) {
+              if (configuredRadios && configuredRadios.length > 0) {
                 const byId = new Map(configuredRadios.map((radio) => [radio.id, radio]))
                 const orderedConfigured = normalizedIds
                   .map((id) => byId.get(id))

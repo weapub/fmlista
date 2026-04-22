@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Mail, MessageCircle, Radio, Twitter } from 'lucide-react';
-
-const getSupabase = async () => (await import('@/lib/supabase')).supabase;
+import { fetchAppSettings } from '@/lib/publicSupabase';
 
 interface FooterProps {
   className?: string;
@@ -17,25 +16,17 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
 
   useEffect(() => {
     const fetchFooterSettings = async () => {
-      const supabase = await getSupabase();
-      const { data } = await supabase
-        .from('app_settings')
-        .select('key, value')
-        .in('key', ['app_title', 'app_description', 'app_footer_logo', 'app_logo']);
+      const data = await fetchAppSettings(['app_title', 'app_description', 'app_footer_logo', 'app_logo']);
+      const title = data.app_title || 'FM Lista';
+      const description = data.app_description || 'Todas las radios en un solo lugar.';
+      const footerLogo = data.app_footer_logo;
+      const mainLogo = data.app_logo;
 
-      if (data) {
-        const title = data.find((setting) => setting.key === 'app_title')?.value || 'FM Lista';
-        const description =
-          data.find((setting) => setting.key === 'app_description')?.value || 'Todas las radios en un solo lugar.';
-        const footerLogo = data.find((setting) => setting.key === 'app_footer_logo')?.value;
-        const mainLogo = data.find((setting) => setting.key === 'app_logo')?.value;
-
-        setSettings({
-          title,
-          description,
-          logo: footerLogo || mainLogo || '',
-        });
-      }
+      setSettings({
+        title,
+        description,
+        logo: footerLogo || mainLogo || '',
+      });
     };
 
     void fetchFooterSettings();
@@ -142,7 +133,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               </li>
               <li>
                 <a
-                  href="https://wa.me/543704000000"
+                  href="https://wa.me/543704602028"
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-sm text-[#a1acb8] transition-colors hover:text-[#696cff] dark:text-slate-400"
@@ -197,12 +188,12 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               Terminos
             </Link>
             <a
-              href="http://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,,"
+              href="https://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,,"
               target="_F960AFIPInfo"
               rel="noreferrer"
             >
               <img
-                src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg"
+                src="https://www.afip.gob.ar/images/f960/DATAWEB.jpg"
                 alt="AFIP Data Fiscal"
                 width={96}
                 height={48}

@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
 import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization';
-
-const getSupabase = async () => (await import('@/lib/supabase')).supabase;
+import { queryPublicTable } from '@/lib/publicSupabase';
 
 interface AdBannerProps {
   position: 'home_top' | 'home_middle' | 'microsite_top' | 'microsite_sidebar';
@@ -21,23 +20,18 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
 
   useEffect(() => {
     const fetchAds = async () => {
-      const supabase = await getSupabase();
-      let query = supabase
-        .from('advertisements')
-        .select('*')
-        .eq('position', position)
-        .eq('active', true)
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: false });
-
       if (radioId) {
-        const { data: radioAds } = await supabase
-          .from('advertisements')
-          .select('*')
-          .eq('position', position)
-          .eq('active', true)
-          .eq('radio_id', radioId)
-          .order('display_order', { ascending: true });
+        const radioAds = await queryPublicTable<Advertisement>('advertisements', {
+          filters: [
+            { column: 'position', op: 'eq', value: position },
+            { column: 'active', op: 'eq', value: true },
+            { column: 'radio_id', op: 'eq', value: radioId },
+          ],
+          order: [
+            { column: 'display_order', ascending: true },
+            { column: 'created_at', ascending: false },
+          ],
+        });
 
         if (radioAds && radioAds.length > 0) {
           setAds(radioAds);
@@ -45,8 +39,17 @@ export const AdBanner: React.FC<AdBannerProps> = ({ position, className = '', ra
         }
       }
 
-      query = query.is('radio_id', null);
-      const { data } = await query;
+      const data = await queryPublicTable<Advertisement>('advertisements', {
+        filters: [
+          { column: 'position', op: 'eq', value: position },
+          { column: 'active', op: 'eq', value: true },
+          { column: 'radio_id', op: 'is', value: null },
+        ],
+        order: [
+          { column: 'display_order', ascending: true },
+          { column: 'created_at', ascending: false },
+        ],
+      });
 
       if (data && data.length > 0) {
         setAds(data);

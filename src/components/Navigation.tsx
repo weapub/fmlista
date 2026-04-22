@@ -8,8 +8,7 @@ import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getRadioPath } from '@/lib/microsites'
 import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization'
-
-const getSupabase = async () => (await import('@/lib/supabase')).supabase
+import { fetchAppSettings, queryPublicTable } from '@/lib/publicSupabase'
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate()
@@ -43,19 +42,11 @@ export const Navigation: React.FC = () => {
 
   useEffect(() => {
     const fetchLogo = async () => {
-      const supabase = await getSupabase()
-      const { data } = await supabase
-        .from('app_settings')
-        .select('key, value')
-        .in('key', ['app_logo', 'app_title', 'app_slogan'])
+      const data = await fetchAppSettings(['app_logo', 'app_title', 'app_slogan'])
 
-      const logoSetting = data?.find((s) => s.key === 'app_logo')
-      const titleSetting = data?.find((s) => s.key === 'app_title')
-      const sloganSetting = data?.find((s) => s.key === 'app_slogan')
-
-      if (logoSetting?.value) setAppLogo(logoSetting.value)
-      if (titleSetting?.value) setAppTitle(titleSetting.value)
-      if (sloganSetting?.value) setAppSlogan(sloganSetting.value)
+      if (data.app_logo) setAppLogo(data.app_logo)
+      if (data.app_title) setAppTitle(data.app_title)
+      if (data.app_slogan) setAppSlogan(data.app_slogan)
     }
 
     void fetchLogo()
@@ -70,23 +61,21 @@ export const Navigation: React.FC = () => {
       }
 
       try {
-        const supabase = await getSupabase()
         const favoriteIds = JSON.parse(localStorage.getItem('radio_favorites') || '[]')
         if (favoriteIds.length > 0) {
-          const { data: favData } = await supabase
-            .from('radios')
-            .select('*')
-            .eq('id', favoriteIds[0])
-            .single()
+          const favDataList = await queryPublicTable<RadioType>('radios', {
+            filters: [{ column: 'id', op: 'eq', value: favoriteIds[0] }],
+            limit: 1,
+          })
+          const favData = favDataList[0]
 
           if (favData) setFavoriteRadio(favData)
         }
 
-        const { data: latestData } = await supabase
-          .from('radios')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(3)
+        const latestData = await queryPublicTable<RadioType>('radios', {
+          order: [{ column: 'created_at', ascending: false }],
+          limit: 3,
+        })
 
         if (latestData) setLatestRadios(latestData)
       } catch (e) {
