@@ -16,7 +16,10 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const { isTV } = useDeviceStore()
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
-  const [heroImage, setHeroImage] = useState<string>('')
+  const [heroImage, setHeroImage] = useState<string>(() => {
+    if (typeof window === 'undefined') return ''
+    return window.localStorage.getItem('app_hero_image_url') || ''
+  })
   const {
     radios,
     selectedLocation,
@@ -100,6 +103,26 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   )
 
   useEffect(() => {
+    if (!optimizedHeroImage || typeof document === 'undefined') return
+
+    const existing = document.head.querySelector('link[data-hero-preload="true"]')
+    if (existing) {
+      existing.remove()
+    }
+
+    const preload = document.createElement('link')
+    preload.setAttribute('data-hero-preload', 'true')
+    preload.rel = 'preload'
+    preload.as = 'image'
+    preload.href = optimizedHeroImage
+    document.head.appendChild(preload)
+
+    return () => {
+      preload.remove()
+    }
+  }, [optimizedHeroImage])
+
+  useEffect(() => {
     setShowSuggestions(suggestions.length > 0 && !!searchTerm)
   }, [suggestions, searchTerm])
 
@@ -119,6 +142,9 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
         if (data?.value) {
           setHeroImage(data.value)
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem('app_hero_image_url', data.value)
+          }
         }
       } catch (e) {
         console.error('Error loading hero data:', e)
@@ -133,12 +159,12 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       <div className="absolute inset-0 bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6]" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-20%] h-[60%] w-[60%] animate-pulse rounded-full bg-white/10 blur-[100px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-400/20 blur-[100px]" />
+        <div className={cn('absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-white/10', isMobileViewport ? 'opacity-70' : 'animate-pulse blur-[100px]')} />
+        <div className={cn('absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-400/20', isMobileViewport ? 'opacity-70' : 'blur-[100px]')} />
       </div>
 
       {heroImage && (
-        <div className="absolute inset-0 mix-blend-overlay opacity-40">
+        <div className={cn('absolute inset-0', isMobileViewport ? 'opacity-35' : 'mix-blend-overlay opacity-40')}>
           <img
             src={optimizedHeroImage || heroImage}
             alt="Hero Background"

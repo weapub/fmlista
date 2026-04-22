@@ -220,6 +220,10 @@ export default function AppSettings() {
 
       if (error) throw error;
 
+      if (typeof window !== 'undefined' && heroImageUrl) {
+        window.localStorage.setItem('app_hero_image_url', heroImageUrl);
+      }
+
       alert('Configuración actualizada correctamente. Recarga la página para ver los cambios.');
     } catch (error: any) {
       console.error('Error saving settings:', error);

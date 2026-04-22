@@ -4,32 +4,107 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const normalizePath = (id: string) => id.replace(/\\/g, '/');
+
+const getPackageName = (id: string): string | null => {
+  const normalized = normalizePath(id);
+  const nodeModulesIndex = normalized.lastIndexOf('/node_modules/');
+  if (nodeModulesIndex === -1) return null;
+
+  const segment = normalized.slice(nodeModulesIndex + '/node_modules/'.length);
+
+  // pnpm path support: /node_modules/.pnpm/<pkg>@<ver>/node_modules/<pkg>/
+  const nestedNodeModules = segment.indexOf('/node_modules/');
+  const cleanSegment = nestedNodeModules >= 0
+    ? segment.slice(nestedNodeModules + '/node_modules/'.length)
+    : segment;
+
+  if (cleanSegment.startsWith('@')) {
+    const parts = cleanSegment.split('/');
+    return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : null;
+  }
+
+  return cleanSegment.split('/')[0] || null;
+};
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   build: {
+    // Keep production output modern to avoid unnecessary transpilation/polyfills.
+    target: 'es2022',
     sourcemap: 'hidden',
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('lucide-react')) return 'vendor-icons'
-            if (id.includes('@supabase/supabase-js')) return 'vendor-supabase'
-            if (id.includes('react-router-dom')) return 'vendor-router'
-            if (id.includes('react') || id.includes('react-dom')) return 'vendor-react'
-            return 'vendor'
+          const pkg = getPackageName(id);
+          if (!pkg) return undefined;
+
+          if (pkg === 'react' || pkg === 'react-dom' || pkg === 'scheduler') {
+            return 'vendor-react';
           }
+
+          if (pkg === 'react-router-dom' || pkg === 'react-router') {
+            return 'vendor-router';
+          }
+
+          if (pkg === '@supabase/supabase-js' || pkg.startsWith('@supabase/')) {
+            return 'vendor-supabase';
+          }
+
+          if (pkg === 'lucide-react') {
+            return 'vendor-icons';
+          }
+
+          if (
+            pkg === 'react-player' ||
+            pkg === 'media-chrome' ||
+            pkg === 'media-tracks' ||
+            pkg === 'hls.js' ||
+            pkg === 'hls-video-element' ||
+            pkg === 'dash-video-element' ||
+            pkg === '@mux/mux-video' ||
+            pkg === '@mux/mux-player' ||
+            pkg === '@mux/mux-player-react' ||
+            pkg === '@mux/playback-core' ||
+            pkg === 'mux-embed' ||
+            pkg === '@vimeo/player' ||
+            pkg === 'youtube-video-element' ||
+            pkg === 'vimeo-video-element' ||
+            pkg === 'wistia-video-element' ||
+            pkg === 'spotify-audio-element' ||
+            pkg === 'twitch-video-element' ||
+            pkg === 'tiktok-video-element' ||
+            pkg === 'super-media-element' ||
+            pkg === 'dashjs' ||
+            pkg === 'castable-video' ||
+            pkg === 'custom-media-element'
+          ) {
+            return 'vendor-player';
+          }
+
+          if (pkg === 'chart.js' || pkg === 'react-chartjs-2') {
+            return 'vendor-charts';
+          }
+
+          if (pkg === 'date-fns') {
+            return 'vendor-date';
+          }
+
+          return 'vendor';
         }
       }
     }
   },
   plugins: [
-    react({
-      babel: {
-        plugins: [
-          'react-dev-locator',
-        ],
-      },
-    }),
+    react(
+      command === 'serve'
+        ? {
+            babel: {
+              plugins: ['react-dev-locator'],
+            },
+          }
+        : undefined
+    ),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
@@ -253,4 +328,4 @@ export default defineConfig({
     host: true,
     port: 4173,
   },
-})
+}))

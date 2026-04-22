@@ -18,12 +18,81 @@ interface NewsSectionProps {
   className?: string;
 }
 
+const RSS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+const RSS_SOURCES = [
+  {
+    source: 'TN',
+    url: 'https://tn.com.ar/rss',
+  },
+  {
+    source: 'Infobae',
+    url: 'https://www.infobae.com/arc/outboundfeeds/rss/?outputType=xml',
+  },
+  {
+    source: 'Pagina 12',
+    url: 'https://www.pagina12.com.ar/rss/portada',
+  },
+];
+
+const RELEVANCE_KEYWORDS = ['formosa', 'provincia', 'radio', 'fm', 'litoral', 'noreste'];
+
+const parseDate = (value?: string | null) => {
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isNaN(timestamp) ? null : new Date(timestamp);
+};
+
+const isSameLocalDay = (date: Date, reference: Date) =>
+  date.getFullYear() === reference.getFullYear() &&
+  date.getMonth() === reference.getMonth() &&
+  date.getDate() === reference.getDate();
+
+const formatPublishedLabel = (date: Date) => {
+  const now = new Date();
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+
+  if (isSameLocalDay(date, now)) {
+    return `Hoy, ${hh}:${mm}`;
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (isSameLocalDay(date, yesterday)) {
+    return `Ayer, ${hh}:${mm}`;
+  }
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mo = String(date.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mo}, ${hh}:${mm}`;
+};
+
+const stripHtml = (value: string) => value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const getRelevanceScore = (title: string, summary?: string) => {
+  const content = `${title} ${summary || ''}`.toLowerCase();
+  return RELEVANCE_KEYWORDS.reduce((score, keyword) => (content.includes(keyword) ? score + 1 : score), 0);
+};
+
+const fallbackNews: NewsItem[] = [
+  {
+    id: 'fallback-1',
+    title: 'Actualizacion de radios en vivo y cobertura local',
+    source: 'FM Lista',
+    summary: 'Estamos actualizando contenidos para mantenerte al tanto durante la jornada.',
+    published_at: 'Hoy',
+    is_breaking: true,
+  },
+];
+
 export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, className = '' }) => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const { isTV } = useDeviceStore();
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const halfWidthRef = useRef(0);
   const isDraggingRef = useRef(false);
   const isPointerDownRef = useRef(false);
   const dragStartXRef = useRef(0);
@@ -39,45 +108,81 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
 
   useEffect(() => {
     const fetchNews = async () => {
-      const mockNews: NewsItem[] = [
-        {
-          id: '1',
-          title: 'Fuerte temporal afecta la zona sur de la provincia',
-          source: 'La Manana',
-          summary:
-            'Las autoridades reportaron anegamientos parciales, cortes intermitentes y tareas de asistencia en distintos barrios durante la madrugada.',
-          published_at: 'Hoy, 08:15',
-          is_breaking: true,
-        },
-        {
-          id: '2',
-          title: 'Nueva programacion nocturna en Radio Nacional',
-          source: 'Radio Nacional',
-          summary:
-            'La emisora renueva su franja nocturna con entrevistas en vivo, segmentos culturales y una propuesta musical mas amplia.',
-          published_at: 'Hoy, 10:40',
-        },
-        {
-          id: '3',
-          title: 'Alerta meteorologica para las proximas 24 horas',
-          source: 'Contingencias',
-          summary:
-            'Se esperan lluvias intensas, actividad electrica y rafagas. Recomiendan asegurar objetos sueltos y evitar circular en zonas bajas.',
-          published_at: 'Hoy, 11:05',
-          is_breaking: true,
-        },
-        {
-          id: '4',
-          title: 'Festival Provincial: se confirman los artistas invitados',
-          source: 'Radio Formosa',
-          summary:
-            'La organizacion difundio el cronograma preliminar y anuncio la apertura de nuevas entradas para el fin de semana.',
-          published_at: 'Ayer, 19:20',
-        },
-      ];
+      try {
+        const settled = await Promise.allSettled(
+          RSS_SOURCES.map(async (sourceDef) => {
+            const url = `${RSS_PROXY}${encodeURIComponent(sourceDef.url)}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`RSS fetch failed (${response.status})`);
 
-      setNews(mockNews);
-      setLoading(false);
+            const xmlText = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlText, 'text/xml');
+            const items = Array.from(xml.querySelectorAll('item'));
+
+            return items.slice(0, 15).map((item, index) => {
+              const title = item.querySelector('title')?.textContent?.trim() || '';
+              const url = item.querySelector('link')?.textContent?.trim() || undefined;
+              const summaryRaw =
+                item.querySelector('description')?.textContent ||
+                item.querySelector('content\\:encoded')?.textContent ||
+                '';
+              const summary = stripHtml(summaryRaw).slice(0, 220);
+              const pubDateRaw = item.querySelector('pubDate')?.textContent || item.querySelector('dc\\:date')?.textContent;
+              const pubDate = parseDate(pubDateRaw);
+
+              const relevanceScore = getRelevanceScore(title, summary);
+              const isBreaking = relevanceScore >= 2;
+
+              return {
+                id: `${sourceDef.source}-${index}-${title.slice(0, 20)}`,
+                title,
+                source: sourceDef.source,
+                summary: summary || undefined,
+                publishedDate: pubDate,
+                published_at: pubDate ? formatPublishedLabel(pubDate) : undefined,
+                url,
+                is_breaking: isBreaking,
+                relevanceScore,
+              };
+            });
+          })
+        );
+
+        const combined = settled
+          .filter((result): result is PromiseFulfilledResult<any[]> => result.status === 'fulfilled')
+          .flatMap((result) => result.value)
+          .filter((item) => item.title);
+
+        const now = new Date();
+        const todayRelevant = combined
+          .filter((item) => item.publishedDate && isSameLocalDay(item.publishedDate, now))
+          .sort((a, b) => {
+            if ((b.relevanceScore || 0) !== (a.relevanceScore || 0)) {
+              return (b.relevanceScore || 0) - (a.relevanceScore || 0);
+            }
+            return (b.publishedDate?.getTime() || 0) - (a.publishedDate?.getTime() || 0);
+          })
+          .slice(0, 10)
+          .map(({ publishedDate: _publishedDate, relevanceScore: _relevanceScore, ...rest }) => rest as NewsItem);
+
+        if (todayRelevant.length > 0) {
+          setNews(todayRelevant);
+        } else if (combined.length > 0) {
+          const recentFallback = combined
+            .sort((a, b) => (b.publishedDate?.getTime() || 0) - (a.publishedDate?.getTime() || 0))
+            .slice(0, 8)
+            .map(({ publishedDate: _publishedDate, relevanceScore: _relevanceScore, ...rest }) => rest as NewsItem);
+          setNews(recentFallback);
+        } else {
+          setNews(fallbackNews);
+        }
+      } catch (error) {
+        console.error('Error fetching live news:', error);
+        setNews(fallbackNews);
+      } finally {
+        setLoading(false);
+      }
     };
 
     void fetchNews();
@@ -132,10 +237,25 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     let frameId = 0;
     let lastTimestamp = 0;
     const speed = 36;
+    let resizeObserver: ResizeObserver | null = null;
+
+    const updateTrackMetrics = () => {
+      if (!trackRef.current) return;
+      const activeTrack = trackRef.current;
+      halfWidthRef.current = activeTrack.scrollWidth / 2;
+
+      // Colocamos el scroll en mitad de pista para reducir ajustes inmediatos.
+      if (activeTrack.scrollLeft === 0 && halfWidthRef.current > 0) {
+        activeTrack.scrollLeft = halfWidthRef.current;
+      }
+    };
+
+    updateTrackMetrics();
 
     const step = (timestamp: number) => {
       if (!trackRef.current) return;
       const activeTrack = trackRef.current;
+      const halfWidth = halfWidthRef.current;
 
       if (!lastTimestamp) {
         lastTimestamp = timestamp;
@@ -148,20 +268,33 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
         activeTrack.scrollLeft += (speed * elapsed) / 1000;
       }
 
-      const halfWidth = activeTrack.scrollWidth / 2;
-      if (activeTrack.scrollLeft >= halfWidth) {
+      if (halfWidth > 0 && activeTrack.scrollLeft >= halfWidth) {
         activeTrack.scrollLeft -= halfWidth;
-      } else if (activeTrack.scrollLeft <= 0) {
+      } else if (halfWidth > 0 && activeTrack.scrollLeft <= 0) {
         activeTrack.scrollLeft += halfWidth;
       }
 
       frameId = window.requestAnimationFrame(step);
     };
 
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        updateTrackMetrics();
+      });
+      resizeObserver.observe(track);
+    } else {
+      window.addEventListener('resize', updateTrackMetrics);
+    }
+
     frameId = window.requestAnimationFrame(step);
 
     return () => {
       window.cancelAnimationFrame(frameId);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else {
+        window.removeEventListener('resize', updateTrackMetrics);
+      }
     };
   }, [news]);
 
