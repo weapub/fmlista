@@ -255,10 +255,10 @@ export const Home: React.FC = () => {
       <Navigation />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <Suspense fallback={<div className="mb-8 h-24 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
+        <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
           <WeatherSection className="mb-8" />
         </Suspense>
-        <Suspense fallback={<div className="mb-10 h-16 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
+        <Suspense fallback={<div className="mb-10 h-20 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
           <NewsSection className="mb-10" />
         </Suspense>
         <AdBanner position="home_top" className="mb-12" />

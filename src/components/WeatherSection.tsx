@@ -99,45 +99,41 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     }))
   }, [items])
 
-  if (loading) {
-    return (
-      <section className={cn('mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900', className)}>
-        <div className="h-20 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
-      </section>
-    )
-  }
-
   return (
-    <section className={cn('mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900', className)}>
+    <section className={cn('mb-8 min-h-[500px] rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:min-h-[270px] lg:min-h-[180px] dark:border-slate-800 dark:bg-slate-900', className)}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-[#566a7f] dark:text-slate-100">
           <CloudSun className="h-5 w-5 text-[#696cff]" />
           <h2 className="text-sm font-black uppercase tracking-wider">Tiempo en Formosa</h2>
         </div>
-        {error && (
-          <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-            <RefreshCw className="h-3.5 w-3.5" />
-            Sin conexion en vivo
-          </span>
-        )}
+        <span className={cn('inline-flex min-w-[132px] items-center justify-end gap-1 text-xs', error ? 'text-amber-600 dark:text-amber-400' : 'invisible')}>
+          <RefreshCw className="h-3.5 w-3.5" />
+          Sin conexion en vivo
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {weatherByCity.map(({ city, weather }) => (
           <article
             key={city.id}
-            className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70"
+            className="min-h-[86px] rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70"
           >
             <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-[#697a8d] dark:text-slate-300">
               <MapPin className="h-3.5 w-3.5" />
               {city.name}
             </p>
-            {weather ? (
+            {!loading && weather ? (
               <>
                 <p className="mt-2 text-2xl font-black text-[#566a7f] dark:text-white">{weather.temperature}°</p>
                 <p className="text-xs text-[#697a8d] dark:text-slate-300">{getWeatherLabel(weather.weatherCode)}</p>
                 <p className="mt-1 text-[11px] text-[#a1acb8] dark:text-slate-400">Viento {weather.windSpeed} km/h</p>
               </>
+            ) : loading ? (
+              <div className="mt-2 space-y-2">
+                <div className="h-6 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-3 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
             ) : (
               <p className="mt-3 text-xs text-[#a1acb8] dark:text-slate-400">Sin datos disponibles</p>
             )}

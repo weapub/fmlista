@@ -14,7 +14,10 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const { isTV } = useDeviceStore()
-  const [isMobileViewport, setIsMobileViewport] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(max-width: 768px)').matches
+  })
   const [showFilters, setShowFilters] = useState(false)
   const [heroImage, setHeroImage] = useState<string>(() => {
     if (typeof window === 'undefined') return ''
@@ -29,7 +32,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   } = useRadioStore()
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const [text, setText] = useState('')
+  const [text, setText] = useState('en tiempo real.')
   const [isDeleting, setIsDeleting] = useState(false)
   const [loopNum, setLoopNum] = useState(0)
   const [typingSpeed, setTypingSpeed] = useState(100)
@@ -159,12 +162,12 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       <div className="absolute inset-0 bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6]" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className={cn('absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-white/10', isMobileViewport ? 'opacity-70' : 'animate-pulse blur-[100px]')} />
-        <div className={cn('absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-400/20', isMobileViewport ? 'opacity-70' : 'blur-[100px]')} />
+        <div className="absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-white/10 opacity-70 md:animate-pulse md:opacity-100 md:blur-[100px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-400/20 opacity-70 md:opacity-100 md:blur-[100px]" />
       </div>
 
       {heroImage && (
-        <div className={cn('absolute inset-0', isMobileViewport ? 'opacity-35' : 'mix-blend-overlay opacity-40')}>
+        <div className="absolute inset-0 opacity-35 md:mix-blend-overlay md:opacity-40">
           <img
             src={optimizedHeroImage || heroImage}
             alt="Hero Background"
@@ -184,7 +187,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
           <h1 className={cn('mt-8 min-h-[1.2em] text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
             Tu frecuencia, <br className="sm:hidden" />
-            <span className="text-white/70"> {text}</span>
+            <span className="inline-block min-w-[14ch] whitespace-nowrap text-white/70"> {text}</span>
             {typingEnabled && <span className="ml-1 inline-block h-[0.9em] w-[3px] animate-pulse align-middle bg-white/50" />}
           </h1>
 
