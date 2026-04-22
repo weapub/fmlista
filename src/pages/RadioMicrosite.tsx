@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Play, Pause, ArrowLeft, Radio as RadioIcon, MapPin, Heart, Share2, MonitorPlay, BadgeCheck, Mic2 } from 'lucide-react'
 import { api } from '@/lib/api'
@@ -15,11 +15,6 @@ import { useDeviceStore } from '@/stores/deviceStore'
 import { getMicrositeSlugFromHostname, getRadioPath } from '@/lib/microsites'
 import { useSeo } from '@/hooks/useSeo'
 
-const ReactPlayer = React.lazy(async () => {
-  const mod = await import('react-player')
-  return { default: mod.default as unknown as React.ComponentType<any> }
-})
-
 export const RadioMicrosite: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>()
   const navigate = useNavigate()
@@ -30,10 +25,29 @@ export const RadioMicrosite: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isTheaterMode, setIsTheaterMode] = useState(false)
   const { isTV } = useDeviceStore()
+  const theaterVideoRef = useRef<HTMLVideoElement | null>(null)
   const isPlaceholderUrl = (url?: string | null) => !!url && url.includes('via.placeholder.com')
   
-  const { currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore()
+  const { currentRadio, setCurrentRadio, setIsPlaying, volume } = useRadioStore()
   const { togglePlay, isPlaying } = useAudioPlayer()
+
+  useEffect(() => {
+    if (!isTheaterMode) return
+    if (!radio?.video_stream_url) return
+
+    const video = theaterVideoRef.current
+    if (!video) return
+
+    video.volume = volume
+
+    if (isPlaying) {
+      void video.play().catch(() => {
+        // Autoplay may be blocked until a user gesture happens.
+      })
+    } else {
+      video.pause()
+    }
+  }, [isTheaterMode, radio?.video_stream_url, isPlaying, volume])
   
   useEffect(() => {
     const fetchRadio = async () => {
@@ -222,18 +236,15 @@ export const RadioMicrosite: React.FC = () => {
       )}>
         {isTheaterMode && radio.video_stream_url ? (
           <div className="w-full h-full bg-black flex items-center justify-center">
-            <Suspense
-              fallback={<div className="h-full w-full animate-pulse bg-black/70" />}
-            >
-              <ReactPlayer
-                url={radio.video_stream_url}
-                width="100%"
-                height="100%"
-                playing={isPlaying}
-                controls={true}
-                volume={useRadioStore.getState().volume}
-              />
-            </Suspense>
+            <video
+              key={radio.video_stream_url}
+              ref={theaterVideoRef}
+              src={radio.video_stream_url}
+              className="h-full w-full"
+              controls
+              playsInline
+              preload="metadata"
+            />
           </div>
         ) : (
           <>
