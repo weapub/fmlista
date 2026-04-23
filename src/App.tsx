@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
 import { Home } from '@/pages/Home'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { useTheme } from '@/hooks/useTheme'
@@ -47,6 +47,27 @@ const HomeOrMicrosite = () => {
   return <Home />
 }
 
+const ScrollNavigationManager = () => {
+  const { pathname, search, hash } = useLocation()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if (hash) {
+      const targetId = hash.replace('#', '')
+      const targetElement = document.getElementById(targetId)
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [pathname, search, hash])
+
+  return null
+}
+
 export default function App() {
   const checkDevice = useDeviceStore((state) => state.checkDevice)
   const [shouldInitAuth, setShouldInitAuth] = useState(false)
@@ -89,6 +110,7 @@ export default function App() {
   return (
     <Router>
       <ThemeBootstrap />
+      <ScrollNavigationManager />
       {shouldInitAuth && (
         <Suspense fallback={null}>
           <AuthSessionBootstrap />

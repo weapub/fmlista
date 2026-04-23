@@ -154,6 +154,20 @@ export const PlansPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+
+    const tabFromQuery = searchParams.get('tab');
+    if (tabFromQuery !== 'streaming' && tabFromQuery !== 'microsite' && tabFromQuery !== 'ads') {
+      return;
+    }
+
+    setActiveTab(tabFromQuery);
+    if (plansSectionRef.current) {
+      plansSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loading, searchParams]);
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     if (plansSectionRef.current) {

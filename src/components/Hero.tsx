@@ -215,7 +215,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 Streaming
               </Link>
               <Link
-                to="/planes"
+                to="/planes?tab=ads"
                 className={cn('focusable inline-flex items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-95', isTV && 'px-8 py-5 text-base')}
               >
                 <Megaphone className="mr-2 h-4 w-4" />
