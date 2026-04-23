@@ -3,6 +3,10 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
 
+const CACHE_BUST_SIGNAL_KEY = 'cache_bust_token'
+const CACHE_BUST_SEEN_KEY = 'app_cache_bust_seen'
+const CACHE_BUST_RELOAD_GUARD_KEY = 'app_cache_bust_reloaded'
+
 const preloadHeroImageFromCache = () => {
   if (typeof window === 'undefined') return
 
@@ -21,6 +25,43 @@ const preloadHeroImageFromCache = () => {
     document.head.appendChild(preload)
   } catch {
     // ignore preload cache errors
+  }
+}
+
+const applyCacheBustSignal = async () => {
+  if (typeof window === 'undefined') return
+
+  try {
+    const { fetchAppSettings } = await import('./lib/publicSupabase')
+    const settings = await fetchAppSettings([CACHE_BUST_SIGNAL_KEY])
+    const incomingToken = settings[CACHE_BUST_SIGNAL_KEY]
+
+    if (!incomingToken) return
+
+    const seenToken = window.localStorage.getItem(CACHE_BUST_SEEN_KEY)
+    if (seenToken === incomingToken) return
+
+    const lastReloadedToken = window.sessionStorage.getItem(CACHE_BUST_RELOAD_GUARD_KEY)
+    if (lastReloadedToken === incomingToken) {
+      window.localStorage.setItem(CACHE_BUST_SEEN_KEY, incomingToken)
+      return
+    }
+
+    if ('caches' in window) {
+      const cacheKeys = await window.caches.keys()
+      await Promise.all(cacheKeys.map((key) => window.caches.delete(key)))
+    }
+
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map((registration) => registration.unregister()))
+    }
+
+    window.localStorage.setItem(CACHE_BUST_SEEN_KEY, incomingToken)
+    window.sessionStorage.setItem(CACHE_BUST_RELOAD_GUARD_KEY, incomingToken)
+    window.location.reload()
+  } catch (error) {
+    console.error('Cache bust sync failed:', error)
   }
 }
 
@@ -78,6 +119,7 @@ const registerServiceWorkerDeferred = () => {
 }
 
 preloadHeroImageFromCache()
+void applyCacheBustSignal()
 registerServiceWorkerDeferred()
 
 createRoot(document.getElementById('root')!).render(

@@ -17,6 +17,7 @@ import {
   Users,
   History,
   ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
@@ -97,6 +98,7 @@ const AdminPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isForcingCacheRefresh, setIsForcingCacheRefresh] = useState(false);
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -172,6 +174,39 @@ const AdminPanel: React.FC = () => {
       console.error('Error deleting radio:', error);
       alert('No pudimos eliminar la emisora. Revisa si tiene datos relacionados con permisos o vuelve a intentarlo.');
       setRadios(originalRadios);
+    }
+  };
+
+  const handleForceCacheRefresh = async () => {
+    if (user?.role !== ROLES.SUPER_ADMIN || isForcingCacheRefresh) return;
+
+    const confirmed = window.confirm(
+      'Se enviara una senal global para que los usuarios recarguen archivos actualizados. Quieres continuar?'
+    );
+    if (!confirmed) return;
+
+    try {
+      setIsForcingCacheRefresh(true);
+      const { error } = await supabase
+        .from('app_settings')
+        .upsert([{ key: 'cache_bust_token', value: String(Date.now()) }], { onConflict: 'key' });
+
+      if (error) throw error;
+
+      setNotification({
+        type: 'success',
+        message:
+          'Senal de limpieza enviada. Los clientes activos aplicaran limpieza de cache y recarga automatica al detectar el cambio.',
+      });
+    } catch (error) {
+      console.error('Error forcing cache refresh:', error);
+      setNotification({
+        type: 'error',
+        message:
+          'No pudimos enviar la senal de limpieza de cache. Revisa permisos de app_settings y vuelve a intentarlo.',
+      });
+    } finally {
+      setIsForcingCacheRefresh(false);
     }
   };
 
@@ -374,6 +409,16 @@ const AdminPanel: React.FC = () => {
                   <span>{action.label}</span>
                 </button>
               ))}
+              {user?.role === ROLES.SUPER_ADMIN && (
+                <button
+                  onClick={handleForceCacheRefresh}
+                  disabled={isForcingCacheRefresh}
+                  className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:hover:bg-orange-900/30 px-3 py-3 sm:px-4 sm:py-2 rounded-xl transition-all flex items-center justify-center space-x-2 text-xs sm:text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isForcingCacheRefresh ? 'animate-spin' : ''}`} />
+                  <span>{isForcingCacheRefresh ? 'Limpiando...' : 'Limpiar cache'}</span>
+                </button>
+              )}
             </div>
           </div>
 
