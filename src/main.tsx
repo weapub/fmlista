@@ -3,6 +3,27 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
 
+const preloadHeroImageFromCache = () => {
+  if (typeof window === 'undefined') return
+
+  try {
+    const heroUrl = window.localStorage.getItem('app_hero_image_url')
+    if (!heroUrl) return
+
+    const existing = document.querySelector(`link[rel="preload"][as="image"][href="${heroUrl}"]`)
+    if (existing) return
+
+    const preload = document.createElement('link')
+    preload.rel = 'preload'
+    preload.as = 'image'
+    preload.href = heroUrl
+    preload.setAttribute('fetchpriority', 'high')
+    document.head.appendChild(preload)
+  } catch {
+    // ignore preload cache errors
+  }
+}
+
 const registerServiceWorkerDeferred = () => {
   if (typeof window === 'undefined') return
 
@@ -56,6 +77,7 @@ const registerServiceWorkerDeferred = () => {
   else window.addEventListener('load', delayedFallback, { once: true })
 }
 
+preloadHeroImageFromCache()
 registerServiceWorkerDeferred()
 
 createRoot(document.getElementById('root')!).render(
