@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Mail, MessageCircle, Radio, Twitter } from 'lucide-react';
 import { fetchAppSettings } from '@/lib/publicSupabase';
+import { optimizeSupabaseImageUrl } from '@/lib/imageOptimization';
 
 interface FooterProps {
   className?: string;
@@ -11,26 +12,39 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
   const [settings, setSettings] = useState({
     title: 'FM Lista',
     description: 'La red de radios mas grande de la provincia en un solo lugar.',
-    logo: '',
+    logo: '/favicon.svg',
   });
+  const [logoLoadFailed, setLogoLoadFailed] = useState(false);
 
   useEffect(() => {
     const fetchFooterSettings = async () => {
-      const data = await fetchAppSettings(['app_title', 'app_description', 'app_footer_logo', 'app_logo']);
-      const title = data.app_title || 'FM Lista';
-      const description = data.app_description || 'Todas las radios en un solo lugar.';
-      const footerLogo = data.app_footer_logo;
-      const mainLogo = data.app_logo;
+      try {
+        const data = await fetchAppSettings(['app_title', 'app_description', 'app_footer_logo', 'app_logo']);
+        const title = data.app_title || 'FM Lista';
+        const description = data.app_description || 'Todas las radios en un solo lugar.';
+        const footerLogo = data.app_footer_logo;
+        const mainLogo = data.app_logo;
 
-      setSettings({
-        title,
-        description,
-        logo: footerLogo || mainLogo || '',
-      });
+        setSettings({
+          title,
+          description,
+          logo: footerLogo || mainLogo || '/favicon.svg',
+        });
+        setLogoLoadFailed(false);
+      } catch (error) {
+        console.error('Error fetching footer settings:', error);
+      }
     };
 
     void fetchFooterSettings();
   }, []);
+
+  const optimizedFooterLogo = optimizeSupabaseImageUrl(settings.logo, {
+    width: 96,
+    height: 96,
+    quality: 70,
+    resize: 'contain',
+  });
 
   return (
     <footer
@@ -41,8 +55,15 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
-                {settings.logo ? (
-                  <img src={settings.logo} alt="Logo" width={28} height={28} className="h-7 w-7 object-contain brightness-0 invert" />
+                {settings.logo && !logoLoadFailed ? (
+                  <img
+                    src={optimizedFooterLogo || settings.logo}
+                    alt="Logo"
+                    width={28}
+                    height={28}
+                    className="h-7 w-7 object-contain"
+                    onError={() => setLogoLoadFailed(true)}
+                  />
                 ) : (
                   <Radio className="h-6 w-6 text-white" />
                 )}
