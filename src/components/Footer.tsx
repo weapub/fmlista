@@ -55,18 +55,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
-                {settings.logo && !logoLoadFailed ? (
-                  <img
-                    src={optimizedFooterLogo || settings.logo}
-                    alt="Logo"
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 object-contain"
-                    onError={() => setLogoLoadFailed(true)}
-                  />
-                ) : (
-                  <Radio className="h-6 w-6 text-white" />
-                )}
+                <Radio className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold tracking-tight text-[#566a7f] dark:text-white">{settings.title}</span>
             </div>
@@ -208,6 +197,20 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
             >
               Terminos
             </Link>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
+              {settings.logo && !logoLoadFailed ? (
+                <img
+                  src={optimizedFooterLogo || settings.logo}
+                  alt="Logo del pie de pagina"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain"
+                  onError={() => setLogoLoadFailed(true)}
+                />
+              ) : (
+                <Radio className="h-6 w-6 text-white" />
+              )}
+            </div>
             <a
               href="https://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,,"
               target="_F960AFIPInfo"
