@@ -120,23 +120,35 @@ export const useAudioPlayer = () => {
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
 
-    if (currentRadio) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentRadio.name,
-        artist: currentRadio.frequency || currentRadio.location || 'FM Lista',
-        album: currentRadio.category || 'Radio en vivo',
-        artwork: currentRadio.logo_url
-          ? [
-              { src: currentRadio.logo_url, sizes: '96x96', type: 'image/png' },
-              { src: currentRadio.logo_url, sizes: '192x192', type: 'image/png' },
-              { src: currentRadio.logo_url, sizes: '512x512', type: 'image/png' },
-            ]
-          : [],
-      });
-      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-    } else {
-      navigator.mediaSession.metadata = null;
-      navigator.mediaSession.playbackState = 'none';
+    const mediaSession = navigator.mediaSession;
+    const supportsMediaMetadata = typeof MediaMetadata !== 'undefined';
+    const hasSetActionHandler = typeof mediaSession.setActionHandler === 'function';
+
+    try {
+      if (currentRadio) {
+        if (supportsMediaMetadata) {
+          mediaSession.metadata = new MediaMetadata({
+            title: currentRadio.name,
+            artist: currentRadio.frequency || currentRadio.location || 'FM Lista',
+            album: currentRadio.category || 'Radio en vivo',
+            artwork: currentRadio.logo_url
+              ? [
+                  { src: currentRadio.logo_url, sizes: '96x96', type: 'image/png' },
+                  { src: currentRadio.logo_url, sizes: '192x192', type: 'image/png' },
+                  { src: currentRadio.logo_url, sizes: '512x512', type: 'image/png' },
+                ]
+              : [],
+          });
+        } else {
+          mediaSession.metadata = null;
+        }
+        mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+      } else {
+        mediaSession.metadata = null;
+        mediaSession.playbackState = 'none';
+      }
+    } catch (error) {
+      console.warn('Media Session metadata not supported on this browser:', error);
     }
 
     const goRelative = (direction: 1 | -1) => {
@@ -151,18 +163,20 @@ export const useAudioPlayer = () => {
       setIsPlaying(true);
     };
 
-    navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
-    navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
-    navigator.mediaSession.setActionHandler('previoustrack', () => goRelative(-1));
-    navigator.mediaSession.setActionHandler('nexttrack', () => goRelative(1));
-    navigator.mediaSession.setActionHandler('stop', () => setIsPlaying(false));
+    if (!hasSetActionHandler) return;
+
+    mediaSession.setActionHandler('play', () => setIsPlaying(true));
+    mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+    mediaSession.setActionHandler('previoustrack', () => goRelative(-1));
+    mediaSession.setActionHandler('nexttrack', () => goRelative(1));
+    mediaSession.setActionHandler('stop', () => setIsPlaying(false));
 
     return () => {
-      navigator.mediaSession.setActionHandler('play', null);
-      navigator.mediaSession.setActionHandler('pause', null);
-      navigator.mediaSession.setActionHandler('previoustrack', null);
-      navigator.mediaSession.setActionHandler('nexttrack', null);
-      navigator.mediaSession.setActionHandler('stop', null);
+      mediaSession.setActionHandler('play', null);
+      mediaSession.setActionHandler('pause', null);
+      mediaSession.setActionHandler('previoustrack', null);
+      mediaSession.setActionHandler('nexttrack', null);
+      mediaSession.setActionHandler('stop', null);
     };
   }, [currentRadio, isPlaying, radios, setCurrentRadio, setIsPlaying]);
 
