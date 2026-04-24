@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { optimizeSupabaseImageUrl } from './lib/imageOptimization'
 
 const CACHE_BUST_SIGNAL_KEY = 'cache_bust_token'
 const CACHE_BUST_SEEN_KEY = 'app_cache_bust_seen'
@@ -13,14 +14,15 @@ const preloadHeroImageFromCache = () => {
   try {
     const heroUrl = window.localStorage.getItem('app_hero_image_url')
     if (!heroUrl) return
+    const preloadUrl = optimizeSupabaseImageUrl(heroUrl, { width: 1280, quality: 72 }) || heroUrl
 
-    const existing = document.querySelector(`link[rel="preload"][as="image"][href="${heroUrl}"]`)
+    const existing = document.querySelector(`link[rel="preload"][as="image"][href="${preloadUrl}"]`)
     if (existing) return
 
     const preload = document.createElement('link')
     preload.rel = 'preload'
     preload.as = 'image'
-    preload.href = heroUrl
+    preload.href = preloadUrl
     preload.setAttribute('fetchpriority', 'high')
     document.head.appendChild(preload)
   } catch {

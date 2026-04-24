@@ -18,7 +18,10 @@ interface NewsSectionProps {
   className?: string;
 }
 
-const RSS_PROXY = 'https://api.allorigins.win/raw?url=';
+const RSS_PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://api.codetabs.com/v1/proxy?quest=',
+];
 
 const RSS_SOURCES = [
   {
@@ -107,15 +110,40 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
   };
 
   useEffect(() => {
+    const fetchWithTimeout = async (url: string, timeoutMs = 9000) => {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        return response;
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    const fetchRssFromProxy = async (rssUrl: string) => {
+      let lastError: unknown;
+
+      for (const proxyBase of RSS_PROXIES) {
+        try {
+          const proxyUrl = `${proxyBase}${encodeURIComponent(rssUrl)}`;
+          const response = await fetchWithTimeout(proxyUrl);
+          if (!response.ok) throw new Error(`RSS fetch failed (${response.status})`);
+          return await response.text();
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError ?? new Error('No RSS proxy available');
+    };
+
     const fetchNews = async () => {
       try {
         const settled = await Promise.allSettled(
           RSS_SOURCES.map(async (sourceDef) => {
-            const url = `${RSS_PROXY}${encodeURIComponent(sourceDef.url)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`RSS fetch failed (${response.status})`);
-
-            const xmlText = await response.text();
+            const xmlText = await fetchRssFromProxy(sourceDef.url);
             const parser = new DOMParser();
             const xml = parser.parseFromString(xmlText, 'text/xml');
             const items = Array.from(xml.querySelectorAll('item'));
