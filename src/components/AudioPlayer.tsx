@@ -140,27 +140,27 @@ export const AudioPlayer: React.FC = () => {
   if (isPlayerExpanded) {
     return (
       <div className={cn(
-        "fixed inset-0 bg-gradient-to-b from-[#f5f5f9] to-white z-[60] flex flex-col animate-in slide-in-from-bottom duration-300 overflow-y-auto",
+        "fixed inset-0 z-[60] flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300 bg-gradient-to-b from-[#f5f5f9] via-white to-[#eef2ff] dark:from-slate-950 dark:via-slate-950 dark:to-slate-900",
         isTV ? "tv-player-mode" : ""
       )}>
-        <div className="min-h-full flex flex-col max-h-[95vh]">
+        <div className="min-h-screen flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-4 flex-shrink-0">
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-4 flex-shrink-0 bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
             <button 
               ref={closeButtonRef}
               onClick={() => setIsPlayerExpanded(false)}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors focusable"
+              className="p-2 text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-full transition-colors focusable"
             >
               <ChevronDown className={cn("w-8 h-8", isTV && "w-12 h-12")} />
             </button>
-            <div className={cn("text-xs font-medium text-gray-500 uppercase tracking-widest", isTV && "text-lg")}>
+            <div className={cn("text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-widest", isTV && "text-lg")}>
               Reproduciendo ahora
             </div>
             <div className="w-12" /> {/* Spacer for balance */}
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8 space-y-4 sm:space-y-8 mt-4 sm:mt-12">
+          <div className="flex-1 flex flex-col items-center justify-start sm:justify-center px-6 sm:px-8 pt-2 sm:pt-6 pb-6 sm:pb-8 space-y-4 sm:space-y-8">
             {/* Album Art / Logo */}
             <div className={cn(
               "w-full max-w-[250px] sm:max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center animate-spin-slow",
@@ -181,7 +181,7 @@ export const AudioPlayer: React.FC = () => {
 
             {/* Info */}
             <div className="w-full max-w-sm text-center space-y-2">
-              <h2 className={cn("text-xl sm:text-3xl font-bold text-gray-900 leading-tight", isTV && "text-5xl mb-4")}>
+              <h2 className={cn("text-xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight", isTV && "text-5xl mb-4")}>
                 {currentRadio.name}
               </h2>
               <p className={cn("text-base sm:text-lg text-[#696cff] font-medium", isTV && "text-2xl")}>
@@ -194,9 +194,9 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className={cn("px-4 sm:px-8 pb-8 sm:pb-16 w-full max-w-md mx-auto space-y-6 sm:space-y-8 flex-shrink-0", isTV && "max-w-2xl pb-24")}>
+          <div className={cn("px-4 sm:px-8 pb-8 sm:pb-14 w-full max-w-md mx-auto space-y-6 sm:space-y-8 flex-shrink-0", isTV && "max-w-2xl pb-24")}>
             {/* Progress / Live Indicator */}
-            <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500", isTV && "text-lg")}>
+            <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500 dark:text-slate-400", isTV && "text-lg")}>
                <span className="text-red-500 flex items-center gap-1">
                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                  EN VIVO
@@ -211,7 +211,7 @@ export const AudioPlayer: React.FC = () => {
             <div className={cn("flex items-center justify-center space-x-6 sm:space-x-8", isTV && "space-x-16")}>
               <button
                 onClick={(e) => goPrev(e)}
-                className={cn("p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100")}
+                className={cn("p-3 text-gray-800 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100 dark:bg-slate-800")}
               >
                 <SkipBack className={cn("w-6 h-6 sm:w-7 sm:h-7", isTV && "w-12 h-12")} />
               </button>
@@ -226,7 +226,7 @@ export const AudioPlayer: React.FC = () => {
 
               <button
                 onClick={(e) => goNext(e)}
-                className={cn("p-3 text-gray-800 hover:bg-gray-100 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100")}
+                className={cn("p-3 text-gray-800 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100 dark:bg-slate-800")}
               >
                 <SkipForward className={cn("w-6 h-6 sm:w-7 sm:h-7", isTV && "w-12 h-12")} />
               </button>
@@ -234,7 +234,7 @@ export const AudioPlayer: React.FC = () => {
 
             {/* Volume */}
             <div className="flex items-center space-x-4 mb-8">
-              <button onClick={handleMuteToggle} className="text-gray-500 focusable p-2 rounded-full hover:bg-gray-100">
+              <button onClick={handleMuteToggle} className="text-gray-500 dark:text-slate-300 focusable p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800">
                 {volume === 0 ? <VolumeX className={cn("w-5 h-5", isTV && "w-8 h-8")} /> : <Volume2 className={cn("w-5 h-5", isTV && "w-8 h-8")} />}
               </button>
               <input
