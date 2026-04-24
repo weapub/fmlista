@@ -197,20 +197,18 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
             >
               Terminos
             </Link>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#696cff] shadow-lg shadow-[#696cff]/20">
-              {settings.logo && !logoLoadFailed ? (
-                <img
-                  src={optimizedFooterLogo || settings.logo}
-                  alt="Logo del pie de pagina"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain"
-                  onError={() => setLogoLoadFailed(true)}
-                />
-              ) : (
-                <Radio className="h-6 w-6 text-white" />
-              )}
-            </div>
+            {settings.logo && !logoLoadFailed ? (
+              <img
+                src={optimizedFooterLogo || settings.logo}
+                alt="Logo del pie de pagina"
+                width={36}
+                height={36}
+                className="h-9 w-auto object-contain"
+                onError={() => setLogoLoadFailed(true)}
+              />
+            ) : (
+              <Radio className="h-6 w-6 text-[#a1acb8] dark:text-slate-500" />
+            )}
             <a
               href="https://qr.afip.gob.ar/?qr=SkAn0mZmQWnKsx13JW8l2w,,"
               target="_F960AFIPInfo"
