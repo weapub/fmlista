@@ -18,6 +18,8 @@ import {
   History,
   ExternalLink,
   RefreshCw,
+  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
@@ -99,6 +101,18 @@ const AdminPanel: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isForcingCacheRefresh, setIsForcingCacheRefresh] = useState(false);
+  const [isAuditingStreams, setIsAuditingStreams] = useState(false);
+  const [streamAuditRunAt, setStreamAuditRunAt] = useState<string | null>(null);
+  const [streamAuditResults, setStreamAuditResults] = useState<
+    Array<{
+      radioId: string;
+      radioName: string;
+      tone: 'success' | 'warning' | 'error';
+      summary: string;
+      status?: number;
+      contentType?: string;
+    }>
+  >([]);
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -210,6 +224,75 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleRunStreamAudit = async () => {
+    if (isAuditingStreams) return;
+
+    const radiosWithStream = radios.filter((radio) => Boolean(radio.stream_url?.trim()));
+    if (radiosWithStream.length === 0) {
+      setNotification({
+        type: 'info',
+        message: 'No hay emisoras con stream configurado para auditar.',
+      });
+      return;
+    }
+
+    try {
+      setIsAuditingStreams(true);
+
+      const checks = await Promise.all(
+        radiosWithStream.map(async (radio) => {
+          const url = `/api/stream-check?url=${encodeURIComponent(radio.stream_url!.trim())}`;
+          const response = await fetch(url);
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok || payload?.error) {
+            return {
+              radioId: radio.id,
+              radioName: radio.name,
+              tone: 'error' as const,
+              summary: payload?.error || 'No pudimos validar este stream.',
+            };
+          }
+
+          const compatibility = payload?.compatibility as 'compatible' | 'warning' | 'incompatible' | undefined;
+          return {
+            radioId: radio.id,
+            radioName: radio.name,
+            tone:
+              compatibility === 'compatible'
+                ? ('success' as const)
+                : compatibility === 'warning'
+                  ? ('warning' as const)
+                  : ('error' as const),
+            summary: payload?.summary || 'Resultado sin detalle.',
+            status: payload?.details?.status,
+            contentType: payload?.details?.contentType,
+          };
+        })
+      );
+
+      setStreamAuditResults(checks);
+      setStreamAuditRunAt(new Date().toISOString());
+
+      const failedCount = checks.filter((item) => item.tone !== 'success').length;
+      setNotification({
+        type: failedCount > 0 ? 'info' : 'success',
+        message:
+          failedCount > 0
+            ? `Auditoria finalizada: ${failedCount} emisoras requieren revision tecnica.`
+            : 'Auditoria finalizada: todos los streams parecen compatibles.',
+      });
+    } catch (error) {
+      console.error('Error auditing streams:', error);
+      setNotification({
+        type: 'error',
+        message: 'No pudimos completar la auditoria de streams.',
+      });
+    } finally {
+      setIsAuditingStreams(false);
+    }
+  };
+
   const quickActions = [
     ...(user?.role === ROLES.SUPER_ADMIN
       ? [
@@ -289,6 +372,7 @@ const AdminPanel: React.FC = () => {
     })[0];
 
   const nextRenewalDate = formatRenewalDate((nextRenewalRadio as any)?.next_billing_date);
+  const streamAuditIssues = streamAuditResults.filter((item) => item.tone !== 'success');
   const planSummaryLabel =
     radios.length === 0
       ? 'Sin datos'
@@ -387,6 +471,93 @@ const AdminPanel: React.FC = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent p-5 sm:p-6 transition-colors">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-[#566a7f] dark:text-[#cbcbe2]">Salud de streams</h2>
+              <p className="text-sm text-[#a1acb8] dark:text-[#7e7e9a]">
+                Ejecuta una auditoria de compatibilidad para detectar radios con problemas en iPhone/Chrome.
+              </p>
+              {streamAuditRunAt && (
+                <p className="mt-2 text-xs text-[#a1acb8] dark:text-[#7e7e9a]">
+                  Ultima auditoria: {new Date(streamAuditRunAt).toLocaleString('es-AR')}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleRunStreamAudit}
+              disabled={isAuditingStreams}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#696cff]/10 text-[#696cff] px-4 py-2.5 text-sm font-semibold hover:bg-[#696cff]/20 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              <RefreshCw className={cn('w-4 h-4', isAuditingStreams && 'animate-spin')} />
+              <span>{isAuditingStreams ? 'Auditando...' : 'Auditar streams'}</span>
+            </button>
+          </div>
+
+          {streamAuditResults.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-900/30 px-4 py-3">
+                <p className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-300">Compatibles</p>
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+                  {streamAuditResults.filter((item) => item.tone === 'success').length}
+                </p>
+              </div>
+              <div className="rounded-xl border border-amber-100 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-900/30 px-4 py-3">
+                <p className="text-xs font-semibold uppercase text-amber-700 dark:text-amber-300">Con advertencia</p>
+                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                  {streamAuditResults.filter((item) => item.tone === 'warning').length}
+                </p>
+              </div>
+              <div className="rounded-xl border border-red-100 bg-red-50 dark:bg-red-900/20 dark:border-red-900/30 px-4 py-3">
+                <p className="text-xs font-semibold uppercase text-red-700 dark:text-red-300">No compatibles</p>
+                <p className="text-2xl font-bold text-red-700 dark:text-red-300">
+                  {streamAuditResults.filter((item) => item.tone === 'error').length}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {streamAuditIssues.length > 0 && (
+            <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50/70 dark:bg-amber-900/10 dark:border-amber-900/30 p-3">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4" />
+                Emisoras que requieren revision
+              </p>
+              <div className="space-y-2">
+                {streamAuditIssues.slice(0, 5).map((issue) => (
+                  <div
+                    key={issue.radioId}
+                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg bg-white/80 dark:bg-[#232333] px-3 py-2 border border-amber-100/70 dark:border-[#444564]"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] truncate">{issue.radioName}</p>
+                      <p className="text-xs text-[#8a94a6] dark:text-[#a3a4cc] truncate">
+                        {issue.summary}
+                        {issue.status ? ` · HTTP ${issue.status}` : ''}
+                        {issue.contentType ? ` · ${issue.contentType}` : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/admin/profile/${issue.radioId}`)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#696cff] hover:text-[#5f61e6]"
+                    >
+                      Revisar
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {streamAuditResults.length > 0 && streamAuditIssues.length === 0 && (
+            <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/80 dark:bg-emerald-900/10 dark:border-emerald-900/30 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              No detectamos emisoras problemáticas en esta corrida.
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-[#2b2c40] rounded-xl shadow-sm border border-gray-100 dark:border-transparent overflow-hidden transition-colors">
