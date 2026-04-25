@@ -28,6 +28,7 @@ interface OAuthCallbackParams {
 }
 
 const GOOGLE_ROLE_KEY = 'google_oauth_role_hint'
+const GOOGLE_REDIRECT_HINT_KEY = 'google_oauth_redirect_hint'
 const OAUTH_ERROR_KEY = 'google_oauth_error'
 const getSupabase = async () => (await import('@/lib/supabase')).supabase
 
@@ -84,6 +85,11 @@ const getGoogleRoleHint = (): 'listener' | 'radio_admin' => {
 const clearGoogleRoleHint = () => {
   if (typeof window === 'undefined') return
   window.localStorage.removeItem(GOOGLE_ROLE_KEY)
+}
+
+const clearGoogleRedirectHint = () => {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(GOOGLE_REDIRECT_HINT_KEY)
 }
 
 const setOAuthError = (message: string) => {
@@ -279,6 +285,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(GOOGLE_ROLE_KEY, roleHint)
+        // Luego del callback de Google, priorizamos abrir el dashboard.
+        window.localStorage.setItem(GOOGLE_REDIRECT_HINT_KEY, '/admin')
       }
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -291,6 +299,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (error) throw error
     } catch (error) {
       clearGoogleRoleHint()
+      clearGoogleRedirectHint()
       set({
         error: mapAuthError(error, 'oauth'),
         isLoading: false,
@@ -309,6 +318,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (error) throw error
 
       clearGoogleRoleHint()
+      clearGoogleRedirectHint()
       set({
         user: null,
         isLoading: false,

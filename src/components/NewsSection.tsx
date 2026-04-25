@@ -248,8 +248,13 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     if (!track || news.length === 0) return;
 
     let frameId = 0;
+    let intervalId: number | null = null;
     let lastTimestamp = 0;
     const speed = 36;
+    const useIntervalFallback =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(pointer: coarse)').matches;
     let resizeObserver: ResizeObserver | null = null;
 
     const updateTrackMetrics = () => {
@@ -265,17 +270,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
 
     updateTrackMetrics();
 
-    const step = (timestamp: number) => {
+    const advanceTrack = (deltaMs: number) => {
       if (!trackRef.current) return;
       const activeTrack = trackRef.current;
       const halfWidth = halfWidthRef.current;
-
-      if (!lastTimestamp) {
-        lastTimestamp = timestamp;
-      }
-
-      const elapsed = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
+      const elapsed = Math.min(deltaMs, 48);
 
       if (!isDraggingRef.current) {
         activeTrack.scrollLeft += (speed * elapsed) / 1000;
@@ -286,7 +285,17 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
       } else if (halfWidth > 0 && activeTrack.scrollLeft <= 0) {
         activeTrack.scrollLeft += halfWidth;
       }
+    };
 
+    const step = (timestamp: number) => {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+      }
+
+      const elapsed = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+
+      advanceTrack(elapsed);
       frameId = window.requestAnimationFrame(step);
     };
 
@@ -299,10 +308,22 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
       window.addEventListener('resize', updateTrackMetrics);
     }
 
-    frameId = window.requestAnimationFrame(step);
+    if (useIntervalFallback) {
+      lastTimestamp = 0;
+      intervalId = window.setInterval(() => {
+        advanceTrack(16);
+      }, 16);
+    } else {
+      frameId = window.requestAnimationFrame(step);
+    }
 
     return () => {
-      window.cancelAnimationFrame(frameId);
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      if (intervalId !== null) {
+        window.clearInterval(intervalId);
+      }
       if (resizeObserver) {
         resizeObserver.disconnect();
       } else {
@@ -421,10 +442,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
           <div
             ref={trackRef}
             className={cn(
-              'relative w-full flex-1 overflow-x-hidden md:ml-4',
+              'relative w-full flex-1 overflow-x-auto md:ml-4',
               isTV && 'md:ml-6',
               'cursor-grab active:cursor-grabbing select-none'
             )}
+            style={{ touchAction: 'pan-x', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}

@@ -103,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               </li>
               <li>
                 <Link
-                  to="/planes"
+                  to="/planes?tab=streaming"
                   className="text-sm text-[#a1acb8] transition-colors hover:text-[#696cff] dark:text-slate-400"
                 >
                   Planes Premium
@@ -172,7 +172,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               Suma tu emisora hoy mismo y empieza a transmitir online.
             </p>
             <Link
-              to="/planes"
+              to="/planes?tab=streaming"
               className="block w-full rounded-xl border border-[#696cff]/20 bg-[#696cff]/10 px-4 py-3 text-center text-sm font-bold text-[#696cff] transition-all hover:bg-[#696cff] hover:text-white"
             >
               Publicar mi Radio

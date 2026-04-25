@@ -27,6 +27,15 @@ export const Login: React.FC = () => {
 
   useEffect(() => {
     if (user) {
+      if (typeof window !== 'undefined') {
+        const oauthRedirectHint = window.localStorage.getItem('google_oauth_redirect_hint')
+        if (oauthRedirectHint) {
+          window.localStorage.removeItem('google_oauth_redirect_hint')
+          navigate(oauthRedirectHint)
+          return
+        }
+      }
+
       if (user.role === ROLES.SUPER_ADMIN || user.role === ROLES.RADIO_ADMIN) {
         navigate('/admin')
       } else {
