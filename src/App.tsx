@@ -95,6 +95,24 @@ export default function App() {
       })
     }
 
+    const currentUrl = new URL(window.location.href)
+    const hashParams = new URLSearchParams(currentUrl.hash.replace(/^#/, ''))
+    const hasOAuthCallbackParams =
+      currentUrl.searchParams.has('code') ||
+      currentUrl.searchParams.has('error') ||
+      currentUrl.searchParams.has('error_description') ||
+      hashParams.has('access_token') ||
+      hashParams.has('refresh_token') ||
+      hashParams.has('error') ||
+      hashParams.has('error_description')
+
+    if (hasOAuthCallbackParams) {
+      initializeAuth()
+      return () => {
+        detachInteractionListeners()
+      }
+    }
+
     interactionEvents.forEach((eventName) => {
       window.addEventListener(eventName, onFirstInteraction, { once: true, passive: true })
     })

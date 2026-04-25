@@ -92,6 +92,29 @@ const clearGoogleRedirectHint = () => {
   window.localStorage.removeItem(GOOGLE_REDIRECT_HINT_KEY)
 }
 
+const consumeGoogleRedirectHint = () => {
+  if (typeof window === 'undefined') return null
+  const hint = window.localStorage.getItem(GOOGLE_REDIRECT_HINT_KEY)
+  if (hint) {
+    window.localStorage.removeItem(GOOGLE_REDIRECT_HINT_KEY)
+  }
+  return hint
+}
+
+const maybeRedirectToAdminAfterOAuth = (user: User | null) => {
+  if (typeof window === 'undefined' || !user) return
+
+  const redirectHint = consumeGoogleRedirectHint()
+  if (redirectHint !== '/admin') return
+
+  const isAdmin = user.role === 'radio_admin' || user.role === 'super_admin'
+  if (!isAdmin) return
+
+  if (!window.location.pathname.startsWith('/admin')) {
+    window.location.replace('/admin')
+  }
+}
+
 const setOAuthError = (message: string) => {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(OAUTH_ERROR_KEY, message)
@@ -341,6 +364,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         error: resolved.error,
         isLoading: false,
       })
+      maybeRedirectToAdminAfterOAuth(resolved.user)
     } catch (error) {
       console.error('Error syncing auth session:', error)
       set({
@@ -415,6 +439,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         error: resolved.error,
         isLoading: false,
       })
+      maybeRedirectToAdminAfterOAuth(resolved.user)
     } catch (error) {
       console.error('Error checking session:', error)
       set({
