@@ -8,6 +8,7 @@ let activeSource = '';
 const warmedOrigins = new Set<string>();
 const warmedStreams = new Set<string>();
 let reconnectRetryTimeout: number | null = null;
+let awaitingUserGestureRetry = false;
 
 const ensureAudioElement = () => {
   if (!audioElement) {
@@ -173,6 +174,7 @@ export const useAudioPlayer = () => {
     try {
       clearReconnectRetry();
       await audio.play();
+      awaitingUserGestureRetry = false;
       setPlaybackDiagnostic(null);
     } catch (error) {
       if (error instanceof DOMException) {
@@ -183,6 +185,7 @@ export const useAudioPlayer = () => {
           return;
         }
         if (error.name === 'NotAllowedError') {
+          awaitingUserGestureRetry = true;
           setPlaybackDiagnostic('El navegador bloqueo la reproduccion automatica. Toca Play nuevamente para autorizar audio.');
           scheduleReconnectRetry(1800);
           return;
@@ -300,10 +303,19 @@ export const useAudioPlayer = () => {
       scheduleReconnectRetry(700);
     };
 
+    const handleUserGestureUnlock = () => {
+      const { currentRadio: activeRadio, isPlaying: shouldBePlaying } = useRadioStore.getState();
+      if (!awaitingUserGestureRetry || !shouldBePlaying || !activeRadio?.stream_url) return;
+      void safePlay();
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityReturn);
     window.addEventListener('focus', handleWindowFocus);
     window.addEventListener('pageshow', handlePageShow);
     window.addEventListener('online', handleOnline);
+    window.addEventListener('pointerdown', handleUserGestureUnlock, { passive: true });
+    window.addEventListener('touchstart', handleUserGestureUnlock, { passive: true });
+    window.addEventListener('keydown', handleUserGestureUnlock);
     navigator.mediaDevices?.addEventListener?.('devicechange', handleDeviceChange);
 
     return () => {
@@ -311,6 +323,9 @@ export const useAudioPlayer = () => {
       window.removeEventListener('focus', handleWindowFocus);
       window.removeEventListener('pageshow', handlePageShow);
       window.removeEventListener('online', handleOnline);
+      window.removeEventListener('pointerdown', handleUserGestureUnlock);
+      window.removeEventListener('touchstart', handleUserGestureUnlock);
+      window.removeEventListener('keydown', handleUserGestureUnlock);
       navigator.mediaDevices?.removeEventListener?.('devicechange', handleDeviceChange);
       clearReconnectRetry();
     };
@@ -369,7 +384,14 @@ export const useAudioPlayer = () => {
 
   const togglePlay = () => {
     if (currentRadio) {
-      setIsPlaying(!isPlaying);
+      const nextIsPlaying = !isPlaying;
+      setIsPlaying(nextIsPlaying);
+
+      if (nextIsPlaying) {
+        prewarmStream(currentRadio.stream_url);
+        // Intento inmediato dentro del gesto del usuario para evitar bloqueo de autoplay.
+        void safePlay();
+      }
     }
   };
 
