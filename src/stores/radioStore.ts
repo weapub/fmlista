@@ -13,6 +13,7 @@ interface RadioStore extends PersistedRadioState {
   isLoading: boolean
   selectedCategory: string | null
   selectedLocation: string | null
+  playbackDiagnostic: string | null
 
   setRadios: (radios: Radio[] | ((prev: Radio[]) => Radio[])) => void
   setCurrentRadio: (radio: Radio | null) => void
@@ -22,6 +23,7 @@ interface RadioStore extends PersistedRadioState {
   setIsLoading: (loading: boolean) => void
   setSelectedCategory: (category: string | null) => void
   setSelectedLocation: (location: string | null) => void
+  setPlaybackDiagnostic: (message: string | null) => void
 
   filteredRadios: () => Radio[]
 }
@@ -91,6 +93,7 @@ export const useRadioStore = create<RadioStore>((set, get) => ({
   isLoading: false,
   selectedCategory: null,
   selectedLocation: null,
+  playbackDiagnostic: null,
 
   setRadios: (input) =>
     set((state) => {
@@ -124,7 +127,7 @@ export const useRadioStore = create<RadioStore>((set, get) => ({
         isPlayerExpanded: radio ? state.isPlayerExpanded : false,
       })
 
-      return { currentRadio: radio }
+      return { currentRadio: radio, playbackDiagnostic: null }
     }),
 
   setIsPlaying: (playing) =>
@@ -170,6 +173,7 @@ export const useRadioStore = create<RadioStore>((set, get) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
   setSelectedCategory: (category) => set({ selectedCategory: category }),
   setSelectedLocation: (location) => set({ selectedLocation: location }),
+  setPlaybackDiagnostic: (message) => set({ playbackDiagnostic: message }),
 
   filteredRadios: () => {
     const { radios, selectedCategory, selectedLocation } = get()

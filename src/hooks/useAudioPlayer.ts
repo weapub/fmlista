@@ -87,7 +87,7 @@ export const prewarmStream = (stream?: string | null) => {
 };
 
 export const useAudioPlayer = () => {
-  const { currentRadio, isPlaying, volume, setIsPlaying, radios, setCurrentRadio } = useRadioStore();
+  const { currentRadio, isPlaying, volume, setIsPlaying, radios, setCurrentRadio, setPlaybackDiagnostic } = useRadioStore();
 
   const clearReconnectRetry = () => {
     if (typeof window === 'undefined' || reconnectRetryTimeout === null) return;
@@ -186,18 +186,22 @@ export const useAudioPlayer = () => {
     try {
       clearReconnectRetry();
       await audio.play();
+      setPlaybackDiagnostic(null);
     } catch (error) {
       if (error instanceof DOMException) {
         if (error.name === 'AbortError') return;
         if (error.name === 'NotSupportedError') {
+          setPlaybackDiagnostic('Este stream no es compatible en este dispositivo. Probando alternativa...');
           tryNextCandidate();
           return;
         }
         if (error.name === 'NotAllowedError') {
+          setPlaybackDiagnostic('El navegador bloqueo la reproduccion automatica. Toca Play nuevamente para autorizar audio.');
           scheduleReconnectRetry(1800);
           return;
         }
       }
+      setPlaybackDiagnostic('No pudimos iniciar el audio. Verifica conexion, HTTPS del stream o restricciones del navegador.');
       scheduleReconnectRetry(2200);
     }
   };
@@ -207,6 +211,7 @@ export const useAudioPlayer = () => {
 
     if (!candidates.length) return;
     if (candidateIndex >= candidates.length - 1) {
+      setPlaybackDiagnostic('No se pudo conectar con esta radio. Puede estar bloqueada por CORS/HTTPS o fuera de linea.');
       setIsPlaying(false);
       return;
     }
@@ -214,6 +219,7 @@ export const useAudioPlayer = () => {
     candidateIndex += 1;
     const next = candidates[candidateIndex];
     if (!next) {
+      setPlaybackDiagnostic('No se encontro una URL valida para este stream.');
       setIsPlaying(false);
       return;
     }
@@ -231,6 +237,7 @@ export const useAudioPlayer = () => {
     const audio = ensureAudioElement();
 
     const handleError = () => {
+      setPlaybackDiagnostic('Error al cargar el stream. Intentando una ruta alternativa...');
       tryNextCandidate();
     };
 
@@ -259,6 +266,7 @@ export const useAudioPlayer = () => {
 
     const handlePlaying = () => {
       clearReconnectRetry();
+      setPlaybackDiagnostic(null);
     };
 
     audio.addEventListener('error', handleError);
@@ -278,7 +286,7 @@ export const useAudioPlayer = () => {
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('playing', handlePlaying);
     };
-  }, [setIsPlaying]);
+  }, [setIsPlaying, setPlaybackDiagnostic]);
 
   useEffect(() => {
     if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -332,6 +340,13 @@ export const useAudioPlayer = () => {
       activeSource = '';
       candidates = [];
       candidateIndex = 0;
+      setPlaybackDiagnostic(null);
+      return;
+    }
+
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && src.startsWith('http://')) {
+      setPlaybackDiagnostic('Esta radio usa HTTP y tu app esta en HTTPS. iPhone/Chrome la bloquea por seguridad.');
+      setIsPlaying(false);
       return;
     }
 
@@ -345,12 +360,13 @@ export const useAudioPlayer = () => {
       prewarmStream(primaryCandidate);
       audio.src = primaryCandidate;
       audio.load();
+      setPlaybackDiagnostic(null);
     }
 
     if (isPlaying) {
       void safePlay();
     }
-  }, [currentRadio?.id, currentRadio?.stream_url]);
+  }, [currentRadio?.id, currentRadio?.stream_url, setIsPlaying, setPlaybackDiagnostic]);
 
   useEffect(() => {
     const audio = ensureAudioElement();

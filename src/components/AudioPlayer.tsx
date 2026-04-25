@@ -14,6 +14,7 @@ export const AudioPlayer: React.FC = () => {
     volume, 
     radios, 
     isPlayerExpanded,
+    playbackDiagnostic,
     setCurrentRadio, 
     setIsPlaying,
     setIsPlayerExpanded,
@@ -205,6 +206,11 @@ export const AudioPlayer: React.FC = () => {
               <div className="flex justify-center pt-2">
                  <NowPlayingInfo radio={currentRadio} />
               </div>
+              {playbackDiagnostic && (
+                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-300">
+                  {playbackDiagnostic}
+                </div>
+              )}
             </div>
           </div>
 
@@ -342,6 +348,11 @@ export const AudioPlayer: React.FC = () => {
                 <div className="text-xs sm:text-sm text-gray-600 truncate">
                    <NowPlayingInfo radio={currentRadio} />
                 </div>
+                {playbackDiagnostic && (
+                  <div className="mt-1 text-[11px] text-amber-700 dark:text-amber-300 line-clamp-2">
+                    {playbackDiagnostic}
+                  </div>
+                )}
               </div>
             </div>
           </div>
