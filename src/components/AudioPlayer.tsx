@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, ChevronDown, Users, Radio as RadioIcon } from 'lucide-react'
 import { useAudioPlayer } from '@/hooks/useAudioPlayer'
 import { useRadioStore } from '@/stores/radioStore'
@@ -29,6 +29,13 @@ export const AudioPlayer: React.FC = () => {
   useReportListener(currentRadio?.id || '', isPlaying)
   const playButtonRef = useRef<HTMLButtonElement | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [isIOS, setIsIOS] = useState(false)
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return
+    const ua = navigator.userAgent || ''
+    setIsIOS(/iPad|iPhone|iPod/i.test(ua))
+  }, [])
 
   useEffect(() => {
     // Auto-expand player on TV when playing starts
@@ -140,12 +147,19 @@ export const AudioPlayer: React.FC = () => {
   if (isPlayerExpanded) {
     return (
       <div className={cn(
-        "fixed inset-0 z-[60] flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300 bg-gradient-to-b from-[#f5f5f9] via-white to-[#eef2ff] dark:from-slate-950 dark:via-slate-950 dark:to-slate-900",
+        isIOS
+          ? "fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-[#f5f5f9] dark:bg-slate-950"
+          : "fixed inset-0 z-[60] flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300 bg-gradient-to-b from-[#f5f5f9] via-white to-[#eef2ff] dark:from-slate-950 dark:via-slate-950 dark:to-slate-900",
         isTV ? "tv-player-mode" : ""
       )}>
         <div className="min-h-screen flex flex-col">
           {/* Header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-4 flex-shrink-0 bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
+          <div className={cn(
+            "sticky top-0 z-10 flex items-center justify-between px-4 py-4 flex-shrink-0",
+            isIOS
+              ? "bg-white dark:bg-slate-950"
+              : "bg-white/80 backdrop-blur-sm dark:bg-slate-950/80"
+          )}>
             <button 
               ref={closeButtonRef}
               onClick={() => setIsPlayerExpanded(false)}
@@ -163,7 +177,8 @@ export const AudioPlayer: React.FC = () => {
           <div className="flex-1 flex flex-col items-center justify-start sm:justify-center px-6 sm:px-8 pt-2 sm:pt-6 pb-6 sm:pb-8 space-y-4 sm:space-y-8">
             {/* Album Art / Logo */}
             <div className={cn(
-              "w-full max-w-[250px] sm:max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center animate-spin-slow",
+              "w-full max-w-[250px] sm:max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center",
+              !isIOS && "animate-spin-slow",
               isTV && "max-w-md shadow-[0_0_50px_rgba(0,0,0,0.2)]"
             )}>
               {currentRadio.logo_url ? (
@@ -259,7 +274,12 @@ export const AudioPlayer: React.FC = () => {
   // Mini Player UI
   return (
     <div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl bg-white/90 backdrop-blur-lg border border-white/20 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] z-50 cursor-pointer hover:bg-white transition-all rounded-[1.75rem] hover:shadow-2xl hover:shadow-[#696cff]/10 p-1.5"
+      className={cn(
+        "fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl border shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] z-50 cursor-pointer transition-all rounded-[1.75rem] p-1.5",
+        isIOS
+          ? "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+          : "bg-white/90 backdrop-blur-lg border-white/20 hover:bg-white hover:shadow-2xl hover:shadow-[#696cff]/10"
+      )}
       onClick={handleMiniPlayerClick}
       style={{ display: isPlayerExpanded ? 'none' : 'block' }}
     >
