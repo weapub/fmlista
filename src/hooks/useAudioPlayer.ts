@@ -13,7 +13,6 @@ const ensureAudioElement = () => {
   if (!audioElement) {
     audioElement = new Audio();
     audioElement.preload = 'auto';
-    audioElement.crossOrigin = 'anonymous';
     audioElement.autoplay = false;
   }
 
