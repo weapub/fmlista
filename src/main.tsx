@@ -7,6 +7,52 @@ import { optimizeSupabaseImageUrl } from './lib/imageOptimization'
 const CACHE_BUST_SIGNAL_KEY = 'cache_bust_token'
 const CACHE_BUST_SEEN_KEY = 'app_cache_bust_seen'
 const CACHE_BUST_RELOAD_GUARD_KEY = 'app_cache_bust_reloaded'
+const CHUNK_RECOVERY_KEY = 'app_chunk_recovery_attempted'
+
+const isIOSBrowser = () => {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent || ''
+  return /iPad|iPhone|iPod/i.test(ua)
+}
+
+const recoverFromChunkLoadFailure = () => {
+  if (typeof window === 'undefined') return
+  try {
+    const alreadyTried = window.sessionStorage.getItem(CHUNK_RECOVERY_KEY)
+    if (alreadyTried) return
+    window.sessionStorage.setItem(CHUNK_RECOVERY_KEY, '1')
+    window.location.reload()
+  } catch {
+    window.location.reload()
+  }
+}
+
+const installRuntimeRecoveryHandlers = () => {
+  if (typeof window === 'undefined') return
+
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault()
+    recoverFromChunkLoadFailure()
+  })
+
+  window.addEventListener('error', (event) => {
+    const target = event.target as HTMLScriptElement | null
+    if (target?.tagName === 'SCRIPT') {
+      recoverFromChunkLoadFailure()
+    }
+  }, true)
+
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = String(event.reason ?? '')
+    if (
+      reason.includes('ChunkLoadError') ||
+      reason.includes('Loading chunk') ||
+      reason.includes('Failed to fetch dynamically imported module')
+    ) {
+      recoverFromChunkLoadFailure()
+    }
+  })
+}
 
 const preloadHeroImageFromCache = () => {
   if (typeof window === 'undefined') return
@@ -70,6 +116,8 @@ const applyCacheBustSignal = async () => {
 const registerServiceWorkerDeferred = () => {
   if (typeof window === 'undefined') return
 
+  if (isIOSBrowser()) return
+
   const runRegistration = async () => {
     try {
       const { registerSW } = await import('virtual:pwa-register')
@@ -120,7 +168,21 @@ const registerServiceWorkerDeferred = () => {
   else window.addEventListener('load', delayedFallback, { once: true })
 }
 
+const cleanupIOSServiceWorkers = async () => {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return
+  if (!isIOSBrowser() || !('serviceWorker' in navigator)) return
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map((registration) => registration.unregister()))
+  } catch (error) {
+    console.error('Failed cleaning iOS service workers:', error)
+  }
+}
+
 preloadHeroImageFromCache()
+installRuntimeRecoveryHandlers()
+void cleanupIOSServiceWorkers()
 void applyCacheBustSignal()
 registerServiceWorkerDeferred()
 
