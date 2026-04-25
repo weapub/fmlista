@@ -9,11 +9,28 @@ const activeChannels = new Map<string, {
   subscribers: Set<(count: number) => void>
 }>();
 
+const isIOSWebKit = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/i.test(ua);
+};
+
+const canUseRealtime = () => {
+  if (typeof window === 'undefined') return false;
+  if (typeof WebSocket === 'undefined') return false;
+  if (isIOSWebKit()) return false;
+
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isSecure = window.isSecureContext || isLocalhost;
+
+  return isSecure;
+};
+
 export const useRadioListeners = (radioId: string | undefined, enabled = true) => {
   const [listenerCount, setListenerCount] = useState(0);
 
   useEffect(() => {
-    if (!radioId || !enabled) {
+    if (!radioId || !enabled || !canUseRealtime()) {
       setListenerCount(0);
       return;
     }
@@ -39,7 +56,15 @@ export const useRadioListeners = (radioId: string | undefined, enabled = true) =
             current.subscribers.forEach(cb => cb(count));
           }
         })
-        .subscribe();
+        .subscribe((status: string) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            const current = activeChannels.get(radioId);
+            if (current) {
+              current.lastCount = 0;
+              current.subscribers.forEach((cb) => cb(0));
+            }
+          }
+        });
     }
 
     channelData.refCount++;
