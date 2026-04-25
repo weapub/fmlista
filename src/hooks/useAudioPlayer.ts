@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useRadioStore } from '@/stores/radioStore';
+import { reportClientError } from '@/lib/clientTelemetry';
 
 let audioElement: HTMLAudioElement | null = null;
 let candidates: string[] = [];
@@ -177,6 +178,15 @@ export const useAudioPlayer = () => {
       awaitingUserGestureRetry = false;
       setPlaybackDiagnostic(null);
     } catch (error) {
+      reportClientError({
+        source: 'audio-playback-failure',
+        message: error instanceof Error ? error.message : 'Unknown audio playback failure',
+        stack: error instanceof Error ? error.stack : undefined,
+        metadata: {
+          candidate: candidates[candidateIndex] || activeSource || currentRadio?.stream_url || null,
+        },
+      });
+
       if (error instanceof DOMException) {
         if (error.name === 'AbortError') return;
         if (error.name === 'NotSupportedError') {

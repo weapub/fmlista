@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
 import { optimizeSupabaseImageUrl } from './lib/imageOptimization'
+import { installGlobalErrorReporter } from './lib/clientTelemetry'
+import { AppErrorBoundary } from './components/AppErrorBoundary'
 
 const CACHE_BUST_SIGNAL_KEY = 'cache_bust_token'
 const CACHE_BUST_SEEN_KEY = 'app_cache_bust_seen'
@@ -182,12 +184,15 @@ const cleanupIOSServiceWorkers = async () => {
 
 preloadHeroImageFromCache()
 installRuntimeRecoveryHandlers()
+installGlobalErrorReporter()
 void cleanupIOSServiceWorkers()
 void applyCacheBustSignal()
 registerServiceWorkerDeferred()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   </StrictMode>,
 )

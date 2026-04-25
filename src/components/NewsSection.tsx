@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Newspaper, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { reportClientError } from '@/lib/clientTelemetry';
 
 interface NewsItem {
   id: string;
@@ -192,6 +193,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
         }
       } catch (error) {
         console.error('Error fetching live news:', error);
+        reportClientError({
+          source: 'news-fetch-failure',
+          message: error instanceof Error ? error.message : 'Unknown news fetch failure',
+          stack: error instanceof Error ? error.stack : undefined,
+        });
         setNews(fallbackNews);
       } finally {
         setLoading(false);
