@@ -20,7 +20,10 @@ export default async function handler(req, res) {
     const allowed = [
       'https://www.lamananaonline.com.ar/feed/',
       'https://diarioformosa.net/feed/',
-      'https://www.expresdiario.com.ar/feed/'
+      'https://www.expresdiario.com.ar/feed/',
+      'https://tn.com.ar/rss',
+      'https://www.infobae.com/arc/outboundfeeds/rss/?outputType=xml',
+      'https://www.pagina12.com.ar/rss/portada'
     ]
     if (!allowed.includes(url)) {
       res.status(403).json({ error: 'URL not allowed' })

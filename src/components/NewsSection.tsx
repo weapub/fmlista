@@ -18,11 +18,6 @@ interface NewsSectionProps {
   className?: string;
 }
 
-const RSS_PROXIES = [
-  'https://api.allorigins.win/raw?url=',
-  'https://api.codetabs.com/v1/proxy?quest=',
-];
-
 const RSS_SOURCES = [
   {
     source: 'TN',
@@ -123,20 +118,10 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ minimal = false, class
     };
 
     const fetchRssFromProxy = async (rssUrl: string) => {
-      let lastError: unknown;
-
-      for (const proxyBase of RSS_PROXIES) {
-        try {
-          const proxyUrl = `${proxyBase}${encodeURIComponent(rssUrl)}`;
-          const response = await fetchWithTimeout(proxyUrl);
-          if (!response.ok) throw new Error(`RSS fetch failed (${response.status})`);
-          return await response.text();
-        } catch (error) {
-          lastError = error;
-        }
-      }
-
-      throw lastError ?? new Error('No RSS proxy available');
+      const proxyUrl = `/api/rss?url=${encodeURIComponent(rssUrl)}`;
+      const response = await fetchWithTimeout(proxyUrl);
+      if (!response.ok) throw new Error(`RSS fetch failed (${response.status})`);
+      return await response.text();
     };
 
     const fetchNews = async () => {
