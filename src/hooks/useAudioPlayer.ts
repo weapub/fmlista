@@ -70,18 +70,6 @@ export const prewarmStream = (stream?: string | null) => {
     // Ignore malformed stream URLs and avoid blocking playback.
   }
 
-  if (typeof window !== 'undefined') {
-    try {
-      fetch(normalized, {
-        method: 'GET',
-        mode: 'no-cors',
-        cache: 'no-store',
-      }).catch(() => undefined);
-    } catch {
-      // Browsers may reject some stream endpoints here; preconnect is still useful.
-    }
-  }
-
   warmedStreams.add(normalized);
 };
 
