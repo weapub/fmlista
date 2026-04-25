@@ -13,6 +13,7 @@ import { AdminLayout } from '@/components/AdminLayout';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
 import { RadioCatalogEntry } from '@/types/database';
+import { checkStreamCompatibility, StreamCheckUiResult } from '@/lib/streamCompatibility';
 
 type CatalogStatus = RadioCatalogEntry['status'];
 
@@ -77,6 +78,8 @@ export const RadioCatalog: React.FC = () => {
   const [formData, setFormData] = useState<CatalogFormData>(defaultFormData);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
+  const [streamCheckLoading, setStreamCheckLoading] = useState(false);
+  const [streamCheckResult, setStreamCheckResult] = useState<StreamCheckUiResult | null>(null);
 
   const draftStorageKey = useMemo(() => {
     const scope = editingEntry?.id ?? 'new';
@@ -151,7 +154,28 @@ export const RadioCatalog: React.FC = () => {
         ...current,
         [field]: event.target.value,
       }));
+
+      if (field === 'stream_url') {
+        setStreamCheckResult(null);
+      }
     };
+
+  const handleCheckStream = async () => {
+    setStreamCheckLoading(true);
+    try {
+      const result = await checkStreamCompatibility(formData.stream_url);
+      setStreamCheckResult(result);
+    } catch (error) {
+      console.error('Error checking catalog stream compatibility:', error);
+      setStreamCheckResult({
+        tone: 'error',
+        message: 'No se pudo validar el stream. Intenta nuevamente.',
+        details: [],
+      });
+    } finally {
+      setStreamCheckLoading(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -501,6 +525,35 @@ export const RadioCatalog: React.FC = () => {
                     className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#566a7f] outline-none transition focus:border-[#696cff] focus:ring-4 focus:ring-[#696cff]/10 dark:border-[#444564] dark:bg-[#232333] dark:text-[#cbcbe2]"
                     placeholder="https://..."
                   />
+                  <div className="mt-3 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleCheckStream}
+                      disabled={streamCheckLoading}
+                      className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-[#697a8d] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#444564] dark:text-[#cbcbe2] dark:hover:bg-[#323249]"
+                    >
+                      {streamCheckLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+                      Probar compatibilidad
+                    </button>
+                    <span className="text-xs text-[#8a94a6] dark:text-[#a3a4cc]">Evita cargar streams incompatibles.</span>
+                  </div>
+
+                  {streamCheckResult && (
+                    <div
+                      className={`mt-2 rounded-xl border px-3 py-2 text-sm ${
+                        streamCheckResult.tone === 'success'
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300'
+                          : streamCheckResult.tone === 'warning'
+                            ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-300'
+                            : 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300'
+                      }`}
+                    >
+                      <p className="font-semibold">{streamCheckResult.message}</p>
+                      {streamCheckResult.details.length > 0 && (
+                        <p className="mt-1 text-xs opacity-90">{streamCheckResult.details.join(' · ')}</p>
+                      )}
+                    </div>
+                  )}
                 </label>
 
                 <label className="space-y-2">

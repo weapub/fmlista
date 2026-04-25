@@ -7,6 +7,7 @@ import { Upload, Save, X, Image as ImageIcon, ArrowLeft, Globe, MessageCircle, S
 import { AdminLayout } from '@/components/AdminLayout';
 import { cn } from '@/lib/utils';
 import { ROLES } from '@/types/auth';
+import { checkStreamCompatibility, StreamCheckUiResult } from '@/lib/streamCompatibility';
 
 export default function ProfileEditor() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,8 @@ export default function ProfileEditor() {
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable' | 'invalid'>('idle');
   const [saving, setSaving] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
+  const [streamCheckLoading, setStreamCheckLoading] = useState(false);
+  const [streamCheckResult, setStreamCheckResult] = useState<StreamCheckUiResult | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -246,6 +249,27 @@ export default function ProfileEditor() {
       }
       return newData;
     });
+
+    if (name === 'stream_url') {
+      setStreamCheckResult(null);
+    }
+  };
+
+  const handleCheckStream = async () => {
+    setStreamCheckLoading(true);
+    try {
+      const result = await checkStreamCompatibility(formData.stream_url);
+      setStreamCheckResult(result);
+    } catch (error) {
+      console.error('Error checking stream compatibility:', error);
+      setStreamCheckResult({
+        tone: 'error',
+        message: 'No se pudo validar el stream. Intenta nuevamente en unos segundos.',
+        details: [],
+      });
+    } finally {
+      setStreamCheckLoading(false);
+    }
   };
 
   const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<Blob> => {
@@ -758,6 +782,36 @@ export default function ProfileEditor() {
                   placeholder="https://servidor.com/stream"
                   className={inputClasses}
                 />
+                <div className="mt-3 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCheckStream}
+                    disabled={streamCheckLoading}
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#d9dee3] px-4 py-2 text-sm font-semibold text-[#566a7f] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    {streamCheckLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
+                    Probar compatibilidad
+                  </button>
+                  <p className="text-xs text-[#a1acb8] dark:text-slate-500">
+                    Recomendado antes de guardar para evitar fallos en iPhone/Chrome.
+                  </p>
+                </div>
+
+                {streamCheckResult && (
+                  <div
+                    className={cn(
+                      'mt-3 rounded-lg border px-3 py-2 text-sm',
+                      streamCheckResult.tone === 'success' && 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300',
+                      streamCheckResult.tone === 'warning' && 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-300',
+                      streamCheckResult.tone === 'error' && 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300'
+                    )}
+                  >
+                    <p className="font-semibold">{streamCheckResult.message}</p>
+                    {streamCheckResult.details.length > 0 && (
+                      <p className="mt-1 text-xs opacity-90">{streamCheckResult.details.join(' · ')}</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <label className={labelClasses}>URL de Video (Opcional)</label>
