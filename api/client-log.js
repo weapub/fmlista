@@ -1,5 +1,5 @@
 const SECURITY_CSP =
-  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://api.allorigins.win https://api.codetabs.com; font-src 'self' data:; media-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'"
+  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://api.allorigins.win https://api.codetabs.com; font-src 'self' data:; media-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'"
 
 function setSecurityHeaders(res) {
   res.setHeader('Content-Security-Policy', SECURITY_CSP)
@@ -45,4 +45,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Failed to process client log' })
   }
 }
-
