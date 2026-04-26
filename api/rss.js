@@ -1,5 +1,5 @@
 const SECURITY_CSP =
-  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://api.allorigins.win https://api.codetabs.com; font-src 'self' data:; media-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'"
+  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; child-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://api.allorigins.win https://api.codetabs.com; font-src 'self' data:; media-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'"
 
 function setSecurityHeaders(res) {
   res.setHeader('Content-Security-Policy', SECURITY_CSP)
@@ -21,9 +21,9 @@ export default async function handler(req, res) {
       'https://www.lamananaonline.com.ar/feed/',
       'https://diarioformosa.net/feed/',
       'https://www.expresdiario.com.ar/feed/',
-      'https://tn.com.ar/rss',
+      'https://www.clarin.com/rss/lo-ultimo/',
       'https://www.infobae.com/arc/outboundfeeds/rss/?outputType=xml',
-      'https://www.pagina12.com.ar/rss/portada'
+      'https://www.lanacion.com.ar/arc/outboundfeeds/rss/'
     ]
     if (!allowed.includes(url)) {
       res.status(403).json({ error: 'URL not allowed' })
@@ -31,7 +31,12 @@ export default async function handler(req, res) {
     }
     const r = await fetch(url)
     if (!r.ok) {
-      res.status(r.status).json({ error: `Upstream ${r.status}` })
+      res.setHeader('X-Upstream-Status', String(r.status))
+      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120')
+      res.setHeader('Content-Type', 'application/xml; charset=utf-8')
+      res
+        .status(200)
+        .send('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Empty feed</title></channel></rss>')
       return
     }
     const text = await r.text()

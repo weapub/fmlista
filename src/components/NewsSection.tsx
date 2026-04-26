@@ -21,16 +21,16 @@ interface NewsSectionProps {
 
 const RSS_SOURCES = [
   {
-    source: 'TN',
-    url: 'https://tn.com.ar/rss',
+    source: 'Clarin',
+    url: 'https://www.clarin.com/rss/lo-ultimo/',
   },
   {
     source: 'Infobae',
     url: 'https://www.infobae.com/arc/outboundfeeds/rss/?outputType=xml',
   },
   {
-    source: 'Pagina 12',
-    url: 'https://www.pagina12.com.ar/rss/portada',
+    source: 'La Nacion',
+    url: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/',
   },
 ];
 
