@@ -12,6 +12,7 @@ export default function AppSettings() {
   const [logoUrl, setLogoUrl] = useState('');
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [programsBannerImageUrl, setProgramsBannerImageUrl] = useState('');
   const [appTitle, setAppTitle] = useState('');
   const [appSlogan, setAppSlogan] = useState('');
   const [appDescription, setAppDescription] = useState('');
@@ -47,7 +48,7 @@ export default function AppSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'app_title', 'app_slogan', 'app_description', 'home_ranking_radios', 'home_ranking_limit']);
+        .in('key', ['app_logo', 'app_footer_logo', 'app_hero_image', 'home_programs_banner_image', 'app_title', 'app_slogan', 'app_description', 'home_ranking_radios', 'home_ranking_limit']);
 
       if (error) throw error;
 
@@ -61,6 +62,7 @@ export default function AppSettings() {
       const logoSetting = data?.find(s => s.key === 'app_logo');
       const footerLogoSetting = data?.find(s => s.key === 'app_footer_logo');
       const heroImageSetting = data?.find(s => s.key === 'app_hero_image');
+      const programsBannerSetting = data?.find(s => s.key === 'home_programs_banner_image');
       const titleSetting = data?.find(s => s.key === 'app_title');
       const sloganSetting = data?.find(s => s.key === 'app_slogan');
       const descriptionSetting = data?.find(s => s.key === 'app_description');
@@ -84,6 +86,9 @@ export default function AppSettings() {
 
       if (heroImageSetting) {
         setHeroImageUrl(heroImageSetting.value);
+      }
+      if (programsBannerSetting) {
+        setProgramsBannerImageUrl(programsBannerSetting.value);
       }
 
       if (titleSetting) {
@@ -149,7 +154,7 @@ export default function AppSettings() {
     });
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' | 'hero' = 'main') => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'footer' | 'hero' | 'programs_banner' = 'main') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -158,6 +163,7 @@ export default function AppSettings() {
       let prefix = 'logo';
       if (type === 'footer') prefix = 'footer_logo';
       if (type === 'hero') prefix = 'hero_image';
+      if (type === 'programs_banner') prefix = 'programs_banner';
       
       const fileName = `settings/${prefix}_${Date.now()}_${file.name}`;
       
@@ -189,6 +195,8 @@ export default function AppSettings() {
         setFooterLogoUrl(publicUrl);
       } else if (type === 'hero') {
         setHeroImageUrl(publicUrl);
+      } else if (type === 'programs_banner') {
+        setProgramsBannerImageUrl(publicUrl);
       }
     } catch (error: any) {
       console.error('Error uploading file:', error);
@@ -213,6 +221,7 @@ export default function AppSettings() {
 
       if (footerLogoUrl) settingsToUpsert.push({ key: 'app_footer_logo', value: footerLogoUrl });
       if (heroImageUrl) settingsToUpsert.push({ key: 'app_hero_image', value: heroImageUrl });
+      if (programsBannerImageUrl) settingsToUpsert.push({ key: 'home_programs_banner_image', value: programsBannerImageUrl });
 
       const { error } = await supabase
         .from('app_settings')
@@ -403,6 +412,40 @@ export default function AppSettings() {
                     rows={3}
                     className="w-full px-4 py-2 bg-white dark:bg-[#232333] border border-[#d9dee3] dark:border-[#444564] rounded-lg focus:border-[#696cff] focus:ring-[0.25rem] focus:ring-[#696cff]/10 transition-all outline-none text-[#566a7f] dark:text-[#cbcbe2] placeholder:text-[#b4bdc6] dark:placeholder:text-[#4e4e6a] resize-none"
                   />
+                </div>
+              </div>
+
+              {/* Programs Banner Image */}
+              <div className="border-t border-gray-50 dark:border-[#444564] pt-10">
+                <label className="block text-sm font-semibold text-[#566a7f] dark:text-[#cbcbe2] mb-4">Banner Home para Programas</label>
+                <div className="flex items-start space-x-8">
+                  <div className="flex-shrink-0">
+                    {programsBannerImageUrl ? (
+                      <img
+                        src={programsBannerImageUrl}
+                        alt="Programs banner"
+                        className="h-28 w-48 object-cover border border-gray-100 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] shadow-sm"
+                      />
+                    ) : (
+                      <div className="h-28 w-48 border-2 border-dashed border-gray-200 dark:border-[#444564] rounded-xl bg-gray-50 dark:bg-[#232333] flex items-center justify-center text-[#a1acb8]">
+                        <ImageIcon className="w-10 h-10" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-4">
+                    <p className="text-sm text-[#a1acb8] leading-relaxed">
+                      Banner clickeable en Home que lleva al listado de programas.
+                      <span className="block text-xs mt-1 text-[#696cff]">Recomendado: 1920x560px.</span>
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleLogoUpload(e, 'programs_banner')}
+                      disabled={saving}
+                      className="block w-full text-sm text-[#a1acb8] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#696cff]/10 file:text-[#696cff] hover:file:bg-[#696cff]/20 transition-all cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -99,6 +99,11 @@ const Programs: React.FC = () => {
         </div>
         <div className="space-y-1 p-4">
           <p className="line-clamp-2 text-sm font-bold text-[#566a7f] dark:text-slate-100">{program.title}</p>
+          {program.description && (
+            <p className="line-clamp-2 text-xs leading-relaxed text-[#8a94a6] dark:text-slate-400">
+              {program.description}
+            </p>
+          )}
           <p className="text-xs text-[#8a94a6] dark:text-slate-400">{program.channel_name || 'Canal nacional'}</p>
         </div>
       </button>
@@ -211,6 +216,9 @@ const Programs: React.FC = () => {
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-white">{selectedProgram.title}</p>
                 <p className="truncate text-xs text-slate-300">{selectedProgram.channel_name || 'Canal nacional'}</p>
+                {selectedProgram.description && (
+                  <p className="mt-1 line-clamp-2 text-xs text-slate-400">{selectedProgram.description}</p>
+                )}
               </div>
               <button
                 type="button"

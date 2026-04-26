@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense, useDeferredValue } from 'react'
+import { Link } from 'react-router-dom'
 import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
@@ -36,6 +37,7 @@ export const Home: React.FC = () => {
   const [trendingRadios, setTrendingRadios] = useState<Radio[]>([])
   const [trendingCategory, setTrendingCategory] = useState<string | null>(null)
   const [rankingLimit, setRankingLimit] = useState(3)
+  const [programsBannerImage, setProgramsBannerImage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -112,7 +114,7 @@ export const Home: React.FC = () => {
         favoriteIds.length > 0 
           ? queryPublicTable<Radio>('radios', { select: RADIO_LIST_SELECT, filters: [{ column: 'id', op: 'in', value: favoriteIds }] })
           : Promise.resolve([]),
-        fetchAppSettings(['home_ranking_radios', 'home_ranking_limit'])
+        fetchAppSettings(['home_ranking_radios', 'home_ranking_limit', 'home_programs_banner_image'])
       ])
 
       const parsedRankingLimit = Number(rankingConfigRes.home_ranking_limit)
@@ -121,6 +123,12 @@ export const Home: React.FC = () => {
       } else {
         setRankingLimit(3)
       }
+
+      setProgramsBannerImage(
+        typeof rankingConfigRes.home_programs_banner_image === 'string'
+          ? rankingConfigRes.home_programs_banner_image
+          : ''
+      )
 
       if (recentRes) setRecentRadios(recentRes)
       if (favsRes) setFavoriteRadios(favsRes)
@@ -241,6 +249,38 @@ export const Home: React.FC = () => {
           <NewsSection className="mb-10" />
         </Suspense>
         <AdBanner position="home_top" className="mb-12" />
+        {programsBannerImage && (
+          <section className="mb-12">
+            <Link
+              to="/programas"
+              className="group block overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+              aria-label="Ir al listado de programas"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <div className="relative">
+                <img
+                  src={programsBannerImage}
+                  alt="Descubre los programas nacionales en streaming"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-40 w-full object-cover sm:h-52 md:h-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/15" />
+                <div className="absolute inset-0 flex items-end p-5 sm:p-7">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/80">Programas</p>
+                    <h2 className="mt-2 text-2xl font-black leading-tight text-white sm:text-3xl">
+                      Ver listado completo
+                    </h2>
+                    <p className="mt-2 text-sm text-white/85">
+                      Clic para explorar los programas destacados en YouTube.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </section>
+        )}
         <Suspense fallback={
           <div className="space-y-8 pt-10">
             <div className="h-32 rounded-3xl bg-white animate-pulse" />
