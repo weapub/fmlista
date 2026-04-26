@@ -135,7 +135,12 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }, [])
 
   return (
-    <div className={cn('relative mb-12 overflow-hidden rounded-[2.5rem] shadow-2xl shadow-[#696cff]/20', isTV && 'mb-16 rounded-[3rem]')}>
+    <div
+      className={cn(
+        'relative left-1/2 mb-12 w-screen -translate-x-1/2 overflow-hidden shadow-2xl shadow-[#696cff]/20',
+        isTV && 'mb-16'
+      )}
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6]" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -156,7 +161,12 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         </div>
       )}
 
-      <div className={cn('relative px-6 py-12 text-center text-white md:px-16 md:py-20', isTV && 'px-10 py-16 md:px-20 md:py-24')}>
+      <div
+        className={cn(
+          'relative mx-auto max-w-6xl px-6 py-12 text-center text-white md:px-16 md:py-20',
+          isTV && 'px-10 py-16 md:px-20 md:py-24'
+        )}
+      >
         <div className="mx-auto max-w-5xl">
           <span className={cn('inline-flex rounded-full border border-white/20 bg-white/20 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
             LA RED DE RADIOS MÁS GRANDE DE LA PROVINCIA
