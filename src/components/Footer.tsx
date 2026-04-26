@@ -119,6 +119,14 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
               </li>
               <li>
                 <Link
+                  to="/programas"
+                  className="text-sm text-[#a1acb8] transition-colors hover:text-[#696cff] dark:text-slate-400"
+                >
+                  Programas Streaming
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/admin"
                   className="text-sm text-[#a1acb8] transition-colors hover:text-[#696cff] dark:text-slate-400"
                 >

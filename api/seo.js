@@ -22,6 +22,7 @@ const RESERVED_SLUGS = new Set([
   'admin',
   'login',
   'planes',
+  'programas',
   'library',
   'api',
 ])

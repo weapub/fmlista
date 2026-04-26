@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   ExternalLink,
+  PlaySquare,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -60,6 +61,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { icon: History, label: 'Pagos', path: '/admin/payments', pattern: /^\/admin\/payments$/ },
     { icon: Megaphone, label: 'Anuncios', path: '/admin/anuncios', pattern: /^\/admin\/anuncios(\/.*)?$/ },
     { icon: CreditCard, label: 'Cobros', path: '/admin/billing', pattern: /^\/admin\/billing$/, superAdminOnly: true },
+    { icon: PlaySquare, label: 'Programas', path: '/admin/programas', pattern: /^\/admin\/programas$/, superAdminOnly: true },
     { icon: FolderOpen, label: 'Catalogo', path: '/admin/catalogo', pattern: /^\/admin\/catalogo$/, superAdminOnly: true },
     { icon: Users, label: 'Usuarios', path: '/admin/users', pattern: /^\/admin\/users$/, superAdminOnly: true },
     { icon: Settings, label: 'Planes', path: '/admin/planes', pattern: /^\/admin\/planes$/, superAdminOnly: true },

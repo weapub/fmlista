@@ -20,6 +20,7 @@ import {
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
+  PlaySquare,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
@@ -313,6 +314,12 @@ const AdminPanel: React.FC = () => {
             icon: Settings,
             path: '/admin/planes',
             className: 'bg-[#03c3ec]/10 text-[#03c3ec] hover:bg-[#03c3ec]/20',
+          },
+          {
+            label: 'Programas',
+            icon: PlaySquare,
+            path: '/admin/programas',
+            className: 'bg-[#696cff]/10 text-[#696cff] hover:bg-[#696cff]/20',
           },
           {
             label: 'Config',

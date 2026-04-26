@@ -87,6 +87,23 @@ export interface RadioCatalogEntry {
   updated_at?: string | null;
 }
 
+export interface StreamingProgram {
+  id: ID;
+  title: string;
+  description?: string | null;
+  youtube_url: string;
+  youtube_video_id: string;
+  thumbnail_url?: string | null;
+  category?: string | null;
+  channel_name?: string | null;
+  is_featured?: boolean;
+  display_order?: number | null;
+  active?: boolean;
+  created_by?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 export interface Json {
   [key: string]: any;
 }

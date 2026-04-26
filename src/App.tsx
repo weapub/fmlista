@@ -23,7 +23,9 @@ const AppSettings = React.lazy(() => import('@/pages/AppSettings'))
 const PrivacyPolicy = React.lazy(() => import('@/pages/PrivacyPolicy'))
 const TermsAndConditions = React.lazy(() => import('@/pages/TermsAndConditions'))
 const Blog = React.lazy(() => import('@/pages/Blog'))
+const Programs = React.lazy(() => import('@/pages/Programs'))
 const BlogArticlePage = React.lazy(() => import('@/pages/BlogArticlePage'))
+const StreamingPrograms = React.lazy(() => import('@/pages/admin/StreamingPrograms'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
 const ProtectedRoute = React.lazy(() => import('@/components/ProtectedRoute'))
 const AuthSessionBootstrap = React.lazy(() => import('@/components/AuthSessionBootstrap'))
@@ -140,6 +142,7 @@ export default function App() {
           <Route path="/radio/:id" element={<RadioMicrosite />} />
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/programas" element={<Programs />} />
           <Route path="/blog/:slug" element={<BlogArticlePage />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/terminos" element={<TermsAndConditions />} />
@@ -165,6 +168,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
                 <RadioCatalog />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/programas"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                <StreamingPrograms />
               </ProtectedRoute>
             }
           />
