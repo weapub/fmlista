@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Search, Filter, Radio, Megaphone, MapPin, Tag, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
@@ -13,6 +13,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
+  const navigate = useNavigate()
   const { isTV } = useDeviceStore()
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -112,6 +113,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const handleSuggestionClick = (radio: typeof radios[0]) => {
     onSearchChange(radio.name)
     setShowSuggestions(false)
+    const targetPath = radio.slug ? `/${radio.slug}` : `/radio/${radio.id}`
+    navigate(targetPath)
   }
 
   useEffect(() => {
