@@ -341,7 +341,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           <div
             ref={searchAreaRef}
             className={cn(
-              'mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center',
+              'relative mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center',
               isTV && 'mt-12 gap-6',
               isMobileViewport && isSearchPinned && 'fixed inset-x-3 top-3 z-[75] mt-0 rounded-2xl border border-white/20 bg-[#1e293b]/75 p-2 shadow-2xl backdrop-blur-xl'
             )}
@@ -398,6 +398,133 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </button>
             </div>
 
+            {showSuggestions && (
+              <div
+                id="hero-search-suggestions"
+                role="listbox"
+                className={cn(
+                  'absolute left-1/2 top-full z-[90] mt-1 w-full -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
+                  isMobileViewport
+                    ? 'max-h-[32vh] w-[calc(100%-0.5rem)] max-w-xl overflow-y-auto rounded-2xl'
+                    : 'max-w-xl',
+                  isTV && !isMobileViewport && 'max-w-3xl'
+                )}
+              >
+                {citySuggestions.length > 0 && (
+                  <div className={cn('border-b border-white/10 px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
+                    <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Ciudades</p>
+                    <ul>
+                      {citySuggestions.map((city) => (
+                        <li
+                          key={`city-${city}`}
+                          id={`hero-suggestion-${citySuggestions.findIndex((item) => item === city)}`}
+                          role="option"
+                          aria-selected={activeSuggestionIndex === citySuggestions.findIndex((item) => item === city)}
+                          onClick={() => handleCityTagClick(city)}
+                          className={cn(
+                            'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                            activeSuggestionIndex === citySuggestions.findIndex((item) => item === city) &&
+                              'bg-white/15',
+                            isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                            isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                          )}
+                        >
+                          <div className="min-w-0">
+                            <div className={cn('truncate font-bold', isTV && 'text-xl')}>{city}</div>
+                            <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Ver radios de esta ciudad</div>
+                          </div>
+                          <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {suggestions.length > 0 && (
+                  <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
+                    <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Emisoras</p>
+                    <ul>
+                      {suggestions.map((radio) => (
+                        <li
+                          key={radio.id}
+                          id={`hero-suggestion-${citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)}`}
+                          role="option"
+                          aria-selected={
+                            activeSuggestionIndex ===
+                            citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)
+                          }
+                          onClick={() => handleSuggestionClick(radio)}
+                          className={cn(
+                            'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                            activeSuggestionIndex ===
+                              citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id) &&
+                              'bg-white/15',
+                            isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                            isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                          )}
+                        >
+                          <div>
+                            <div className={cn('text-lg font-bold', isMobileViewport && 'text-sm', isTV && !isMobileViewport && 'text-2xl')}>{radio.name}</div>
+                            {radio.location && <div className={cn('text-xs font-medium text-white/50', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>{radio.location}</div>}
+                          </div>
+                          <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length > 0 && (
+                  <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
+                    <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Recientes</p>
+                    <ul>
+                      {recentSuggestions.map((term) => (
+                        <li
+                          key={`recent-${term}`}
+                          role="option"
+                          aria-selected={false}
+                          onClick={() => {
+                            saveRecentSearch(term)
+                            onSearchChange(term)
+                            setShowSuggestions(true)
+                          }}
+                          className={cn(
+                            'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                            isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                            isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                          )}
+                        >
+                          <div className="min-w-0">
+                            <div className={cn('truncate font-bold', isTV && 'text-xl')}>{term}</div>
+                            <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Búsqueda reciente</div>
+                          </div>
+                          <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length === 0 && searchTerm.trim().length > 0 && (
+                  <div className={cn('px-4 py-4 text-center', isMobileViewport && 'px-3 py-3')}>
+                    <p className={cn('text-sm font-semibold text-white/85', isMobileViewport && 'text-xs')}>
+                      No encontramos resultados para "{searchTerm.trim()}"
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSearchChange('')
+                        setShowSuggestions(false)
+                        navigate('/ciudad/Formosa')
+                      }}
+                      className={cn(
+                        'mt-3 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-[#1e293b] transition hover:bg-white/90',
+                        isTV && !isMobileViewport && 'px-5 py-2.5 text-sm'
+                      )}
+                    >
+                      Ver radios de Formosa
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="mt-3 text-center">
             <Link
@@ -424,134 +551,6 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                   {city}
                 </button>
               ))}
-            </div>
-          )}
-
-          {showSuggestions && (
-            <div
-              id="hero-search-suggestions"
-              role="listbox"
-              className={cn(
-                'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
-                isMobileViewport
-                  ? 'absolute left-1/2 z-[70] mt-0 w-[calc(100%-1rem)] max-w-xl -translate-x-1/2 max-h-[32vh] overflow-y-auto rounded-2xl'
-                  : 'absolute left-1/2 z-50 mt-0 w-full max-w-xl -translate-x-1/2',
-                isTV && !isMobileViewport && 'max-w-3xl'
-              )}
-            >
-              {citySuggestions.length > 0 && (
-                <div className={cn('border-b border-white/10 px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
-                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Ciudades</p>
-                  <ul>
-                    {citySuggestions.map((city) => (
-                      <li
-                        key={`city-${city}`}
-                        id={`hero-suggestion-${citySuggestions.findIndex((item) => item === city)}`}
-                        role="option"
-                        aria-selected={activeSuggestionIndex === citySuggestions.findIndex((item) => item === city)}
-                        onClick={() => handleCityTagClick(city)}
-                        className={cn(
-                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
-                          activeSuggestionIndex === citySuggestions.findIndex((item) => item === city) &&
-                            'bg-white/15',
-                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
-                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
-                        )}
-                      >
-                        <div className="min-w-0">
-                          <div className={cn('truncate font-bold', isTV && 'text-xl')}>{city}</div>
-                          <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Ver radios de esta ciudad</div>
-                        </div>
-                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {suggestions.length > 0 && (
-                <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
-                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Emisoras</p>
-                  <ul>
-                    {suggestions.map((radio) => (
-                      <li
-                        key={radio.id}
-                        id={`hero-suggestion-${citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)}`}
-                        role="option"
-                        aria-selected={
-                          activeSuggestionIndex ===
-                          citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)
-                        }
-                        onClick={() => handleSuggestionClick(radio)}
-                        className={cn(
-                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
-                          activeSuggestionIndex ===
-                            citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id) &&
-                            'bg-white/15',
-                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
-                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
-                        )}
-                      >
-                        <div>
-                          <div className={cn('text-lg font-bold', isMobileViewport && 'text-sm', isTV && !isMobileViewport && 'text-2xl')}>{radio.name}</div>
-                          {radio.location && <div className={cn('text-xs font-medium text-white/50', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>{radio.location}</div>}
-                        </div>
-                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length > 0 && (
-                <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
-                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Recientes</p>
-                  <ul>
-                    {recentSuggestions.map((term) => (
-                      <li
-                        key={`recent-${term}`}
-                        role="option"
-                        aria-selected={false}
-                        onClick={() => {
-                          saveRecentSearch(term)
-                          onSearchChange(term)
-                          setShowSuggestions(true)
-                        }}
-                        className={cn(
-                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
-                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
-                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
-                        )}
-                      >
-                        <div className="min-w-0">
-                          <div className={cn('truncate font-bold', isTV && 'text-xl')}>{term}</div>
-                          <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Búsqueda reciente</div>
-                        </div>
-                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length === 0 && searchTerm.trim().length > 0 && (
-                <div className={cn('px-4 py-4 text-center', isMobileViewport && 'px-3 py-3')}>
-                  <p className={cn('text-sm font-semibold text-white/85', isMobileViewport && 'text-xs')}>
-                    No encontramos resultados para "{searchTerm.trim()}"
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSearchChange('')
-                      setShowSuggestions(false)
-                      navigate('/ciudad/Formosa')
-                    }}
-                    className={cn(
-                      'mt-3 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-[#1e293b] transition hover:bg-white/90',
-                      isTV && !isMobileViewport && 'px-5 py-2.5 text-sm'
-                    )}
-                  >
-                    Ver radios de Formosa
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
