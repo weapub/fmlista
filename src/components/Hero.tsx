@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Search, Filter, Radio, Megaphone, MapPin, Tag, X } from 'lucide-react'
+import { Search, Filter, Radio, MapPin, Tag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useRadioStore } from '@/stores/radioStore'
 import { cn } from '@/lib/utils'
@@ -144,7 +144,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         isTV && 'mb-16'
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#696cff] via-[#787bff] to-[#5f61e6]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#4f52d8] via-[#5a5ddf] to-[#4749ba]" />
+      <div className="absolute inset-0 bg-black/20" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-white/10 opacity-70 md:animate-pulse md:opacity-100 md:blur-[100px]" />
@@ -171,8 +172,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         )}
       >
         <div className="mx-auto max-w-5xl">
-          <span className={cn('inline-flex rounded-full border border-white/20 bg-white/20 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
-            LA RED DE RADIOS MÁS GRANDE DE LA PROVINCIA
+          <span className={cn('inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
+            Radios en vivo de Formosa
           </span>
 
           <h1 className={cn('mt-8 min-h-[1.2em] text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
@@ -181,23 +182,24 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             {typingEnabled && <span className="ml-1 inline-block h-[0.9em] w-[3px] animate-pulse align-middle bg-white/50" />}
           </h1>
 
-          <p className={cn('mx-auto mt-6 max-w-2xl text-base font-medium leading-relaxed text-white/80 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
-            Accedé al ecosistema sonoro más completo de Formosa. Una experiencia digital fluida, diseñada para que tu emisora favorita te acompañe en cada momento.
+          <p className={cn('mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-white/90 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
+            Encontrá tu emisora en segundos y empezá a escuchar en vivo desde cualquier dispositivo.
           </p>
 
           <div className={cn('mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center', isTV && 'mt-12 gap-6')}>
             <div className="group relative w-full sm:w-auto">
               <Search className={cn('pointer-events-none absolute left-5 top-1/2 z-20 -translate-y-1/2 text-white', isTV ? 'h-6 w-6' : 'h-5 w-5')} strokeWidth={3} />
               <input
+                id="hero-search"
                 type="text"
-                placeholder="Busca emisoras o ciudades..."
+                placeholder="Buscar emisora o ciudad"
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onFocus={() => {
                   if (suggestions.length > 0) setShowSuggestions(true)
                 }}
                 className={cn(
-                  'relative z-10 w-full rounded-2xl border border-white/30 bg-white/10 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/40 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-[#696cff]/30 sm:min-w-[400px]',
+                  'relative z-10 w-full rounded-2xl border border-white/40 bg-white/15 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/70 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/35 sm:min-w-[400px]',
                   isTV && 'rounded-[1.75rem] py-5 pl-16 pr-14 text-xl sm:min-w-[620px]'
                 )}
               />
@@ -219,22 +221,15 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </button>
             </div>
 
-            <div className={cn('flex flex-wrap justify-center gap-3', isTV && 'gap-4')}>
-              <Link
-                to="/planes"
-                className={cn('focusable inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 text-sm font-bold text-[#696cff] shadow-xl transition-all hover:shadow-2xl active:scale-95', isTV && 'px-8 py-5 text-base')}
-              >
-                <Radio className="mr-2 h-4 w-4" />
-                Streaming
-              </Link>
-              <Link
-                to="/planes?tab=ads"
-                className={cn('focusable inline-flex items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-95', isTV && 'px-8 py-5 text-base')}
-              >
-                <Megaphone className="mr-2 h-4 w-4" />
-                Publicidad
-              </Link>
-            </div>
+          </div>
+          <div className="mt-3 text-center">
+            <Link
+              to="/planes"
+              className={cn('inline-flex items-center gap-2 text-sm font-bold text-white/85 underline decoration-white/35 underline-offset-4 transition-colors hover:text-white', isTV && 'text-base')}
+            >
+              <Radio className="h-4 w-4" />
+              Ver planes para radios y publicidad
+            </Link>
           </div>
 
           {showSuggestions && (
@@ -269,7 +264,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                     }}
                     className={cn('font-black uppercase tracking-widest text-[#696cff] transition-colors hover:text-white', isTV ? 'text-xs' : 'text-[10px]')}
                   >
-                    Limpiar Filtros
+                    Limpiar filtros
                   </button>
                 )}
                 <button onClick={() => setShowFilters(false)} className={cn('focusable p-2 text-white/40 transition-colors hover:text-white', isTV && 'p-3')}>
@@ -281,7 +276,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 <div>
                   <div className={cn('mb-4 flex items-center gap-2 font-bold uppercase tracking-widest text-white/60', isTV ? 'text-xs' : 'text-[10px]')}>
                     <Tag className="h-3.5 w-3.5 text-[#696cff]" />
-                    Géneros Musicales
+                    Géneros musicales
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button

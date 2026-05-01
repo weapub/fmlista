@@ -165,11 +165,12 @@ export const AudioPlayer: React.FC = () => {
               ref={closeButtonRef}
               onClick={() => setIsPlayerExpanded(false)}
               className="p-2 text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-full transition-colors focusable"
+              aria-label="Minimizar reproductor"
             >
               <ChevronDown className={cn("w-8 h-8", isTV && "w-12 h-12")} />
             </button>
             <div className={cn("text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-widest", isTV && "text-lg")}>
-              Reproduciendo ahora
+              Ahora sonando
             </div>
             <div className="w-12" /> {/* Spacer for balance */}
           </div>
@@ -220,7 +221,7 @@ export const AudioPlayer: React.FC = () => {
             <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500 dark:text-slate-400", isTV && "text-lg")}>
                <span className="text-red-500 flex items-center gap-1">
                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                 EN VIVO
+                 En vivo
                </span>
                <span className="flex items-center gap-1">
                  <Users className="w-3 h-3" />
@@ -233,6 +234,7 @@ export const AudioPlayer: React.FC = () => {
               <button
                 onClick={(e) => goPrev(e)}
                 className={cn("p-3 text-gray-800 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100 dark:bg-slate-800")}
+                aria-label="Reproducir emisora anterior"
               >
                 <SkipBack className={cn("w-6 h-6 sm:w-7 sm:h-7", isTV && "w-12 h-12")} />
               </button>
@@ -241,6 +243,7 @@ export const AudioPlayer: React.FC = () => {
                 ref={playButtonRef}
                 onClick={(e) => handleTogglePlay(e)}
                 className={cn("p-4 sm:p-5 bg-[#696cff] text-white rounded-full shadow-lg hover:bg-[#5f61e6] hover:scale-105 transition-all focusable", isTV && "p-8 scale-110")}
+                aria-label={isPlaying ? 'Pausar reproducción' : 'Iniciar reproducción'}
               >
                 {isPlaying ? <Pause className={cn("w-6 h-6 sm:w-8 sm:h-8", isTV && "w-16 h-16")} /> : <Play className={cn("w-6 h-6 sm:w-8 sm:h-8 ml-1", isTV && "w-16 h-16 ml-2")} />}
               </button>
@@ -248,6 +251,7 @@ export const AudioPlayer: React.FC = () => {
               <button
                 onClick={(e) => goNext(e)}
                 className={cn("p-3 text-gray-800 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors focusable", isTV && "p-6 bg-gray-100 dark:bg-slate-800")}
+                aria-label="Reproducir siguiente emisora"
               >
                 <SkipForward className={cn("w-6 h-6 sm:w-7 sm:h-7", isTV && "w-12 h-12")} />
               </button>
@@ -255,7 +259,7 @@ export const AudioPlayer: React.FC = () => {
 
             {/* Volume */}
             <div className="flex items-center space-x-4 mb-8">
-              <button onClick={handleMuteToggle} className="text-gray-500 dark:text-slate-300 focusable p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800">
+              <button onClick={handleMuteToggle} className="text-gray-500 dark:text-slate-300 focusable p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" aria-label={volume === 0 ? 'Activar sonido' : 'Silenciar'}>
                 {volume === 0 ? <VolumeX className={cn("w-5 h-5", isTV && "w-8 h-8")} /> : <Volume2 className={cn("w-5 h-5", isTV && "w-8 h-8")} />}
               </button>
               <input
@@ -296,22 +300,25 @@ export const AudioPlayer: React.FC = () => {
             <div className="flex items-center space-x-1 sm:space-x-2">
               <button
                 onClick={goPrev}
-                className="p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
+                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
                 title="Anterior"
+                aria-label="Emisora anterior"
               >
                 <SkipBack className="w-5 h-5" />
               </button>
               <button
                 onClick={handleTogglePlay}
                 ref={playButtonRef}
-                className="p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
+                className="focusable p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
+                aria-label={isPlaying ? 'Pausar reproducción' : 'Reproducir'}
               >
                 {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
               </button>
               <button
                 onClick={goNext}
-                className="p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
+                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
                 title="Siguiente"
+                aria-label="Siguiente emisora"
               >
                 <SkipForward className="w-5 h-5" />
               </button>
@@ -362,7 +369,8 @@ export const AudioPlayer: React.FC = () => {
             <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={handleMuteToggle}
-                className="p-1 text-gray-600 hover:text-gray-900 flex-shrink-0"
+                className="focusable p-1 text-gray-600 hover:text-gray-900 flex-shrink-0"
+                aria-label={volume === 0 ? 'Activar sonido' : 'Silenciar'}
               >
                 {volume === 0 ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
@@ -382,7 +390,7 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Expand Button (Mobile/Desktop hint) */}
-          <button className="sm:hidden p-2 text-gray-400">
+          <button className="focusable sm:hidden p-2 text-gray-400" aria-label="Expandir reproductor">
              <ChevronDown className="w-5 h-5 rotate-180" />
           </button>
         </div>

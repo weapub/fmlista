@@ -94,7 +94,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
       onMouseEnter={handlePrewarm}
       onFocus={handlePrewarm}
       className={cn(
-        'group relative overflow-hidden rounded-[1.75rem] border border-transparent bg-white p-6 shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] transition duration-300 hover:-translate-y-1 hover:border-[#696cff]/30 hover:shadow-2xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20 dark:bg-gray-900 [content-visibility:auto] [contain-intrinsic-size:280px]',
+        'group relative overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-[0_12px_36px_-24px_rgba(15,23,42,0.2)] transition duration-300 hover:-translate-y-0.5 hover:border-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/10 focusable focus:outline-none focus:ring-4 focus:ring-[#696cff]/20 dark:border-slate-800 dark:bg-gray-900 [content-visibility:auto] [contain-intrinsic-size:260px]',
         isTV && 'min-h-[18rem] cursor-default border-white/10 bg-white/95 p-7 dark:bg-slate-900/95',
         isFeatured && 'border-yellow-300/50 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-900 dark:to-yellow-950/20',
         className
@@ -105,7 +105,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#696cff]/10 via-transparent to-transparent" />
       )}
 
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="relative flex-shrink-0">
           {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
             <img
@@ -116,11 +116,11 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
               fetchPriority="low"
               width={80}
               height={80}
-              className="h-20 w-20 rounded-3xl border border-gray-100 object-cover dark:border-gray-800"
+              className="h-[4.5rem] w-[4.5rem] rounded-2xl border border-gray-100 object-cover dark:border-gray-800"
               onError={() => setLogoError(true)}
             />
           ) : (
-            <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gray-100 dark:bg-gray-800">
+            <div className="grid h-[4.5rem] w-[4.5rem] place-items-center rounded-2xl bg-gray-100 dark:bg-gray-800">
               <RadioIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
             </div>
           )}
@@ -137,12 +137,12 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="radio-card-title line-clamp-2 text-lg font-bold text-slate-700 transition-colors group-hover:text-[#696cff] dark:text-white">
+          <h3 className="radio-card-title line-clamp-2 text-[1.05rem] font-bold leading-tight text-slate-700 transition-colors group-hover:text-[#696cff] dark:text-white">
             {radio.name}
           </h3>
 
-          <div className="mt-2 flex flex-wrap gap-2 text-sm">
-            <span className="radio-card-subtitle rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+          <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
+            <span className="radio-card-subtitle rounded-full bg-slate-50 px-2.5 py-0.5 font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-300">
               {radio.frequency}
             </span>
             {radio.location && (
@@ -150,7 +150,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
                 type="button"
                 onClick={handleLocationClick}
                 className={cn(
-                  'radio-card-subtitle rounded-full px-2.5 py-1 font-medium transition-colors',
+                  'radio-card-subtitle rounded-full px-2.5 py-0.5 font-medium transition-colors',
                   selectedLocation === radio.location
                     ? 'bg-[#696cff]/15 text-[#696cff] dark:bg-[#696cff]/25 dark:text-[#aeb0ff]'
                     : 'bg-slate-50 text-slate-500 hover:bg-[#696cff]/10 hover:text-[#696cff] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-[#696cff]/20'
@@ -163,7 +163,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
           </div>
 
           {radio.category && (
-            <span className="mt-3 inline-flex rounded-full bg-[#696cff]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#696cff] dark:bg-secondary-900 dark:text-secondary-200">
+            <span className="mt-2 inline-flex rounded-full bg-[#696cff]/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#696cff] dark:bg-secondary-900 dark:text-secondary-200">
               {radio.category}
             </span>
           )}

@@ -290,10 +290,10 @@ export default function HomeSections({
 
       <div className={cn('mb-8', isTV && 'mb-12')}>
         <div className={cn('flex items-center justify-between gap-4', isTV && 'mb-5 flex-col items-start')}>
-          <h2 className={sectionTitleClass}>Tendencias</h2>
+          <h2 className={sectionTitleClass}>Más escuchadas</h2>
           {trendingCategory && (
             <span className={cn('text-gray-500 dark:text-gray-400', isTV ? 'text-lg' : 'text-sm')}>
-              Categoria: {trendingCategory}
+              Categoría: {trendingCategory}
             </span>
           )}
         </div>
@@ -309,7 +309,7 @@ export default function HomeSections({
       </div>
 
       <div className={cn('mb-8', isTV && 'mb-12')}>
-        <h2 className={sectionTitleClass}>Agregadas recientemente</h2>
+        <h2 className={sectionTitleClass}>Nuevas emisoras</h2>
         {recentRadios.length === 0 ? (
           <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras recientes</p>
         ) : (
@@ -329,7 +329,7 @@ export default function HomeSections({
         )}
       >
         <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg font-medium')}>
-          Mostrando {filteredBySearch.length} de {radiosCount} emisoras
+          {filteredBySearch.length} de {radiosCount} emisoras
         </p>
       </div>
 
@@ -342,11 +342,36 @@ export default function HomeSections({
         >
           <RadioIcon className={cn('mx-auto mb-4 text-gray-300 dark:text-slate-700', isTV ? 'h-20 w-20' : 'h-16 w-16')} />
           <h3 className={cn('mb-2 font-medium text-gray-900 dark:text-white', isTV ? 'text-2xl' : 'text-lg')}>
-            No se encontraron emisoras
+            No encontramos emisoras
           </h3>
           <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>
-            Intenta ajustar tus filtros o termino de busqueda
+            Probá con otra ciudad o quitá filtros.
           </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedLocation(null);
+              }}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Limpiar localidad
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const topLocation =
+                  citySpotlightLabel ||
+                  trendingRadios[0]?.location ||
+                  recentRadios[0]?.location ||
+                  null;
+                if (topLocation) setSelectedLocation(topLocation);
+              }}
+              className="rounded-xl bg-[#696cff] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5f61e6]"
+            >
+              Ver radios populares
+            </button>
+          </div>
         </div>
       ) : (
         <>

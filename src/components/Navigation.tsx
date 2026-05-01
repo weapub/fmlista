@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, ChevronDown, Play, Heart, Sparkles, BookOpen, Tv } from 'lucide-react'
+import { User, LogOut, Settings, Radio, Moon, Sun, Library, Home, Menu, X, ChevronDown, Play, Heart, Sparkles, BookOpen, Tv, Search } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { Radio as RadioType } from '@/types/database'
 import { useTheme } from '@/hooks/useTheme'
@@ -123,30 +123,30 @@ export const Navigation: React.FC = () => {
           </Link>
 
           <div className={cn('hidden items-center gap-2 md:flex md:gap-3', isTV && 'gap-4')}>
-            <button onClick={toggleTheme} className={iconButtonClass} title={isDark ? 'Modo Claro' : 'Modo Oscuro'}>
+            <button onClick={toggleTheme} className={iconButtonClass} title={isDark ? 'Modo Claro' : 'Modo Oscuro'} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}>
               {isDark ? <Sun className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} /> : <Moon className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />}
             </button>
 
-            <Link to="/" className={iconButtonClass} title="Inicio">
+            <Link to="/" className={iconButtonClass} title="Inicio" aria-label="Ir al inicio">
               <Home className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
             </Link>
 
-            <Link to="/blog" className={iconButtonClass} title="Guia de uso">
+            <Link to="/blog" className={iconButtonClass} title="Guía de uso" aria-label="Ir a guía de uso">
               <BookOpen className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
             </Link>
 
-            <Link to="/programas" className={iconButtonClass} title="Programas">
+            <Link to="/programas" className={iconButtonClass} title="Programas" aria-label="Ir a programas">
               <Tv className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
             </Link>
 
             {user && (
-              <Link to="/library" className={iconButtonClass} title="Mi Biblioteca">
+              <Link to="/library" className={iconButtonClass} title="Mi Biblioteca" aria-label="Ir a mi biblioteca">
                 <Library className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
               </Link>
             )}
 
             {isAdminUser && (
-              <Link to="/admin" className={iconButtonClass} title="Panel de Control">
+              <Link to="/admin" className={iconButtonClass} title="Panel de Control" aria-label="Ir al panel de control">
                 <Settings className={cn(isTV ? 'h-6 w-6' : 'h-5 w-5')} />
               </Link>
             )}
@@ -337,14 +337,19 @@ export const Navigation: React.FC = () => {
                 <span>Inicio</span>
               </Link>
 
-              <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-                <BookOpen className="h-5 w-5 text-[#696cff]" />
-                <span>Blog y Guia</span>
+              <Link to="/#hero-search" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                <Search className="h-5 w-5 text-[#696cff]" />
+                <span>Buscar radios</span>
               </Link>
 
               <Link to="/programas" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
                 <Tv className="h-5 w-5 text-[#696cff]" />
                 <span>Programas</span>
+              </Link>
+
+              <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                <BookOpen className="h-5 w-5 text-[#696cff]" />
+                <span>Guía</span>
               </Link>
 
               {user && (
@@ -354,17 +359,10 @@ export const Navigation: React.FC = () => {
                 </Link>
               )}
 
-              {isAdminUser && (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-                  <Settings className="h-5 w-5 text-[#696cff]" />
-                  <span>Panel de Control</span>
-                </Link>
-              )}
-
               {!user ? (
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-3 rounded-2xl bg-[#696cff] px-4 py-3 text-center text-sm font-bold text-white shadow-md shadow-[#696cff]/20 transition hover:bg-[#5f61e6]">
                   <User className="h-5 w-5" />
-                  <span>Ingresar</span>
+                  <span>Ingresar a mi cuenta</span>
                 </Link>
               ) : (
                 <button
@@ -377,6 +375,13 @@ export const Navigation: React.FC = () => {
                   <LogOut className="h-5 w-5" />
                   <span>Cerrar sesión</span>
                 </button>
+              )}
+
+              {isAdminUser && (
+                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-sm font-bold text-[#566a7f] transition hover:border-[#696cff]/30 hover:bg-[#696cff]/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                  <Settings className="h-5 w-5 text-[#696cff]" />
+                  <span>Panel de Control</span>
+                </Link>
               )}
 
               {user && (
