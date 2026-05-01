@@ -287,8 +287,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               className={cn(
                 'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
                 isMobileViewport
-                  ? 'relative z-40 -mt-1 w-full max-h-[32vh] overflow-y-auto rounded-2xl'
-                  : 'absolute left-1/2 z-50 mt-1 w-full max-w-xl -translate-x-1/2',
+                  ? 'relative z-40 -mt-2 w-full max-h-[32vh] overflow-y-auto rounded-2xl'
+                  : 'absolute left-1/2 z-50 mt-0 w-full max-w-xl -translate-x-1/2',
                 isTV && !isMobileViewport && 'max-w-3xl'
               )}
             >
