@@ -293,6 +293,12 @@ export const AudioPlayer: React.FC = () => {
       onClick={handleMiniPlayerClick}
       style={{ display: isPlayerExpanded ? 'none' : 'block' }}
     >
+      {isPlaying && (
+        <div className="pointer-events-none absolute -top-3 left-5 z-20 inline-flex items-center gap-1 rounded-full bg-[#696cff] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
+          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          En vivo ahora
+        </div>
+      )}
       <div className="px-4 py-2">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">

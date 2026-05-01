@@ -92,6 +92,11 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     () => Array.from(new Set(radios.map((r) => r.location).filter(Boolean))).sort(),
     [radios]
   )
+  const cityTags = useMemo(() => {
+    if (!searchTerm.trim()) return locations.slice(0, 8)
+    const term = searchTerm.toLowerCase()
+    return locations.filter((loc) => loc.toLowerCase().includes(term)).slice(0, 8)
+  }, [locations, searchTerm])
 
   const suggestions = useMemo(() => {
     if (!searchTerm) return []
@@ -100,6 +105,11 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       .filter((r) => r.name.toLowerCase().includes(term) || r.location?.toLowerCase().includes(term))
       .slice(0, 5)
   }, [searchTerm, radios])
+  const citySuggestions = useMemo(() => {
+    if (!searchTerm.trim()) return []
+    const term = searchTerm.toLowerCase()
+    return locations.filter((loc) => loc.toLowerCase().includes(term)).slice(0, 4)
+  }, [locations, searchTerm])
 
   const optimizedHeroImage = useMemo(
     () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
@@ -107,14 +117,20 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   )
 
   useEffect(() => {
-    setShowSuggestions(suggestions.length > 0 && !!searchTerm)
-  }, [suggestions, searchTerm])
+    setShowSuggestions((suggestions.length > 0 || citySuggestions.length > 0) && !!searchTerm)
+  }, [suggestions, citySuggestions, searchTerm])
 
   const handleSuggestionClick = (radio: typeof radios[0]) => {
     onSearchChange(radio.name)
     setShowSuggestions(false)
     const targetPath = radio.slug ? `/${radio.slug}` : `/radio/${radio.id}`
     navigate(targetPath)
+  }
+
+  const handleCityTagClick = (city: string) => {
+    onSearchChange(city)
+    setShowSuggestions(false)
+    navigate(`/ciudad/${encodeURIComponent(city)}`)
   }
 
   useEffect(() => {
@@ -231,24 +247,67 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               Ver planes para radios y publicidad
             </Link>
           </div>
+          {cityTags.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {cityTags.map((city) => (
+                <button
+                  key={city}
+                  type="button"
+                  onClick={() => handleCityTagClick(city)}
+                  className={cn(
+                    'focusable rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/20',
+                    isTV && 'px-4 py-2 text-sm'
+                  )}
+                  aria-label={`Ver radios de ${city}`}
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
+          )}
 
           {showSuggestions && (
             <div className={cn('absolute left-1/2 z-50 mt-4 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl', isTV && 'max-w-3xl')}>
-              <ul>
-                {suggestions.map((radio) => (
-                  <li
-                    key={radio.id}
-                    onClick={() => handleSuggestionClick(radio)}
-                    className={cn('flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left text-sm text-white transition hover:bg-white/10', isTV && 'px-7 py-5 text-base')}
-                  >
-                    <div>
-                      <div className={cn('text-lg font-bold', isTV && 'text-2xl')}>{radio.name}</div>
-                      {radio.location && <div className={cn('text-xs font-medium text-white/50', isTV && 'text-sm')}>{radio.location}</div>}
-                    </div>
-                    <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
-                  </li>
-                ))}
-              </ul>
+              {citySuggestions.length > 0 && (
+                <div className="border-b border-white/10 px-3 py-2">
+                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Ciudades</p>
+                  <ul>
+                    {citySuggestions.map((city) => (
+                      <li
+                        key={`city-${city}`}
+                        onClick={() => handleCityTagClick(city)}
+                        className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10', isTV && 'px-6 py-4 text-base')}
+                      >
+                        <div className="min-w-0">
+                          <div className={cn('truncate font-bold', isTV && 'text-xl')}>{city}</div>
+                          <div className={cn('text-xs text-white/55', isTV && 'text-sm')}>Ver radios de esta ciudad</div>
+                        </div>
+                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {suggestions.length > 0 && (
+                <div className="px-3 py-2">
+                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Emisoras</p>
+                  <ul>
+                    {suggestions.map((radio) => (
+                      <li
+                        key={radio.id}
+                        onClick={() => handleSuggestionClick(radio)}
+                        className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10', isTV && 'px-6 py-4 text-base')}
+                      >
+                        <div>
+                          <div className={cn('text-lg font-bold', isTV && 'text-2xl')}>{radio.name}</div>
+                          {radio.location && <div className={cn('text-xs font-medium text-white/50', isTV && 'text-sm')}>{radio.location}</div>}
+                        </div>
+                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 

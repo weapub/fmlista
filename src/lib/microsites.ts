@@ -4,6 +4,7 @@ const RESERVED_SLUGS = new Set([
   '',
   'admin',
   'blog',
+  'ciudad',
   'library',
   'login',
   'planes',

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { Radio } from '@/types/database';
@@ -55,11 +55,16 @@ export default function HomeSections({
 }: HomeSectionsProps) {
   const { isTV } = useDeviceStore();
   const { selectedLocation, setSelectedLocation } = useRadioStore();
+  const [activeFeed, setActiveFeed] = useState<'trending' | 'recent'>('trending');
   const featuredDiscovery = filteredBySearch.slice(0, 2);
   const discoveryCategories = Array.from(
     new Set(filteredBySearch.map((radio) => radio.category).filter(Boolean))
   ).slice(0, 6);
   const rankingRadios = trendingRadios.slice(0, rankingLimit);
+  const feedItems = useMemo(
+    () => (activeFeed === 'trending' ? trendingRadios : recentRadios),
+    [activeFeed, trendingRadios, recentRadios]
+  );
 
   const sectionTitleClass = cn(
     'font-semibold text-gray-900 dark:text-white',
@@ -288,38 +293,51 @@ export default function HomeSections({
         </section>
       )}
 
-      <div className={cn('mb-8', isTV && 'mb-12')}>
-        <div className={cn('flex items-center justify-between gap-4', isTV && 'mb-5 flex-col items-start')}>
-          <h2 className={sectionTitleClass}>Más escuchadas</h2>
-          {trendingCategory && (
-            <span className={cn('text-gray-500 dark:text-gray-400', isTV ? 'text-lg' : 'text-sm')}>
-              Categoría: {trendingCategory}
-            </span>
-          )}
+      <section className={cn('mb-8', isTV && 'mb-12')}>
+        <div className={cn('mb-4 flex flex-wrap items-center justify-between gap-3', isTV && 'mb-5')}>
+          <h2 className={sectionTitleClass}>Explorar emisoras</h2>
+          <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
+            <button
+              type="button"
+              onClick={() => setActiveFeed('trending')}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                activeFeed === 'trending'
+                  ? 'bg-[#696cff] text-white'
+                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              )}
+            >
+              Más escuchadas
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveFeed('recent')}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                activeFeed === 'recent'
+                  ? 'bg-[#696cff] text-white'
+                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              )}
+            >
+              Nuevas emisoras
+            </button>
+          </div>
         </div>
-        {trendingRadios.length === 0 ? (
-          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras</p>
+        {activeFeed === 'trending' && trendingCategory && (
+          <p className={cn('mb-4 text-gray-500 dark:text-gray-400', isTV ? 'text-lg' : 'text-sm')}>
+            Categoría: {trendingCategory}
+          </p>
+        )}
+        {feedItems.length === 0 ? (
+          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras por ahora</p>
         ) : (
           <div className={gridClass}>
-            {trendingRadios.map((radio) => (
-              <RadioCard key={radio.id} radio={radio} />
+            {feedItems.map((radio) => (
+              <RadioCard key={`${activeFeed}-${radio.id}`} radio={radio} />
             ))}
           </div>
         )}
-      </div>
-
-      <div className={cn('mb-8', isTV && 'mb-12')}>
-        <h2 className={sectionTitleClass}>Nuevas emisoras</h2>
-        {recentRadios.length === 0 ? (
-          <p className={cn('text-gray-600 dark:text-gray-400', isTV && 'text-lg')}>Sin emisoras recientes</p>
-        ) : (
-          <div className={gridClass}>
-            {recentRadios.map((radio) => (
-              <RadioCard key={radio.id} radio={radio} />
-            ))}
-          </div>
-        )}
-      </div>
+      </section>
 
       <div
         className={cn(
@@ -399,5 +417,6 @@ export default function HomeSections({
     </>
   );
 }
+
 
 

@@ -40,6 +40,7 @@ export const Home: React.FC = () => {
   const [programsBannerImage, setProgramsBannerImage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [showSecondaryContent, setShowSecondaryContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const deferredSearchTerm = useDeferredValue(searchTerm)
   const [, setPage] = useState(0)
@@ -181,6 +182,26 @@ export const Home: React.FC = () => {
     ])
   }, [fetchRadios, fetchSpecialSections])
 
+  useEffect(() => {
+    // Prioriza contenido principal (radios) y difiere bloques secundarios
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let idleId: number | null = null
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number })
+        .requestIdleCallback(() => setShowSecondaryContent(true), { timeout: 1200 })
+    } else {
+      timeoutId = setTimeout(() => setShowSecondaryContent(true), 800)
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      if (idleId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        ;(window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId)
+      }
+    }
+  }, [])
+
   // Sincronizar el store de forma segura fuera del render
   useEffect(() => {
     setStoreRadios(radios);
@@ -242,13 +263,17 @@ export const Home: React.FC = () => {
       <Navigation />
       <main id="main-content" className="max-w-6xl mx-auto px-4 py-8">
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
-          <WeatherSection className="mb-8" />
-        </Suspense>
-        <Suspense fallback={<div className="mb-10 h-20 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
-          <NewsSection className="mb-10" />
-        </Suspense>
-        <AdBanner position="home_top" className="mb-12" />
+        {showSecondaryContent && (
+          <>
+            <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
+              <WeatherSection className="mb-8" />
+            </Suspense>
+            <Suspense fallback={<div className="mb-10 h-20 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
+              <NewsSection className="mb-10" />
+            </Suspense>
+            <AdBanner position="home_top" className="mb-12" />
+          </>
+        )}
         {programsBannerImage && (
           <section className="mb-12">
             <Link
@@ -313,7 +338,7 @@ export const Home: React.FC = () => {
             />
           )}
         </Suspense>
-        <AdBanner position="home_middle" className="mt-6 mb-10" />
+        {showSecondaryContent && <AdBanner position="home_middle" className="mt-6 mb-10" />}
       </main>
       <Footer className="pb-8" />
     </div>

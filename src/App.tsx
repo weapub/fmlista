@@ -24,6 +24,7 @@ const PrivacyPolicy = React.lazy(() => import('@/pages/PrivacyPolicy'))
 const TermsAndConditions = React.lazy(() => import('@/pages/TermsAndConditions'))
 const Blog = React.lazy(() => import('@/pages/Blog'))
 const Programs = React.lazy(() => import('@/pages/Programs'))
+const CityResults = React.lazy(() => import('@/pages/CityResults'))
 const BlogArticlePage = React.lazy(() => import('@/pages/BlogArticlePage'))
 const StreamingPrograms = React.lazy(() => import('@/pages/admin/StreamingPrograms'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
@@ -143,6 +144,7 @@ export default function App() {
           <Route path="/planes" element={<PlansPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/programas" element={<Programs />} />
+          <Route path="/ciudad/:city" element={<CityResults />} />
           <Route path="/blog/:slug" element={<BlogArticlePage />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/terminos" element={<TermsAndConditions />} />
