@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Filter, Radio, MapPin, Tag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useRadioStore } from '@/stores/radioStore'
@@ -15,6 +15,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const navigate = useNavigate()
   const { isTV } = useDeviceStore()
+  const searchAreaRef = useRef<HTMLDivElement | null>(null)
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === 'undefined') return false
     return window.matchMedia('(max-width: 768px)').matches
@@ -120,6 +121,20 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     setShowSuggestions((suggestions.length > 0 || citySuggestions.length > 0) && !!searchTerm)
   }, [suggestions, citySuggestions, searchTerm])
 
+  useEffect(() => {
+    if (!showSuggestions) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null
+      if (!target) return
+      if (searchAreaRef.current?.contains(target)) return
+      setShowSuggestions(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [showSuggestions])
+
   const handleSuggestionClick = (radio: typeof radios[0]) => {
     onSearchChange(radio.name)
     setShowSuggestions(false)
@@ -202,7 +217,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             Encontrá tu emisora en segundos y empezá a escuchar en vivo desde cualquier dispositivo.
           </p>
 
-          <div className={cn('mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center', isTV && 'mt-12 gap-6')}>
+          <div ref={searchAreaRef} className={cn('mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center', isTV && 'mt-12 gap-6')}>
             <div className="group relative w-full sm:w-auto">
               <Search className={cn('pointer-events-none absolute left-5 top-1/2 z-20 -translate-y-1/2 text-white', isTV ? 'h-6 w-6' : 'h-5 w-5')} strokeWidth={3} />
               <input
@@ -267,7 +282,15 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           )}
 
           {showSuggestions && (
-            <div className={cn('absolute left-1/2 z-50 mt-4 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl', isTV && 'max-w-3xl')}>
+            <div
+              className={cn(
+                'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
+                isMobileViewport
+                  ? 'fixed inset-x-3 top-20 z-[70] max-h-[45vh] overflow-y-auto'
+                  : 'absolute left-1/2 z-50 mt-4 w-full max-w-xl -translate-x-1/2',
+                isTV && !isMobileViewport && 'max-w-3xl'
+              )}
+            >
               {citySuggestions.length > 0 && (
                 <div className="border-b border-white/10 px-3 py-2">
                   <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Ciudades</p>

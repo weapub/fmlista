@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, Radio as RadioIcon, Search } from 'lucide-react'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
@@ -15,12 +15,17 @@ const RADIO_LIST_SELECT = 'id,name,slug,logo_url,cover_url,frequency,location,ca
 export default function CityResults() {
   const AUTOLOAD_STORAGE_KEY = 'city-results-autoload-enabled'
   const { city } = useParams<{ city: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const decodedCity = useMemo(() => decodeURIComponent(city ?? ''), [city])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') ?? '')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => searchParams.get('category'))
   const [radios, setRadios] = useState<Radio[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [autoLoadEnabled, setAutoLoadEnabled] = useState(() => {
+    const fromQuery = searchParams.get('autoload')
+    if (fromQuery === 'true') return true
+    if (fromQuery === 'false') return false
     if (typeof window === 'undefined') return true
     const stored = window.localStorage.getItem(AUTOLOAD_STORAGE_KEY)
     return stored === null ? true : stored === 'true'
@@ -87,9 +92,18 @@ export default function CityResults() {
 
   const filteredRadios = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
-    if (!term) return radios
-    return radios.filter((radio) => radio.name.toLowerCase().includes(term) || radio.frequency?.toLowerCase().includes(term))
-  }, [radios, searchTerm])
+    return radios.filter((radio) => {
+      const matchesSearch =
+        !term || radio.name.toLowerCase().includes(term) || radio.frequency?.toLowerCase().includes(term)
+      const matchesCategory = !selectedCategory || radio.category === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [radios, searchTerm, selectedCategory])
+
+  const categories = useMemo(
+    () => Array.from(new Set(radios.map((radio) => radio.category).filter(Boolean))).sort(),
+    [radios]
+  )
 
   const handleLoadMore = () => {
     if (isLoading || isLoadingMore || !hasMore) return
@@ -102,6 +116,18 @@ export default function CityResults() {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(AUTOLOAD_STORAGE_KEY, String(autoLoadEnabled))
   }, [autoLoadEnabled])
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (searchTerm.trim()) nextParams.set('q', searchTerm.trim())
+    else nextParams.delete('q')
+
+    if (selectedCategory) nextParams.set('category', selectedCategory)
+    else nextParams.delete('category')
+
+    nextParams.set('autoload', String(autoLoadEnabled))
+    setSearchParams(nextParams, { replace: true })
+  }, [searchTerm, selectedCategory, autoLoadEnabled, setSearchParams])
 
   useEffect(() => {
     if (!autoLoadEnabled || searchTerm.trim() || !hasMore || isLoading || isLoadingMore) return
@@ -154,6 +180,52 @@ export default function CityResults() {
               className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm font-medium text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#696cff] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
             />
           </div>
+          {categories.length > 0 && (
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Categorías</p>
+                {(selectedCategory || searchTerm.trim()) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(null)
+                      setSearchTerm('')
+                    }}
+                    className="text-xs font-semibold text-[#696cff] hover:text-[#5f61e6]"
+                  >
+                    Limpiar filtros
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory(null)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    selectedCategory === null
+                      ? 'bg-[#696cff] text-white'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  Todas
+                </button>
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category!)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      selectedCategory === category
+                        ? 'bg-[#696cff] text-white'
+                        : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {isLoading ? (
