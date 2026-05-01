@@ -40,6 +40,14 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [typingSpeed, setTypingSpeed] = useState(100)
   const phrases = ['en alta definición.', 'vayas donde vayas.', 'como nunca antes.', 'en tiempo real.']
   const typingEnabled = !isTV && !isMobileViewport
+  const notifySearchFocus = () => {
+    if (typeof window === 'undefined') return
+    window.dispatchEvent(new Event('hero-search-focus'))
+  }
+  const notifySearchBlur = () => {
+    if (typeof window === 'undefined') return
+    window.dispatchEvent(new Event('hero-search-blur'))
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -121,21 +129,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     setShowSuggestions((suggestions.length > 0 || citySuggestions.length > 0) && !!searchTerm)
   }, [suggestions, citySuggestions, searchTerm])
 
-  useEffect(() => {
-    if (!showSuggestions) return
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node | null
-      if (!target) return
-      if (searchAreaRef.current?.contains(target)) return
-      setShowSuggestions(false)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [showSuggestions])
-
   const handleSuggestionClick = (radio: typeof radios[0]) => {
+    notifySearchBlur()
     onSearchChange(radio.name)
     setShowSuggestions(false)
     const targetPath = radio.slug ? `/${radio.slug}` : `/radio/${radio.id}`
@@ -143,6 +138,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }
 
   const handleCityTagClick = (city: string) => {
+    notifySearchBlur()
     onSearchChange(city)
     setShowSuggestions(false)
     navigate(`/ciudad/${encodeURIComponent(city)}`)
@@ -227,7 +223,12 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onFocus={() => {
+                  notifySearchFocus()
                   if (suggestions.length > 0) setShowSuggestions(true)
+                }}
+                onBlur={() => {
+                  // Delay corto para no cortar taps en sugerencias
+                  window.setTimeout(() => notifySearchBlur(), 120)
                 }}
                 className={cn(
                   'relative z-10 w-full rounded-2xl border border-white/40 bg-white/15 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/70 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/35 sm:min-w-[400px]',

@@ -31,11 +31,32 @@ export const AudioPlayer: React.FC = () => {
   const playButtonRef = useRef<HTMLButtonElement | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const [isIOS, setIsIOS] = useState(false)
+  const [suppressMiniPlayer, setSuppressMiniPlayer] = useState(false)
 
   useEffect(() => {
     if (typeof navigator === 'undefined') return
     const ua = navigator.userAgent || ''
     setIsIOS(/iPad|iPhone|iPod/i.test(ua))
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches
+    const onSearchFocus = () => {
+      if (isMobileViewport()) setSuppressMiniPlayer(true)
+    }
+    const onSearchBlur = () => {
+      if (isMobileViewport()) setSuppressMiniPlayer(false)
+    }
+
+    window.addEventListener('hero-search-focus', onSearchFocus)
+    window.addEventListener('hero-search-blur', onSearchBlur)
+
+    return () => {
+      window.removeEventListener('hero-search-focus', onSearchFocus)
+      window.removeEventListener('hero-search-blur', onSearchBlur)
+    }
   }, [])
 
   useEffect(() => {
@@ -282,6 +303,10 @@ export const AudioPlayer: React.FC = () => {
   }
 
   // Mini Player UI
+  if (suppressMiniPlayer) {
+    return null
+  }
+
   return (
     <div
       className={cn(
