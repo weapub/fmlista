@@ -114,11 +114,6 @@ export const Navigation: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <p className={cn('leading-none tracking-tight text-[#566a7f] font-bold dark:text-white', isTV ? 'text-2xl' : 'text-lg')}>{appTitle}</p>
-              {appSlogan && (
-                <p className={cn('mt-1 font-bold uppercase tracking-[0.15em] text-[#a1acb8]', isTV ? 'text-xs' : 'text-[10px]')}>
-                  {appSlogan}
-                </p>
-              )}
             </div>
           </Link>
 

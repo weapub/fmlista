@@ -328,10 +328,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             Radios en vivo de Formosa
           </span>
 
-          <h1 className={cn('mt-8 min-h-[1.2em] text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
-            Tu frecuencia, <br className="sm:hidden" />
-            <span className="inline-block min-w-[14ch] whitespace-nowrap text-white/70"> {text}</span>
-            {typingEnabled && <span className="ml-1 inline-block h-[0.9em] w-[3px] animate-pulse align-middle bg-white/50" />}
+          <h1 className={cn('mt-8 text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
+            Elegí tu radio favorita de Formosa
           </h1>
 
           <p className={cn('mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-white/90 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
