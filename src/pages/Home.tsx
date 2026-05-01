@@ -4,6 +4,7 @@ import { Navigation } from '@/components/Navigation'
 import { Hero } from '@/components/Hero'
 import { AdBanner } from '@/components/AdBanner'
 import { Footer } from '@/components/Footer'
+import { RadioCardSkeleton } from '@/components/RadioCardSkeleton'
 import { useRadioStore } from '@/stores/radioStore'
 import { Radio } from '@/types/database'
 import { useSeo } from '@/hooks/useSeo'
@@ -13,22 +14,6 @@ const HomeSections = React.lazy(() => import('./HomeSections'))
 const NewsSection = React.lazy(() => import('@/components/NewsSection').then((m) => ({ default: m.NewsSection })))
 const WeatherSection = React.lazy(() => import('@/components/WeatherSection').then((m) => ({ default: m.WeatherSection })))
 const RADIO_LIST_SELECT = 'id,name,slug,logo_url,cover_url,frequency,location,category,stream_url,created_at'
-
-const RadioCardSkeleton = () => (
-  <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-sm overflow-hidden animate-pulse border border-slate-100 dark:border-slate-800">
-    <div className="p-5 flex items-center gap-5">
-      <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl flex-shrink-0" />
-      <div className="space-y-3">
-        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-32" />
-        <div className="space-y-2 pt-2">
-          <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full w-48" />
-          <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full w-24" />
-        </div>
-      </div>
-      <div className="ml-auto w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl" />
-    </div>
-  </div>
-);
 
 export const Home: React.FC = () => {
   const [radios, setRadios] = useState<Radio[]>([])

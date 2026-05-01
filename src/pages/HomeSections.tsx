@@ -1,6 +1,7 @@
 ﻿import React, { useMemo, useState } from 'react';
 import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
+import { RadioCardSkeleton } from '@/components/RadioCardSkeleton';
 import { Radio } from '@/types/database';
 import { Compass, MapPin, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,23 +22,6 @@ interface HomeSectionsProps {
   isLoadingMore: boolean;
   loaderRef: React.RefObject<HTMLDivElement>;
 }
-
-const RadioCardSkeleton = () => (
-  <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm animate-pulse dark:border-slate-800 dark:bg-slate-900">
-    <div className="h-32 w-full bg-gray-200 dark:bg-slate-800" />
-    <div className="p-4">
-      <div className="space-y-3">
-        <div className="h-5 w-3/4 rounded bg-gray-200 dark:bg-slate-800" />
-        <div className="h-4 w-1/4 rounded bg-gray-200 dark:bg-slate-800" />
-        <div className="space-y-2 pt-2">
-          <div className="h-3 w-full rounded bg-gray-200 dark:bg-slate-800" />
-          <div className="h-3 w-5/6 rounded bg-gray-200 dark:bg-slate-800" />
-        </div>
-        <div className="mt-4 h-10 w-full rounded-md bg-gray-200 dark:bg-slate-800" />
-      </div>
-    </div>
-  </div>
-);
 
 export default function HomeSections({
   citySpotlightLabel,

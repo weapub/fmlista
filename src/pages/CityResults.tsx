@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Radio as RadioIcon, Search } from 'lucide-react'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { RadioCard } from '@/components/RadioCard'
+import { RadioCardSkeleton } from '@/components/RadioCardSkeleton'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { useSeo } from '@/hooks/useSeo'
 import { queryPublicTable } from '@/lib/publicSupabase'
@@ -231,7 +232,7 @@ export default function CityResults() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-52 animate-pulse rounded-[1.5rem] border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" />
+              <RadioCardSkeleton key={i} />
             ))}
           </div>
         ) : filteredRadios.length === 0 ? (
@@ -271,6 +272,13 @@ export default function CityResults() {
                     {isLoadingMore ? 'Cargando...' : 'Cargar más'}
                   </button>
                 </div>
+                {isLoadingMore && (
+                  <div className="mt-4 grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(3)].map((_, index) => (
+                      <RadioCardSkeleton key={`city-more-${index}`} />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
