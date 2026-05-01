@@ -33,6 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     setSelectedCategory,
   } = useRadioStore()
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isSearchPinned, setIsSearchPinned] = useState(false)
   const deferredSearchTerm = useDeferredValue(searchTerm)
 
   const [text, setText] = useState('en tiempo real.')
@@ -92,6 +93,21 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     const timer = setTimeout(handleTyping, typingSpeed)
     return () => clearTimeout(timer)
   }, [typingEnabled, text, isDeleting, loopNum, typingSpeed])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isMobileViewport) {
+      setIsSearchPinned(false)
+      return
+    }
+
+    const onScroll = () => {
+      setIsSearchPinned(window.scrollY > 260)
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isMobileViewport])
 
   const categories = useMemo(
     () => Array.from(new Set(radios.map((r) => r.category).filter(Boolean))).sort(),
@@ -222,7 +238,14 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             Encontrá tu emisora en segundos y empezá a escuchar en vivo desde cualquier dispositivo.
           </p>
 
-          <div ref={searchAreaRef} className={cn('mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center', isTV && 'mt-12 gap-6')}>
+          <div
+            ref={searchAreaRef}
+            className={cn(
+              'mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center',
+              isTV && 'mt-12 gap-6',
+              isMobileViewport && isSearchPinned && 'fixed inset-x-3 top-3 z-[75] mt-0 rounded-2xl border border-white/20 bg-[#1e293b]/75 p-2 shadow-2xl backdrop-blur-xl'
+            )}
+          >
             <div className="group relative w-full sm:w-auto">
               <Search className={cn('pointer-events-none absolute left-5 top-1/2 z-20 -translate-y-1/2 text-white', isTV ? 'h-6 w-6' : 'h-5 w-5')} strokeWidth={3} />
               <input
@@ -241,6 +264,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 }}
                 className={cn(
                   'relative z-10 w-full rounded-2xl border border-white/40 bg-white/15 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/70 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/35 sm:min-w-[400px]',
+                  isMobileViewport && isSearchPinned && 'py-3 text-base',
                   isTV && 'rounded-[1.75rem] py-5 pl-16 pr-14 text-xl sm:min-w-[620px]'
                 )}
               />
