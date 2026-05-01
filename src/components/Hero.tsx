@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Filter, Radio, MapPin, Tag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useRadioStore } from '@/stores/radioStore'
@@ -33,6 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     setSelectedCategory,
   } = useRadioStore()
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const deferredSearchTerm = useDeferredValue(searchTerm)
 
   const [text, setText] = useState('en tiempo real.')
   const [isDeleting, setIsDeleting] = useState(false)
@@ -108,17 +109,17 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }, [locations, searchTerm])
 
   const suggestions = useMemo(() => {
-    if (!searchTerm) return []
-    const term = searchTerm.toLowerCase()
+    if (!deferredSearchTerm) return []
+    const term = deferredSearchTerm.toLowerCase()
     return radios
       .filter((r) => r.name.toLowerCase().includes(term) || r.location?.toLowerCase().includes(term))
       .slice(0, 5)
-  }, [searchTerm, radios])
+  }, [deferredSearchTerm, radios])
   const citySuggestions = useMemo(() => {
-    if (!searchTerm.trim()) return []
-    const term = searchTerm.toLowerCase()
+    if (!deferredSearchTerm.trim()) return []
+    const term = deferredSearchTerm.toLowerCase()
     return locations.filter((loc) => loc.toLowerCase().includes(term)).slice(0, 4)
-  }, [locations, searchTerm])
+  }, [locations, deferredSearchTerm])
 
   const optimizedHeroImage = useMemo(
     () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
@@ -128,6 +129,14 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   useEffect(() => {
     setShowSuggestions((suggestions.length > 0 || citySuggestions.length > 0) && !!searchTerm)
   }, [suggestions, citySuggestions, searchTerm])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowSuggestions(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   const handleSuggestionClick = (radio: typeof radios[0]) => {
     notifySearchBlur()
@@ -287,7 +296,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               className={cn(
                 'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
                 isMobileViewport
-                  ? 'relative z-40 -mt-2 w-full max-h-[32vh] overflow-y-auto rounded-2xl'
+                  ? 'absolute left-1/2 z-[70] mt-0 w-[calc(100%-1rem)] max-w-xl -translate-x-1/2 max-h-[32vh] overflow-y-auto rounded-2xl'
                   : 'absolute left-1/2 z-50 mt-0 w-full max-w-xl -translate-x-1/2',
                 isTV && !isMobileViewport && 'max-w-3xl'
               )}
