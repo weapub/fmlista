@@ -286,24 +286,28 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               className={cn(
                 'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
                 isMobileViewport
-                  ? 'fixed inset-x-3 top-20 z-[70] max-h-[45vh] overflow-y-auto'
+                  ? 'relative z-40 mt-2 w-full max-h-[32vh] overflow-y-auto rounded-2xl'
                   : 'absolute left-1/2 z-50 mt-4 w-full max-w-xl -translate-x-1/2',
                 isTV && !isMobileViewport && 'max-w-3xl'
               )}
             >
               {citySuggestions.length > 0 && (
-                <div className="border-b border-white/10 px-3 py-2">
+                <div className={cn('border-b border-white/10 px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
                   <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Ciudades</p>
                   <ul>
                     {citySuggestions.map((city) => (
                       <li
                         key={`city-${city}`}
                         onClick={() => handleCityTagClick(city)}
-                        className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10', isTV && 'px-6 py-4 text-base')}
+                        className={cn(
+                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                        )}
                       >
                         <div className="min-w-0">
                           <div className={cn('truncate font-bold', isTV && 'text-xl')}>{city}</div>
-                          <div className={cn('text-xs text-white/55', isTV && 'text-sm')}>Ver radios de esta ciudad</div>
+                          <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Ver radios de esta ciudad</div>
                         </div>
                         <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
                       </li>
@@ -312,18 +316,22 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 </div>
               )}
               {suggestions.length > 0 && (
-                <div className="px-3 py-2">
+                <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
                   <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Emisoras</p>
                   <ul>
                     {suggestions.map((radio) => (
                       <li
                         key={radio.id}
                         onClick={() => handleSuggestionClick(radio)}
-                        className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10', isTV && 'px-6 py-4 text-base')}
+                        className={cn(
+                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                        )}
                       >
                         <div>
-                          <div className={cn('text-lg font-bold', isTV && 'text-2xl')}>{radio.name}</div>
-                          {radio.location && <div className={cn('text-xs font-medium text-white/50', isTV && 'text-sm')}>{radio.location}</div>}
+                          <div className={cn('text-lg font-bold', isMobileViewport && 'text-sm', isTV && !isMobileViewport && 'text-2xl')}>{radio.name}</div>
+                          {radio.location && <div className={cn('text-xs font-medium text-white/50', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>{radio.location}</div>}
                         </div>
                         <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
                       </li>
