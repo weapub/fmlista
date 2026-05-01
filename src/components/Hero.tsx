@@ -269,6 +269,31 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     }
   }
 
+  const handleRecentSuggestionClick = (term: string) => {
+    const normalized = term.trim().toLowerCase()
+    if (!normalized) return
+
+    saveRecentSearch(term)
+    onSearchChange(term)
+
+    const matchedCity = locations.find((loc) => loc.toLowerCase() === normalized)
+    if (matchedCity) {
+      notifySearchBlur()
+      setShowSuggestions(false)
+      navigate(`/ciudad/${encodeURIComponent(matchedCity)}`)
+      return
+    }
+
+    const matchedRadio = radios.find((radio) => radio.name.toLowerCase() === normalized)
+    if (matchedRadio) {
+      handleSuggestionClick(matchedRadio)
+      return
+    }
+
+    setShowSuggestions(false)
+    notifySearchBlur()
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -474,17 +499,13 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                   <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
                     <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Recientes</p>
                     <ul>
-                      {recentSuggestions.map((term) => (
-                        <li
-                          key={`recent-${term}`}
-                          role="option"
-                          aria-selected={false}
-                          onClick={() => {
-                            saveRecentSearch(term)
-                            onSearchChange(term)
-                            setShowSuggestions(true)
-                          }}
-                          className={cn(
+                    {recentSuggestions.map((term) => (
+                      <li
+                        key={`recent-${term}`}
+                        role="option"
+                        aria-selected={false}
+                        onClick={() => handleRecentSuggestionClick(term)}
+                        className={cn(
                             'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
                             isMobileViewport && 'gap-2 px-3 py-2 text-xs',
                             isTV && !isMobileViewport && 'px-6 py-4 text-base'

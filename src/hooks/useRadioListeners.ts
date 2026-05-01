@@ -9,16 +9,9 @@ const activeChannels = new Map<string, {
   subscribers: Set<(count: number) => void>
 }>();
 
-const isIOSWebKit = () => {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  return /iPad|iPhone|iPod/i.test(ua);
-};
-
 const canUseRealtime = () => {
   if (typeof window === 'undefined') return false;
   if (typeof WebSocket === 'undefined') return false;
-  if (isIOSWebKit()) return false;
 
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isSecure = window.isSecureContext || isLocalhost;
