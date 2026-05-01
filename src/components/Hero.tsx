@@ -33,6 +33,9 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     setSelectedCategory,
   } = useRadioStore()
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
+  const [isInputFocused, setIsInputFocused] = useState(false)
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearchPinned, setIsSearchPinned] = useState(false)
   const deferredSearchTerm = useDeferredValue(searchTerm)
 
@@ -95,7 +98,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }, [typingEnabled, text, isDeleting, loopNum, typingSpeed])
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !isMobileViewport) {
+    if (typeof window === 'undefined' || !isMobileViewport || isInputFocused) {
       setIsSearchPinned(false)
       return
     }
@@ -107,7 +110,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [isMobileViewport])
+  }, [isMobileViewport, isInputFocused])
 
   const categories = useMemo(
     () => Array.from(new Set(radios.map((r) => r.category).filter(Boolean))).sort(),
@@ -137,14 +140,55 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     return locations.filter((loc) => loc.toLowerCase().includes(term)).slice(0, 4)
   }, [locations, deferredSearchTerm])
 
+  const mergedSuggestions = useMemo(
+    () => [
+      ...citySuggestions.map((city) => ({ type: 'city' as const, city })),
+      ...suggestions.map((radio) => ({ type: 'radio' as const, radio })),
+    ],
+    [citySuggestions, suggestions]
+  )
+
+  const recentSuggestions = useMemo(() => {
+    if (!recentSearches.length) return []
+    const term = deferredSearchTerm.trim().toLowerCase()
+    if (!term) return recentSearches.slice(0, 6)
+    return recentSearches.filter((value) => value.toLowerCase().includes(term)).slice(0, 6)
+  }, [recentSearches, deferredSearchTerm])
+
   const optimizedHeroImage = useMemo(
     () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
     [heroImage, isTV]
   )
 
   useEffect(() => {
-    setShowSuggestions((suggestions.length > 0 || citySuggestions.length > 0) && !!searchTerm)
-  }, [suggestions, citySuggestions, searchTerm])
+    const hasLiveSuggestions = suggestions.length > 0 || citySuggestions.length > 0
+    const hasRecentSuggestions = recentSuggestions.length > 0
+    setShowSuggestions(isInputFocused && (hasLiveSuggestions || hasRecentSuggestions))
+  }, [suggestions, citySuggestions, recentSuggestions, isInputFocused])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem('fm_recent_searches')
+      if (!raw) return
+      const parsed = JSON.parse(raw) as string[]
+      if (Array.isArray(parsed)) {
+        setRecentSearches(parsed.filter(Boolean).slice(0, 6))
+      }
+    } catch (error) {
+      console.error('Error loading recent searches:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!showSuggestions || mergedSuggestions.length === 0) {
+      setActiveSuggestionIndex(-1)
+      return
+    }
+    if (activeSuggestionIndex >= mergedSuggestions.length) {
+      setActiveSuggestionIndex(0)
+    }
+  }, [showSuggestions, mergedSuggestions, activeSuggestionIndex])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -155,6 +199,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }, [])
 
   const handleSuggestionClick = (radio: typeof radios[0]) => {
+    saveRecentSearch(radio.name)
     notifySearchBlur()
     onSearchChange(radio.name)
     setShowSuggestions(false)
@@ -163,10 +208,65 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   }
 
   const handleCityTagClick = (city: string) => {
+    saveRecentSearch(city)
     notifySearchBlur()
     onSearchChange(city)
     setShowSuggestions(false)
     navigate(`/ciudad/${encodeURIComponent(city)}`)
+  }
+
+  const saveRecentSearch = (value: string) => {
+    const normalized = value.trim()
+    if (normalized.length < 2) return
+
+    setRecentSearches((prev) => {
+      const next = [normalized, ...prev.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 6)
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('fm_recent_searches', JSON.stringify(next))
+      }
+      return next
+    })
+  }
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || mergedSuggestions.length === 0) {
+      if (event.key === 'ArrowDown' && searchTerm.trim()) {
+        setShowSuggestions(true)
+      }
+      return
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setActiveSuggestionIndex((prev) => (prev + 1) % mergedSuggestions.length)
+      return
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setActiveSuggestionIndex((prev) => (prev <= 0 ? mergedSuggestions.length - 1 : prev - 1))
+      return
+    }
+
+    if (event.key === 'Enter' && activeSuggestionIndex >= 0) {
+      event.preventDefault()
+      const selected = mergedSuggestions[activeSuggestionIndex]
+      if (selected.type === 'city') {
+        handleCityTagClick(selected.city)
+      } else {
+        handleSuggestionClick(selected.radio)
+      }
+      return
+    }
+
+    if (event.key === 'Escape') {
+      setShowSuggestions(false)
+      setActiveSuggestionIndex(-1)
+    }
+
+    if (event.key === 'Enter' && activeSuggestionIndex < 0 && searchTerm.trim()) {
+      saveRecentSearch(searchTerm)
+    }
   }
 
   useEffect(() => {
@@ -253,15 +353,27 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 type="text"
                 placeholder="Buscar emisora o ciudad"
                 value={searchTerm}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={showSuggestions}
+                aria-controls="hero-search-suggestions"
+                aria-activedescendant={
+                  activeSuggestionIndex >= 0 ? `hero-suggestion-${activeSuggestionIndex}` : undefined
+                }
                 onChange={(e) => onSearchChange(e.target.value)}
                 onFocus={() => {
                   notifySearchFocus()
-                  if (suggestions.length > 0) setShowSuggestions(true)
+                  setIsInputFocused(true)
+                  if (suggestions.length > 0 || citySuggestions.length > 0 || recentSuggestions.length > 0) setShowSuggestions(true)
                 }}
                 onBlur={() => {
                   // Delay corto para no cortar taps en sugerencias
-                  window.setTimeout(() => notifySearchBlur(), 120)
+                  window.setTimeout(() => {
+                    setIsInputFocused(false)
+                    notifySearchBlur()
+                  }, 120)
                 }}
+                onKeyDown={handleInputKeyDown}
                 className={cn(
                   'relative z-10 w-full rounded-2xl border border-white/40 bg-white/15 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/70 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/35 sm:min-w-[400px]',
                   isMobileViewport && isSearchPinned && 'py-3 text-base',
@@ -317,6 +429,8 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
 
           {showSuggestions && (
             <div
+              id="hero-search-suggestions"
+              role="listbox"
               className={cn(
                 'overflow-hidden rounded-[2rem] border border-white/20 bg-[#1e293b]/90 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl',
                 isMobileViewport
@@ -332,9 +446,14 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                     {citySuggestions.map((city) => (
                       <li
                         key={`city-${city}`}
+                        id={`hero-suggestion-${citySuggestions.findIndex((item) => item === city)}`}
+                        role="option"
+                        aria-selected={activeSuggestionIndex === citySuggestions.findIndex((item) => item === city)}
                         onClick={() => handleCityTagClick(city)}
                         className={cn(
                           'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                          activeSuggestionIndex === citySuggestions.findIndex((item) => item === city) &&
+                            'bg-white/15',
                           isMobileViewport && 'gap-2 px-3 py-2 text-xs',
                           isTV && !isMobileViewport && 'px-6 py-4 text-base'
                         )}
@@ -356,9 +475,18 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                     {suggestions.map((radio) => (
                       <li
                         key={radio.id}
+                        id={`hero-suggestion-${citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)}`}
+                        role="option"
+                        aria-selected={
+                          activeSuggestionIndex ===
+                          citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id)
+                        }
                         onClick={() => handleSuggestionClick(radio)}
                         className={cn(
                           'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                          activeSuggestionIndex ===
+                            citySuggestions.length + suggestions.findIndex((item) => item.id === radio.id) &&
+                            'bg-white/15',
                           isMobileViewport && 'gap-2 px-3 py-2 text-xs',
                           isTV && !isMobileViewport && 'px-6 py-4 text-base'
                         )}
@@ -371,6 +499,57 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+              {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length > 0 && (
+                <div className={cn('px-3 py-2', isMobileViewport && 'px-2 py-1.5')}>
+                  <p className="px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Recientes</p>
+                  <ul>
+                    {recentSuggestions.map((term) => (
+                      <li
+                        key={`recent-${term}`}
+                        role="option"
+                        aria-selected={false}
+                        onClick={() => {
+                          saveRecentSearch(term)
+                          onSearchChange(term)
+                          setShowSuggestions(true)
+                        }}
+                        className={cn(
+                          'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm text-white transition hover:bg-white/10',
+                          isMobileViewport && 'gap-2 px-3 py-2 text-xs',
+                          isTV && !isMobileViewport && 'px-6 py-4 text-base'
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <div className={cn('truncate font-bold', isTV && 'text-xl')}>{term}</div>
+                          <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Búsqueda reciente</div>
+                        </div>
+                        <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {suggestions.length === 0 && citySuggestions.length === 0 && recentSuggestions.length === 0 && searchTerm.trim().length > 0 && (
+                <div className={cn('px-4 py-4 text-center', isMobileViewport && 'px-3 py-3')}>
+                  <p className={cn('text-sm font-semibold text-white/85', isMobileViewport && 'text-xs')}>
+                    No encontramos resultados para "{searchTerm.trim()}"
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSearchChange('')
+                      setShowSuggestions(false)
+                      navigate('/ciudad/Formosa')
+                    }}
+                    className={cn(
+                      'mt-3 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-[#1e293b] transition hover:bg-white/90',
+                      isTV && !isMobileViewport && 'px-5 py-2.5 text-sm'
+                    )}
+                  >
+                    Ver radios de Formosa
+                  </button>
                 </div>
               )}
             </div>
