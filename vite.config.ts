@@ -108,7 +108,7 @@ export default defineConfig(({ command }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg', 'fm-lista-logo.svg'],
+      includeAssets: ['apple-touch-icon.png', 'mask-icon.svg', 'fm-lista-logo.svg'],
       manifest: {
         name: 'FM Lista - Radios de Formosa',
         short_name: 'FM Lista',
