@@ -26,6 +26,13 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
     () => optimizeSupabaseImageUrl(radio.logo_url, { width: 160, height: 160, quality: 70, resize: 'cover' }),
     [radio.logo_url]
   )
+  const [logoSrc, setLogoSrc] = useState(optimizedLogoUrl || radio.logo_url || '')
+  const hasOptimizedVariant = !!optimizedLogoUrl && optimizedLogoUrl !== radio.logo_url
+
+  React.useEffect(() => {
+    setLogoError(false)
+    setLogoSrc(optimizedLogoUrl || radio.logo_url || '')
+  }, [optimizedLogoUrl, radio.logo_url])
 
   const handlePrewarm = () => {
     prewarmStream(radio.stream_url)
@@ -109,7 +116,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
         <div className="relative flex-shrink-0">
           {radio.logo_url && !isPlaceholderUrl(radio.logo_url) && !logoError ? (
             <img
-              src={optimizedLogoUrl || radio.logo_url}
+              src={logoSrc}
               alt={radio.name}
               loading="lazy"
               decoding="async"
@@ -117,7 +124,13 @@ export const RadioCard: React.FC<RadioCardProps> = ({ radio, className, isFeatur
               width={80}
               height={80}
               className="h-[4.5rem] w-[4.5rem] rounded-2xl border border-gray-100 object-cover dark:border-gray-800"
-              onError={() => setLogoError(true)}
+              onError={() => {
+                if (hasOptimizedVariant && logoSrc === optimizedLogoUrl && radio.logo_url) {
+                  setLogoSrc(radio.logo_url)
+                  return
+                }
+                setLogoError(true)
+              }}
             />
           ) : (
             <div className="grid h-[4.5rem] w-[4.5rem] place-items-center rounded-2xl bg-gray-100 dark:bg-gray-800">
