@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 type SeoConfig = {
   title: string
   description: string
+  keywords?: string
   image?: string | null
   url?: string
   type?: string
@@ -76,6 +77,7 @@ const toAbsoluteUrl = (value?: string | null) => {
 export const useSeo = ({
   title,
   description,
+  keywords,
   image,
   url,
   type = 'website',
@@ -94,6 +96,13 @@ export const useSeo = ({
       name: 'description',
       content: resolvedDescription,
     })
+
+    if (keywords) {
+      ensureMetaTag('meta[name="keywords"]', {
+        name: 'keywords',
+        content: keywords,
+      })
+    }
 
     ensureMetaTag('meta[name="robots"]', {
       name: 'robots',
@@ -161,5 +170,5 @@ export const useSeo = ({
     })
 
     upsertJsonLdScript(jsonLd)
-  }, [title, description, image, url, type, siteName, robots, jsonLd])
+  }, [title, description, keywords, image, url, type, siteName, robots, jsonLd])
 }

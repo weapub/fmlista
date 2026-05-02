@@ -135,11 +135,12 @@ export const RadioMicrosite: React.FC = () => {
     ? `${window.location.origin}${radio ? getRadioPath(radio) : window.location.pathname}`
     : radio ? getRadioPath(radio) : '/'
   const seoTitle = radio
-    ? `${radio.name} en vivo | ${radio.frequency || 'FM Lista'}`
+    ? radio.seo_title || `${radio.name} en vivo | ${radio.frequency || 'FM Lista'}`
     : 'FM Lista | Radios en vivo de Formosa'
   const seoDescription = radio
-    ? radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
+    ? radio.seo_description || radio.description || `Escucha ${radio.name} en vivo${radio.frequency ? ` en ${radio.frequency}` : ''}${radio.location ? ` desde ${radio.location}` : ''}.`
     : 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
+  const seoKeywords = radio?.seo_keywords || undefined
   const seoImage = radio?.cover_url || radio?.logo_url || '/apple-touch-icon.png'
   const editorialHighlights = radio
     ? [
@@ -152,6 +153,7 @@ export const RadioMicrosite: React.FC = () => {
   useSeo({
     title: seoTitle,
     description: seoDescription,
+    keywords: seoKeywords,
     url: shareUrl,
     image: seoImage,
     siteName: 'FM Lista',

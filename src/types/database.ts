@@ -12,6 +12,9 @@ export interface Radio {
   location?: string | null;
   category?: string | null;
   description?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_keywords?: string | null;
   is_featured?: boolean;
   plan_name?: string | null;
   stream_url?: string | null;

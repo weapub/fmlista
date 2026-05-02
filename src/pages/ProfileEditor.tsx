@@ -8,6 +8,7 @@ import { AdminLayout } from '@/components/AdminLayout';
 import { cn } from '@/lib/utils';
 import { ROLES } from '@/types/auth';
 import { checkStreamCompatibility, StreamCheckUiResult } from '@/lib/streamCompatibility';
+import { trackEvent } from '@/lib/analytics/tracker';
 
 export default function ProfileEditor() {
   const { id } = useParams<{ id: string }>();
@@ -22,11 +23,15 @@ export default function ProfileEditor() {
   const [draftRestored, setDraftRestored] = useState(false);
   const [streamCheckLoading, setStreamCheckLoading] = useState(false);
   const [streamCheckResult, setStreamCheckResult] = useState<StreamCheckUiResult | null>(null);
+  const [seoAssistLoading, setSeoAssistLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     frequency: '',
     description: '',
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: '',
     location: '',
     category: '',
     stream_url: '',
@@ -168,6 +173,9 @@ export default function ProfileEditor() {
         slug: data.slug || '',
         frequency: data.frequency || '',
         description: data.description || '',
+        seo_title: data.seo_title || '',
+        seo_description: data.seo_description || '',
+        seo_keywords: data.seo_keywords || '',
         location: data.location || '',
         category: data.category || '',
         stream_url: data.stream_url || '',
@@ -269,6 +277,48 @@ export default function ProfileEditor() {
       });
     } finally {
       setStreamCheckLoading(false);
+    }
+  };
+
+  const handleGenerateSeo = async () => {
+    if (!formData.name.trim()) {
+      alert('Completa al menos el nombre de la emisora para generar SEO.');
+      return;
+    }
+
+    setSeoAssistLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-seo-copy', {
+        body: {
+          name: formData.name,
+          frequency: formData.frequency,
+          location: formData.location,
+          category: formData.category,
+          description: formData.description,
+        },
+      });
+
+      if (error) throw error;
+
+      const keywords = Array.isArray(data?.seo_keywords) ? data.seo_keywords.join(', ') : '';
+
+      setFormData((prev) => ({
+        ...prev,
+        seo_title: data?.seo_title || prev.seo_title,
+        seo_description: data?.seo_description || prev.seo_description,
+        seo_keywords: keywords || prev.seo_keywords,
+      }));
+
+      trackEvent('seo_ai_generated', {
+        page_name: 'profile_editor',
+        radio_id: id || 'new',
+      });
+    } catch (error) {
+      console.error('Error generating SEO content:', error);
+      alert('No se pudo generar contenido SEO con IA. Revisa la configuración de la función e intenta nuevamente.');
+    } finally {
+      setSeoAssistLoading(false);
     }
   };
 
@@ -390,6 +440,9 @@ export default function ProfileEditor() {
             slug: formData.slug || null,
             frequency: formData.frequency,
             description: formData.description,
+            seo_title: formData.seo_title || null,
+            seo_description: formData.seo_description || null,
+            seo_keywords: formData.seo_keywords || null,
             location: formData.location,
             category: formData.category,
             stream_url: formData.stream_url,
@@ -414,6 +467,9 @@ export default function ProfileEditor() {
             slug: formData.slug || null,
             frequency: formData.frequency,
             description: formData.description,
+            seo_title: formData.seo_title || null,
+            seo_description: formData.seo_description || null,
+            seo_keywords: formData.seo_keywords || null,
             location: formData.location,
             category: formData.category,
             stream_url: formData.stream_url,
@@ -528,6 +584,9 @@ export default function ProfileEditor() {
         slug: '',
         frequency: '',
         description: '',
+        seo_title: '',
+        seo_description: '',
+        seo_keywords: '',
         location: '',
         category: '',
         stream_url: '',
@@ -758,6 +817,67 @@ export default function ProfileEditor() {
                   placeholder="Breve historia o eslogan de la radio..."
                   className={`${inputClasses} resize-none`}
                 />
+              </div>
+
+              <div className="md:col-span-2 rounded-xl border border-[#d9dee3] p-4 dark:border-slate-700">
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#566a7f] dark:text-white">Asistente SEO con IA</p>
+                    <p className="text-xs text-[#a1acb8] dark:text-slate-500">
+                      Genera título, descripción y keywords para el micrositio.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSeo}
+                    disabled={seoAssistLoading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#696cff] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5f61e6] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {seoAssistLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
+                    {seoAssistLoading ? 'Generando...' : 'Generar con IA'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className={labelClasses}>Título SEO</label>
+                    <input
+                      type="text"
+                      name="seo_title"
+                      value={formData.seo_title}
+                      onChange={handleInputChange}
+                      placeholder="Ej. Radio X en vivo - Noticias y música en Formosa"
+                      className={inputClasses}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>Descripción SEO</label>
+                    <textarea
+                      name="seo_description"
+                      value={formData.seo_description}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="Meta descripción de 140 a 160 caracteres..."
+                      className={`${inputClasses} resize-none`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>Keywords SEO</label>
+                    <input
+                      type="text"
+                      name="seo_keywords"
+                      value={formData.seo_keywords}
+                      onChange={handleInputChange}
+                      placeholder="radio formosa, fm en vivo, noticias formosa, ..."
+                      className={inputClasses}
+                    />
+                    <p className="mt-1 text-[10px] text-[#a1acb8] dark:text-slate-500">
+                      Separadas por coma. Se usan para optimizar metadata del micrositio.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
