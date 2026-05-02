@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer';
 import { useRadioStore } from '@/stores/radioStore';
 import { cn } from '@/lib/utils';
 import { AudioPlayer } from '@/components/AudioPlayer';
+import { usePageTracking } from '@/hooks/usePageTracking';
 
 interface RadioOption {
   id: string;
@@ -63,6 +64,7 @@ export const PlansPage: React.FC = () => {
   const [selectedRadioId, setSelectedRadioId] = useState<string | null>(null);
   const plansSectionRef = useRef<HTMLDivElement>(null);
   const { currentRadio, setCurrentRadio } = useRadioStore();
+  usePageTracking('plans');
 
   useEffect(() => {
     const status = searchParams.get('status');

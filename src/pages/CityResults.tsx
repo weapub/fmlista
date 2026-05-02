@@ -7,6 +7,7 @@ import { RadioCard } from '@/components/RadioCard'
 import { RadioCardSkeleton } from '@/components/RadioCardSkeleton'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { useSeo } from '@/hooks/useSeo'
+import { usePageTracking } from '@/hooks/usePageTracking'
 import { queryPublicTable } from '@/lib/publicSupabase'
 import { Radio } from '@/types/database'
 import { useRadioStore } from '@/stores/radioStore'
@@ -46,6 +47,7 @@ export default function CityResults() {
     image: '/apple-touch-icon.png',
     siteName: 'FM Lista',
   })
+  usePageTracking('city_results', { city: decodedCity || 'unknown' })
 
   const fetchCityRadios = async (pageNum: number) => {
     if (!decodedCity) {

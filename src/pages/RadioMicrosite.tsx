@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { getMicrositeSlugFromHostname, getRadioPath } from '@/lib/microsites'
 import { useSeo } from '@/hooks/useSeo'
+import { usePageTracking } from '@/hooks/usePageTracking'
 
 export const RadioMicrosite: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>()
@@ -30,6 +31,7 @@ export const RadioMicrosite: React.FC = () => {
   
   const { currentRadio, setCurrentRadio, setIsPlaying, volume } = useRadioStore()
   const { togglePlay, isPlaying } = useAudioPlayer()
+  usePageTracking('radio_microsite', { radio_identifier: slug || id || 'hosted' })
 
   useEffect(() => {
     if (!isTheaterMode) return

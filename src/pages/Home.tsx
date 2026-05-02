@@ -8,6 +8,7 @@ import { RadioCardSkeleton } from '@/components/RadioCardSkeleton'
 import { useRadioStore } from '@/stores/radioStore'
 import { Radio } from '@/types/database'
 import { useSeo } from '@/hooks/useSeo'
+import { usePageTracking } from '@/hooks/usePageTracking'
 import { fetchAppSettings, queryPublicTable } from '@/lib/publicSupabase'
 
 const HomeSections = React.lazy(() => import('./HomeSections'))
@@ -62,6 +63,7 @@ export const Home: React.FC = () => {
       },
     },
   })
+  usePageTracking('home')
   
   const fetchRadios = useCallback(async (pageNum: number) => {
     try {
