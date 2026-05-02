@@ -252,13 +252,13 @@ export const Home: React.FC = () => {
         <Hero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         {showSecondaryContent && (
           <>
-            <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
-              <WeatherSection className="mb-8" />
-            </Suspense>
             <Suspense fallback={<div className="mb-10 h-20 animate-pulse rounded-2xl bg-white dark:bg-slate-900" />}>
               <NewsSection className="mb-10" />
             </Suspense>
             <AdBanner position="home_top" className="mb-12" />
+            <Suspense fallback={<div className="mb-8 h-[500px] animate-pulse rounded-2xl bg-white sm:h-[270px] lg:h-[180px] dark:bg-slate-900" />}>
+              <WeatherSection className="mb-8" />
+            </Suspense>
           </>
         )}
         {programsBannerImage && (
