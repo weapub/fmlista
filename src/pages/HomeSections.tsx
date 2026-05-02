@@ -3,10 +3,11 @@ import { RadioCard } from '@/components/RadioCard';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { RadioCardSkeleton } from '@/components/RadioCardSkeleton';
 import { Radio } from '@/types/database';
-import { Compass, MapPin, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp } from 'lucide-react';
+import { Compass, MapPin, Radio as RadioIcon, Heart, Sparkles, Trophy, TrendingUp, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useRadioStore } from '@/stores/radioStore';
+import { prewarmStream } from '@/hooks/useAudioPlayer';
 
 interface HomeSectionsProps {
   citySpotlightLabel: string | null;
@@ -38,7 +39,7 @@ export default function HomeSections({
   loaderRef,
 }: HomeSectionsProps) {
   const { isTV } = useDeviceStore();
-  const { selectedLocation, setSelectedLocation } = useRadioStore();
+  const { selectedLocation, setSelectedLocation, currentRadio, setCurrentRadio, setIsPlaying } = useRadioStore();
   const [activeFeed, setActiveFeed] = useState<'trending' | 'recent'>('trending');
   const featuredDiscovery = filteredBySearch.slice(0, 2);
   const discoveryCategories = Array.from(
@@ -62,6 +63,19 @@ export default function HomeSections({
 
   const handleLocationTagClick = (location: string) => {
     setSelectedLocation(selectedLocation === location ? null : location);
+  };
+
+  const handleRankingPlay = (radio: Radio, event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    prewarmStream(radio.stream_url);
+
+    if (currentRadio?.id === radio.id) {
+      setIsPlaying(true);
+      return;
+    }
+
+    setCurrentRadio(radio);
+    setIsPlaying(true);
   };
 
   return (
@@ -229,6 +243,14 @@ export default function HomeSections({
               <p className={cn('mt-4 max-w-lg text-white/80', isTV && 'text-lg')}>
                 Una de las emisoras mas fuertes del momento para arrancar rapido con algo destacado.
               </p>
+              <button
+                type="button"
+                onClick={(event) => handleRankingPlay(rankingRadios[0], event)}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/30"
+              >
+                <Play className="h-4 w-4 fill-current" />
+                Escuchar ahora
+              </button>
             </div>
 
             <div className="grid gap-3">
@@ -270,6 +292,14 @@ export default function HomeSections({
                       {radio.category && <span>{radio.category}</span>}
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={(event) => handleRankingPlay(radio, event)}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#696cff] text-white transition-colors hover:bg-[#5f61e6]"
+                    aria-label={`Reproducir ${radio.name}`}
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                  </button>
                 </div>
               ))}
             </div>
