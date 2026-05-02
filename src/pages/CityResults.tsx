@@ -35,7 +35,7 @@ export default function CityResults() {
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const setStoreRadios = useRadioStore((state) => state.setRadios)
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.fmlista.com.ar'
   const PAGE_SIZE = 12
 
   useSeo({

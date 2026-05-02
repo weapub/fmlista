@@ -18,7 +18,7 @@ const Section = ({
 
 export const TermsAndConditions: React.FC = () => {
   const canonicalUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/terminos` : 'https://fmlista.com/terminos';
+    typeof window !== 'undefined' ? `${window.location.origin}/terminos` : 'https://www.fmlista.com.ar/terminos';
 
   useSeo({
     title: 'Términos y Condiciones | FM Lista',

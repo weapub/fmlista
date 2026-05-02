@@ -50,7 +50,7 @@ const GuideCard = ({
 const Blog: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<BlogCategory>('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const canonicalUrl = typeof window !== 'undefined' ? `${window.location.origin}/blog` : 'https://fmlista.com/blog'
+  const canonicalUrl = typeof window !== 'undefined' ? `${window.location.origin}/blog` : 'https://www.fmlista.com.ar/blog'
 
   useSeo({
     title: 'Blog y Guia de Uso | FM Lista',

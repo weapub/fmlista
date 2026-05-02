@@ -18,7 +18,7 @@ const Section = ({
 
 export const PrivacyPolicy: React.FC = () => {
   const canonicalUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/privacidad` : 'https://fmlista.com/privacidad';
+    typeof window !== 'undefined' ? `${window.location.origin}/privacidad` : 'https://www.fmlista.com.ar/privacidad';
 
   useSeo({
     title: 'Política de Privacidad | FM Lista',

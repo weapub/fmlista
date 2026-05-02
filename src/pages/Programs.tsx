@@ -13,7 +13,7 @@ const Programs: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [selectedProgram, setSelectedProgram] = useState<StreamingProgram | null>(null)
 
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.fmlista.com.ar'
 
   useSeo({
     title: 'Programas en streaming | FM Lista',

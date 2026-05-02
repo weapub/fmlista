@@ -33,7 +33,7 @@ export const Home: React.FC = () => {
   const [hasMore, setHasMore] = useState(true)
   const PAGE_SIZE = 9
   const loaderRef = useRef<HTMLDivElement>(null)
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.fmlista.com.ar'
   const siteTitle = 'FM Lista | Radios en vivo de Formosa'
   const siteDescription = 'Escucha radios en vivo de Formosa, descubre nuevas emisoras y accede a sus micrositios en un solo lugar.'
   

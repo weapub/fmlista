@@ -14,7 +14,7 @@ const BlogArticlePage: React.FC = () => {
   }
 
   const canonicalUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/blog/${article.id}` : `https://fmlista.com/blog/${article.id}`
+    typeof window !== 'undefined' ? `${window.location.origin}/blog/${article.id}` : `https://www.fmlista.com.ar/blog/${article.id}`
 
   const relatedArticles = BLOG_ARTICLES.filter((item) => item.id !== article.id && item.category === article.category)
 
@@ -34,7 +34,7 @@ const BlogArticlePage: React.FC = () => {
       dateModified: article.updatedAt ?? article.publishedAt,
       inLanguage: 'es-AR',
       mainEntityOfPage: canonicalUrl,
-      image: [`${typeof window !== 'undefined' ? window.location.origin : 'https://fmlista.com'}/apple-touch-icon.png`],
+      image: [`${typeof window !== 'undefined' ? window.location.origin : 'https://www.fmlista.com.ar'}/apple-touch-icon.png`],
       author: {
         '@type': 'Organization',
         name: 'FM Lista',
