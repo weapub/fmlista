@@ -24,6 +24,23 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   })
 }
 
+function errorResponse(
+  code: string,
+  message: string,
+  status: number,
+  details?: Record<string, unknown>,
+) {
+  return jsonResponse(
+    {
+      ok: false,
+      code,
+      error: message,
+      ...details,
+    },
+    status,
+  )
+}
+
 function safeJsonParse<T>(value: string): T | null {
   try {
     return JSON.parse(value) as T
@@ -48,14 +65,23 @@ serve(async (req) => {
     const openAiModel = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini"
 
     if (!supabaseUrl || !supabaseServiceRoleKey || !openAiApiKey) {
-      return jsonResponse({ error: "Missing required environment variables" }, 500)
+      return errorResponse(
+        "MISSING_ENV",
+        "Missing required environment variables",
+        500,
+        {
+          has_supabase_url: Boolean(supabaseUrl),
+          has_service_role_key: Boolean(supabaseServiceRoleKey),
+          has_openai_api_key: Boolean(openAiApiKey),
+        },
+      )
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
     const authHeader = req.headers.get("Authorization")
 
     if (!authHeader) {
-      return jsonResponse({ error: "Authentication required" }, 401)
+      return errorResponse("AUTH_REQUIRED", "Authentication required", 401)
     }
 
     const token = authHeader.replace(/^Bearer\s+/i, "")
@@ -65,7 +91,9 @@ serve(async (req) => {
     } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
-      return jsonResponse({ error: "Invalid authentication token" }, 401)
+      return errorResponse("INVALID_TOKEN", "Invalid authentication token", 401, {
+        auth_error: authError?.message ?? null,
+      })
     }
 
     const { data: profile } = await supabase
@@ -75,14 +103,17 @@ serve(async (req) => {
       .maybeSingle()
 
     if (!profile || !["radio_admin", "super_admin"].includes(profile.role)) {
-      return jsonResponse({ error: "Forbidden" }, 403)
+      return errorResponse("FORBIDDEN_ROLE", "User role is not allowed for SEO generation", 403, {
+        role: profile?.role ?? null,
+        user_id: user.id,
+      })
     }
 
     const body = (await req.json()) as RequestBody
     const name = (body.name || "").trim()
 
     if (!name) {
-      return jsonResponse({ error: "Radio name is required" }, 400)
+      return errorResponse("MISSING_NAME", "Radio name is required", 400)
     }
 
     const prompt = `
@@ -133,15 +164,21 @@ Datos de la radio:
     })
 
     if (!openAiRes.ok) {
-      const details = await openAiRes.text()
-      return jsonResponse({ error: "OpenAI request failed", details }, 502)
+      const detailsText = await openAiRes.text()
+      return errorResponse("OPENAI_REQUEST_FAILED", "OpenAI request failed", 502, {
+        status: openAiRes.status,
+        details: detailsText,
+        model: openAiModel,
+      })
     }
 
     const openAiData = await openAiRes.json()
     const rawContent = openAiData?.choices?.[0]?.message?.content
 
     if (!rawContent || typeof rawContent !== "string") {
-      return jsonResponse({ error: "Invalid OpenAI response payload" }, 502)
+      return errorResponse("OPENAI_INVALID_PAYLOAD", "Invalid OpenAI response payload", 502, {
+        model: openAiModel,
+      })
     }
 
     const parsed = safeJsonParse<{
@@ -151,7 +188,9 @@ Datos de la radio:
     }>(rawContent)
 
     if (!parsed) {
-      return jsonResponse({ error: "Could not parse AI JSON response" }, 502)
+      return errorResponse("OPENAI_PARSE_FAILED", "Could not parse AI JSON response", 502, {
+        raw_content: rawContent,
+      })
     }
 
     const seoTitle = (parsed.seo_title || "").trim()
@@ -161,12 +200,13 @@ Datos de la radio:
       : []
 
     return jsonResponse({
+      ok: true,
       seo_title: seoTitle,
       seo_description: seoDescription,
       seo_keywords: seoKeywords,
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"
-    return jsonResponse({ error: message }, 500)
+    return errorResponse("UNHANDLED_EXCEPTION", message, 500)
   }
 })

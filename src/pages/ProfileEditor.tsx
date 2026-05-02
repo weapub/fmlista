@@ -316,7 +316,24 @@ export default function ProfileEditor() {
       });
     } catch (error) {
       console.error('Error generating SEO content:', error);
-      alert('No se pudo generar contenido SEO con IA. Revisa la configuración de la función e intenta nuevamente.');
+      const maybeError = error as {
+        message?: string;
+        context?: {
+          code?: string;
+          error?: string;
+          details?: string;
+        };
+      };
+      const contextCode = maybeError?.context?.code;
+      const contextError = maybeError?.context?.error;
+      const contextDetails = maybeError?.context?.details;
+      const message = contextError || maybeError?.message || 'No se pudo generar contenido SEO con IA.';
+      alert(
+        `No se pudo generar contenido SEO con IA.\n\n` +
+        `${contextCode ? `Código: ${contextCode}\n` : ''}` +
+        `${message}\n` +
+        `${contextDetails ? `Detalle: ${contextDetails}` : ''}`
+      );
     } finally {
       setSeoAssistLoading(false);
     }
