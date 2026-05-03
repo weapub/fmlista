@@ -197,12 +197,13 @@ const ensureUserProfile = async (
           email,
           role: fallbackRole,
         },
-        { onConflict: 'id' }
+        {
+          onConflict: 'id',
+          ignoreDuplicates: true,
+        }
       )
 
-    if (upsertError) {
-      throw upsertError
-    }
+    if (upsertError) throw upsertError
 
     return await fetchUserProfile(authUser.id)
   }

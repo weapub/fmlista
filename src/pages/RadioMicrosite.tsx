@@ -96,6 +96,20 @@ export const RadioMicrosite: React.FC = () => {
 
     togglePlay()
   }
+
+  const handleToggleTheaterMode = () => {
+    if (!radio?.video_stream_url) return
+
+    const nextMode = !isTheaterMode
+    setIsTheaterMode(nextMode)
+
+    if (nextMode) {
+      if (currentRadio?.id !== radio.id) {
+        setCurrentRadio(radio)
+      }
+      setIsPlaying(true)
+    }
+  }
   
   const toggleFavorite = () => {
     if (!radio?.id) return
@@ -246,6 +260,8 @@ export const RadioMicrosite: React.FC = () => {
               src={radio.video_stream_url}
               className="h-full w-full"
               controls
+              autoPlay
+              muted
               playsInline
               preload="metadata"
             />
@@ -325,7 +341,7 @@ export const RadioMicrosite: React.FC = () => {
               <div className={cn("flex flex-wrap items-center gap-3", isTV && "gap-4")}>
                 {radio.video_stream_url && (
                   <button
-                    onClick={() => setIsTheaterMode(!isTheaterMode)}
+                    onClick={handleToggleTheaterMode}
                     className={cn(
                       "p-3 rounded-full border transition-all focusable",
                       isTV && "p-4",
