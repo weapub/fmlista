@@ -310,7 +310,7 @@ export const AudioPlayer: React.FC = () => {
   return (
     <div
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl border shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] z-50 cursor-pointer transition-all rounded-[1.75rem] p-1.5",
+        "fixed bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:w-[95%] max-w-4xl border shadow-[0_18px_60px_-30px_rgba(15,23,42,0.15)] z-50 cursor-pointer transition-all rounded-2xl sm:rounded-[1.75rem] p-1.5",
         isIOS
           ? "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
           : "bg-white/90 backdrop-blur-lg border-white/20 hover:bg-white hover:shadow-2xl hover:shadow-[#696cff]/10"
@@ -324,39 +324,11 @@ export const AudioPlayer: React.FC = () => {
           En vivo ahora
         </div>
       )}
-      <div className="px-4 py-2">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
-            {/* Controls (Mini) */}
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <button
-                onClick={goPrev}
-                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
-                title="Anterior"
-                aria-label="Emisora anterior"
-              >
-                <SkipBack className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleTogglePlay}
-                ref={playButtonRef}
-                className="focusable p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
-                aria-label={isPlaying ? 'Pausar reproducción' : 'Reproducir'}
-              >
-                {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
-              </button>
-              <button
-                onClick={goNext}
-                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
-                title="Siguiente"
-                aria-label="Siguiente emisora"
-              >
-                <SkipForward className="w-5 h-5" />
-              </button>
-            </div>
-            
+      <div className="px-3 sm:px-4 py-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex items-center justify-between gap-2 sm:flex-1 sm:min-w-0">
             {/* Info (Mini) */}
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
               <div className="relative flex-shrink-0">
                 {currentRadio.logo_url ? (
                   <img
@@ -387,13 +359,46 @@ export const AudioPlayer: React.FC = () => {
                    <NowPlayingInfo radio={currentRadio} />
                 </div>
                 {playbackDiagnostic && (
-                  <div className="mt-1 text-[11px] text-amber-700 dark:text-amber-300 line-clamp-2">
+                  <div className="mt-1 text-[11px] text-amber-700 dark:text-amber-300 line-clamp-1 sm:line-clamp-2">
                     {playbackDiagnostic}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Expand Button (Mobile/Desktop hint) */}
+            <button className="focusable sm:hidden p-2 text-gray-400" aria-label="Expandir reproductor">
+               <ChevronDown className="w-5 h-5 rotate-180" />
+            </button>
           </div>
+
+          {/* Controls (Mini) */}
+          <div className="flex items-center justify-center space-x-2 sm:space-x-2">
+              <button
+                onClick={goPrev}
+                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
+                title="Anterior"
+                aria-label="Emisora anterior"
+              >
+                <SkipBack className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleTogglePlay}
+                ref={playButtonRef}
+                className="focusable p-3 bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white rounded-full transition-all flex-shrink-0 z-10 shadow-lg shadow-[#696cff]/25 hover:shadow-xl hover:shadow-[#696cff]/35 hover:-translate-y-0.5 active:scale-95 border border-white/10"
+                aria-label={isPlaying ? 'Pausar reproducción' : 'Reproducir'}
+              >
+                {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+              </button>
+              <button
+                onClick={goNext}
+                className="focusable p-2 text-gray-700 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 z-10"
+                title="Siguiente"
+                aria-label="Siguiente emisora"
+              >
+                <SkipForward className="w-5 h-5" />
+              </button>
+            </div>
           
           {/* Volume (Mini) - Hidden on mobile to save space */}
           <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 z-10">
@@ -419,11 +424,6 @@ export const AudioPlayer: React.FC = () => {
               />
             </div>
           </div>
-
-          {/* Expand Button (Mobile/Desktop hint) */}
-          <button className="focusable sm:hidden p-2 text-gray-400" aria-label="Expandir reproductor">
-             <ChevronDown className="w-5 h-5 rotate-180" />
-          </button>
         </div>
       </div>
     </div>
