@@ -174,10 +174,10 @@ export const AudioPlayer: React.FC = () => {
           : "fixed inset-0 z-[60] flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300 bg-gradient-to-b from-[#f5f5f9] via-white to-[#eef2ff] dark:from-slate-950 dark:via-slate-950 dark:to-slate-900",
         isTV ? "tv-player-mode" : ""
       )}>
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-[100dvh] flex flex-col">
           {/* Header */}
           <div className={cn(
-            "sticky top-0 z-10 flex items-center justify-between px-4 py-4 flex-shrink-0",
+            "sticky top-0 z-10 flex items-center justify-between px-4 py-3 sm:py-4 flex-shrink-0",
             isIOS
               ? "bg-white dark:bg-slate-950"
               : "bg-white/80 backdrop-blur-sm dark:bg-slate-950/80"
@@ -197,10 +197,10 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col items-center justify-start sm:justify-center px-6 sm:px-8 pt-2 sm:pt-6 pb-6 sm:pb-8 space-y-4 sm:space-y-8">
+          <div className="flex-1 flex flex-col items-center justify-start sm:justify-center px-6 sm:px-8 pt-1 sm:pt-6 pb-4 sm:pb-8 space-y-3 sm:space-y-8">
             {/* Album Art / Logo */}
             <div className={cn(
-              "w-full max-w-[250px] sm:max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center",
+              "w-full max-w-[220px] sm:max-w-sm aspect-square bg-gray-100 rounded-full shadow-2xl overflow-hidden flex items-center justify-center",
               !isIOS && "animate-spin-slow",
               isTV && "max-w-md shadow-[0_0_50px_rgba(0,0,0,0.2)]"
             )}>
@@ -218,7 +218,7 @@ export const AudioPlayer: React.FC = () => {
             </div>
 
             {/* Info */}
-            <div className="w-full max-w-sm text-center space-y-2">
+            <div className="w-full max-w-sm text-center space-y-1.5 sm:space-y-2">
               <h2 className={cn("text-xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight", isTV && "text-5xl mb-4")}>
                 {currentRadio.name}
               </h2>
@@ -237,7 +237,13 @@ export const AudioPlayer: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className={cn("px-4 sm:px-8 pb-8 sm:pb-14 w-full max-w-md mx-auto space-y-6 sm:space-y-8 flex-shrink-0", isTV && "max-w-2xl pb-24")}>
+          <div
+            className={cn(
+              "px-4 sm:px-8 w-full max-w-md mx-auto space-y-5 sm:space-y-8 flex-shrink-0",
+              isTV && "max-w-2xl"
+            )}
+            style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
+          >
             {/* Progress / Live Indicator */}
             <div className={cn("flex items-center justify-between text-xs font-medium text-gray-500 dark:text-slate-400", isTV && "text-lg")}>
                <span className="text-red-500 flex items-center gap-1">
@@ -279,7 +285,7 @@ export const AudioPlayer: React.FC = () => {
             </div>
 
             {/* Volume */}
-            <div className="flex items-center space-x-4 mb-8">
+            <div className="flex items-center space-x-4 mb-2 sm:mb-8">
               <button onClick={handleMuteToggle} className="text-gray-500 dark:text-slate-300 focusable p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" aria-label={volume === 0 ? 'Activar sonido' : 'Silenciar'}>
                 {volume === 0 ? <VolumeX className={cn("w-5 h-5", isTV && "w-8 h-8")} /> : <Volume2 className={cn("w-5 h-5", isTV && "w-8 h-8")} />}
               </button>
