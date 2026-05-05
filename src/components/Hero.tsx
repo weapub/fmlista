@@ -1,4 +1,4 @@
-import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+﻿import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Filter, Radio, MapPin, Tag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useRadioStore } from '@/stores/radioStore'
@@ -44,7 +44,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [loopNum, setLoopNum] = useState(0)
   const [typingSpeed, setTypingSpeed] = useState(100)
-  const phrases = ['en alta definición.', 'vayas donde vayas.', 'como nunca antes.', 'en tiempo real.']
+  const phrases = ['en alta definiciÃ³n.', 'vayas donde vayas.', 'como nunca antes.', 'en tiempo real.']
   const typingEnabled = !isTV && !isMobileViewport
   const notifySearchFocus = () => {
     if (typeof window === 'undefined') return
@@ -372,17 +372,58 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         )}
       >
         <div className="mx-auto max-w-5xl">
-          <span className={cn('inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
-            Radios en vivo de Formosa
+          <span className={cn('inline-flex rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
+            Plataforma de radios en vivo
           </span>
 
-          <h1 className={cn('mt-8 text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl', isTV && 'text-5xl md:text-7xl')}>
+          <h1 className={cn('mx-auto mt-7 max-w-4xl text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-6xl', isTV && 'max-w-5xl text-5xl md:text-7xl')}>
             Elegí tu radio favorita de Formosa
           </h1>
 
-          <p className={cn('mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-white/90 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
-            Encontrá tu emisora en segundos y empezá a escuchar en vivo desde cualquier dispositivo.
+          <p className={cn('mx-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/90 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
+            Encontrá emisoras en segundos y escuchá en vivo con audio estable desde cualquier dispositivo.
           </p>
+
+          <div className={cn('mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row', isTV && 'mt-8 gap-4')}>
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.getElementById('hero-search') as HTMLInputElement | null
+                input?.focus()
+              }}
+              className={cn(
+                'inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#3538a4] shadow-lg shadow-black/20 transition-transform hover:scale-[1.01] hover:bg-white/95',
+                isTV && 'px-8 py-3.5 text-base'
+              )}
+            >
+              Escuchar ahora
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/ciudad/Formosa')}
+              className={cn(
+                'inline-flex items-center justify-center rounded-2xl border border-white/45 bg-white/10 px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white backdrop-blur-md transition-colors hover:bg-white/20',
+                isTV && 'px-8 py-3.5 text-base'
+              )}
+            >
+              Explorar por ciudad
+            </button>
+          </div>
+
+          <div className={cn('mx-auto mt-6 grid max-w-2xl grid-cols-3 gap-2 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-xl', isTV && 'max-w-3xl gap-3 p-4')}>
+            <div className="rounded-xl bg-white/10 px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Emisoras</p>
+              <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{radios.length}+</p>
+            </div>
+            <div className="rounded-xl bg-white/10 px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Ciudades</p>
+              <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{locations.length}</p>
+            </div>
+            <div className="rounded-xl bg-white/10 px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Transmisión</p>
+              <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>24/7</p>
+            </div>
+          </div>
 
           <div
             ref={searchAreaRef}
@@ -536,7 +577,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                         >
                           <div className="min-w-0">
                             <div className={cn('truncate font-bold', isTV && 'text-xl')}>{term}</div>
-                            <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>Búsqueda reciente</div>
+                            <div className={cn('text-xs text-white/55', isMobileViewport && 'text-[11px]', isTV && !isMobileViewport && 'text-sm')}>BÃºsqueda reciente</div>
                           </div>
                           <Search className={cn('text-[#696cff]', isTV ? 'h-6 w-6' : 'h-5 w-5')} />
                         </li>
@@ -581,7 +622,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4" />
-                <p className="text-xs font-black uppercase tracking-[0.18em]">Elegí ciudad</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em]">ElegÃ­ ciudad</p>
               </div>
 
               {isMobileViewport ? (
@@ -628,7 +669,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                         onClick={() => setShowAllCities((prev) => !prev)}
                         className="text-xs font-black uppercase tracking-[0.16em] text-white/85 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
                       >
-                        {showAllCities ? 'Ver menos ciudades' : 'Ver más ciudades'}
+                        {showAllCities ? 'Ver menos ciudades' : 'Ver mÃ¡s ciudades'}
                       </button>
 
                       {showAllCities && (
@@ -656,7 +697,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           {showFilters && (
             <div className={cn('absolute left-1/2 z-40 mt-4 w-full max-w-2xl -translate-x-1/2 rounded-[2rem] border border-white/20 bg-[#1e293b]/95 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200', isTV && 'max-w-4xl p-8')}>
               <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 className={cn('font-bold text-white', isTV && 'text-2xl')}>Filtros de búsqueda</h3>
+                <h3 className={cn('font-bold text-white', isTV && 'text-2xl')}>Filtros de bÃºsqueda</h3>
                 {(selectedLocation || selectedCategory) && (
                   <button
                     onClick={() => {
@@ -677,7 +718,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 <div>
                   <div className={cn('mb-4 flex items-center gap-2 font-bold uppercase tracking-widest text-white/60', isTV ? 'text-xs' : 'text-[10px]')}>
                     <Tag className="h-3.5 w-3.5 text-[#696cff]" />
-                    Géneros musicales
+                    GÃ©neros musicales
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -709,7 +750,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 <div>
                   <div className={cn('mb-4 flex items-center gap-2 font-bold uppercase tracking-widest text-white/60', isTV ? 'text-xs' : 'text-[10px]')}>
                     <MapPin className="h-3.5 w-3.5 text-[#696cff]" />
-                    Ubicación
+                    UbicaciÃ³n
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -755,13 +796,13 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">Sin Fronteras</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
-                Sintonizá desde cualquier dispositivo, en cualquier lugar del mundo.
+                SintonizÃ¡ desde cualquier dispositivo, en cualquier lugar del mundo.
               </p>
             </div>
             <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10 sm:col-span-2 lg:col-span-1', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">POR LOCALIDAD</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
-                Descubrí nuevas voces y géneros con nuestro buscador inteligente por ciudad.
+                DescubrÃ­ nuevas voces y gÃ©neros con nuestro buscador inteligente por ciudad.
               </p>
             </div>
           </div>
@@ -771,3 +812,4 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     </div>
   )
 }
+
