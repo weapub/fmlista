@@ -568,7 +568,16 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </div>
             )}
           </div>
-          <div className="mt-6 rounded-3xl border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-xl md:px-6">
+          <div className="mt-4 text-center">
+            <Link
+              to="/planes"
+              className={cn('inline-flex items-center gap-2 text-sm font-bold text-white/85 underline decoration-white/35 underline-offset-4 transition-colors hover:text-white', isTV && 'text-base')}
+            >
+              <Radio className="h-4 w-4" />
+              Ver planes para radios y publicidad
+            </Link>
+          </div>
+          <div className="mt-4 rounded-3xl border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-xl md:px-6">
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4" />
@@ -643,34 +652,6 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               )}
             </div>
           </div>
-
-          <div className="mt-4 text-center">
-            <Link
-              to="/planes"
-              className={cn('inline-flex items-center gap-2 text-sm font-bold text-white/85 underline decoration-white/35 underline-offset-4 transition-colors hover:text-white', isTV && 'text-base')}
-            >
-              <Radio className="h-4 w-4" />
-              Ver planes para radios y publicidad
-            </Link>
-          </div>
-          {!isMobileViewport && cityTags.length > 0 && (
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {cityTags.map((city) => (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => handleCityTagClick(city)}
-                  className={cn(
-                    'focusable rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/20',
-                    isTV && 'px-4 py-2 text-sm'
-                  )}
-                  aria-label={`Ver radios de ${city}`}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          )}
 
           {showFilters && (
             <div className={cn('absolute left-1/2 z-40 mt-4 w-full max-w-2xl -translate-x-1/2 rounded-[2rem] border border-white/20 bg-[#1e293b]/95 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200', isTV && 'max-w-4xl p-8')}>
