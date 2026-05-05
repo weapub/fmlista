@@ -37,6 +37,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearchPinned, setIsSearchPinned] = useState(false)
+  const [showAllCities, setShowAllCities] = useState(false)
   const deferredSearchTerm = useDeferredValue(searchTerm)
 
   const [text, setText] = useState('en tiempo real.')
@@ -121,6 +122,23 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     () => Array.from(new Set(radios.map((r) => r.location).filter(Boolean))).sort(),
     [radios]
   )
+
+  const locationCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    radios.forEach((radio) => {
+      if (!radio.location) return
+      counts.set(radio.location, (counts.get(radio.location) ?? 0) + 1)
+    })
+    return counts
+  }, [radios])
+
+  const topLocations = useMemo(
+    () => Array.from(locationCounts.entries()).sort((a, b) => b[1] - a[1]).map(([city]) => city),
+    [locationCounts]
+  )
+
+  const quickCities = useMemo(() => topLocations.slice(0, 8), [topLocations])
+  const extraCities = useMemo(() => topLocations.slice(8), [topLocations])
   const cityTags = useMemo(() => {
     if (!searchTerm.trim()) return locations.slice(0, 8)
     const term = searchTerm.toLowerCase()
@@ -213,6 +231,11 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     onSearchChange(city)
     setShowSuggestions(false)
     navigate(`/ciudad/${encodeURIComponent(city)}`)
+  }
+
+  const handleCitySelectChange = (city: string) => {
+    if (!city) return
+    handleCityTagClick(city)
   }
 
   const saveRecentSearch = (value: string) => {
@@ -545,7 +568,83 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               </div>
             )}
           </div>
-          <div className="mt-3 text-center">
+          <div className="mt-6 rounded-3xl border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-xl md:px-6">
+            <div className="flex flex-col gap-3 md:gap-4">
+              <div className="flex items-center justify-center gap-2 text-white/90">
+                <MapPin className="h-4 w-4" />
+                <p className="text-xs font-black uppercase tracking-[0.18em]">Elegí ciudad</p>
+              </div>
+
+              {isMobileViewport ? (
+                <div className="mx-auto w-full max-w-md">
+                  <select
+                    value=""
+                    onChange={(event) => handleCitySelectChange(event.target.value)}
+                    className="w-full rounded-2xl border border-white/35 bg-white/15 px-4 py-3 text-sm font-bold text-white outline-none backdrop-blur-xl"
+                    aria-label="Seleccionar ciudad"
+                  >
+                    <option value="" disabled>
+                      Seleccionar ciudad...
+                    </option>
+                    {topLocations.map((city) => (
+                      <option key={city} value={city} className="text-slate-900">
+                        {city} ({locationCounts.get(city) ?? 0})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {quickCities.map((city) => (
+                      <button
+                        key={`quick-${city}`}
+                        type="button"
+                        onClick={() => handleCityTagClick(city)}
+                        className={cn(
+                          'focusable rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/20',
+                          isTV && 'px-4 py-2 text-sm'
+                        )}
+                        aria-label={`Ver radios de ${city}`}
+                      >
+                        {city} <span className="text-white/70">({locationCounts.get(city) ?? 0})</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {extraCities.length > 0 && (
+                    <div className="flex flex-col items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllCities((prev) => !prev)}
+                        className="text-xs font-black uppercase tracking-[0.16em] text-white/85 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+                      >
+                        {showAllCities ? 'Ver menos ciudades' : 'Ver más ciudades'}
+                      </button>
+
+                      {showAllCities && (
+                        <div className="flex max-h-36 flex-wrap items-start justify-center gap-2 overflow-y-auto">
+                          {extraCities.map((city) => (
+                            <button
+                              key={`more-${city}`}
+                              type="button"
+                              onClick={() => handleCityTagClick(city)}
+                              className="focusable rounded-full border border-white/25 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/90 transition-colors hover:bg-white/15"
+                              aria-label={`Ver radios de ${city}`}
+                            >
+                              {city} ({locationCounts.get(city) ?? 0})
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 text-center">
             <Link
               to="/planes"
               className={cn('inline-flex items-center gap-2 text-sm font-bold text-white/85 underline decoration-white/35 underline-offset-4 transition-colors hover:text-white', isTV && 'text-base')}
@@ -554,7 +653,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               Ver planes para radios y publicidad
             </Link>
           </div>
-          {cityTags.length > 0 && (
+          {!isMobileViewport && cityTags.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               {cityTags.map((city) => (
                 <button
