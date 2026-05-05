@@ -340,16 +340,16 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   return (
     <div
       className={cn(
-        'relative left-1/2 mb-12 w-screen -translate-x-1/2 overflow-hidden shadow-2xl shadow-[#696cff]/20',
+        'relative left-1/2 mb-12 w-screen -translate-x-1/2 overflow-hidden shadow-[0_24px_80px_rgba(3,7,18,0.35)]',
         isTV && 'mb-16'
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#4f52d8] via-[#5a5ddf] to-[#4749ba]" />
-      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#172554] to-[#1e3a8a]" />
+      <div className="absolute inset-0 bg-black/35" />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-white/10 opacity-70 md:animate-pulse md:opacity-100 md:blur-[100px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-400/20 opacity-70 md:opacity-100 md:blur-[100px]" />
+        <div className="absolute left-[-12%] top-[-24%] h-[58%] w-[58%] rounded-full bg-white/[0.06] opacity-70 md:opacity-90 md:blur-[110px]" />
+        <div className="absolute bottom-[-24%] right-[-12%] h-[46%] w-[46%] rounded-full bg-blue-300/[0.08] opacity-70 md:opacity-90 md:blur-[110px]" />
       </div>
 
       {heroImage && (
@@ -372,7 +372,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         )}
       >
         <div className="mx-auto max-w-5xl">
-          <span className={cn('inline-flex rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white shadow-sm backdrop-blur-md', isTV && 'px-6 py-2 text-xs')}>
+          <span className={cn('inline-flex rounded-full border border-white/25 bg-white/[0.08] px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/95 shadow-sm', isTV && 'px-6 py-2 text-xs')}>
             Plataforma de radios en vivo
           </span>
 
@@ -392,7 +392,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 input?.focus()
               }}
               className={cn(
-                'inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#3538a4] shadow-lg shadow-black/20 transition-transform hover:scale-[1.01] hover:bg-white/95',
+                'inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#1e3a8a] shadow-lg shadow-black/20 transition-transform hover:scale-[1.01] hover:bg-white/95',
                 isTV && 'px-8 py-3.5 text-base'
               )}
             >
@@ -402,7 +402,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               type="button"
               onClick={() => navigate('/ciudad/Formosa')}
               className={cn(
-                'inline-flex items-center justify-center rounded-2xl border border-white/45 bg-white/10 px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white backdrop-blur-md transition-colors hover:bg-white/20',
+                'inline-flex items-center justify-center rounded-2xl border border-white/35 bg-white/[0.04] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/[0.1]',
                 isTV && 'px-8 py-3.5 text-base'
               )}
             >
@@ -410,16 +410,16 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             </button>
           </div>
 
-          <div className={cn('mx-auto mt-6 grid max-w-2xl grid-cols-3 gap-2 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-xl', isTV && 'max-w-3xl gap-3 p-4')}>
-            <div className="rounded-xl bg-white/10 px-3 py-2">
+          <div className={cn('mx-auto mt-6 grid max-w-2xl grid-cols-3 gap-2 rounded-2xl border border-white/15 bg-white/[0.04] p-3', isTV && 'max-w-3xl gap-3 p-4')}>
+            <div className="rounded-xl bg-white/[0.06] px-3 py-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Emisoras</p>
               <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{radios.length}+</p>
             </div>
-            <div className="rounded-xl bg-white/10 px-3 py-2">
+            <div className="rounded-xl bg-white/[0.06] px-3 py-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Ciudades</p>
               <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{locations.length}</p>
             </div>
-            <div className="rounded-xl bg-white/10 px-3 py-2">
+            <div className="rounded-xl bg-white/[0.06] px-3 py-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Transmisión</p>
               <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>24/7</p>
             </div>
@@ -430,7 +430,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             className={cn(
               'relative mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center',
               isTV && 'mt-12 gap-6',
-              isMobileViewport && isSearchPinned && 'fixed inset-x-3 top-3 z-[75] mt-0 rounded-2xl border border-white/20 bg-[#1e293b]/75 p-2 shadow-2xl backdrop-blur-xl'
+              isMobileViewport && isSearchPinned && 'fixed inset-x-3 top-3 z-[75] mt-0 rounded-2xl border border-white/20 bg-[#0f172a]/85 p-2 shadow-2xl backdrop-blur-xl'
             )}
           >
             <div className="group relative w-full sm:w-auto">
@@ -462,7 +462,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                 }}
                 onKeyDown={handleInputKeyDown}
                 className={cn(
-                  'relative z-10 w-full rounded-2xl border border-white/40 bg-white/15 py-4 pl-14 pr-12 text-lg font-bold text-white shadow-2xl backdrop-blur-xl transition-all placeholder:text-white/70 focus:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/35 sm:min-w-[400px]',
+                  'relative z-10 w-full rounded-2xl border border-white/30 bg-white/[0.08] py-4 pl-14 pr-12 text-lg font-bold text-white shadow-xl transition-all placeholder:text-white/65 focus:bg-white/[0.14] focus:outline-none focus:ring-4 focus:ring-white/25 sm:min-w-[400px]',
                   isMobileViewport && isSearchPinned && 'py-3 text-base',
                   isTV && 'rounded-[1.75rem] py-5 pl-16 pr-14 text-xl sm:min-w-[620px]'
                 )}
@@ -618,7 +618,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               Ver planes para radios y publicidad
             </Link>
           </div>
-          <div className="mt-4 rounded-3xl border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-xl md:px-6">
+          <div className="mt-4 rounded-3xl border border-white/15 bg-white/[0.05] px-4 py-4 md:px-6">
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex items-center justify-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4" />
@@ -630,7 +630,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                   <select
                     value=""
                     onChange={(event) => handleCitySelectChange(event.target.value)}
-                    className="w-full rounded-2xl border border-white/35 bg-white/15 px-4 py-3 text-sm font-bold text-white outline-none backdrop-blur-xl"
+                    className="w-full rounded-2xl border border-white/30 bg-white/[0.08] px-4 py-3 text-sm font-bold text-white outline-none"
                     aria-label="Seleccionar ciudad"
                   >
                     <option value="" disabled>
@@ -679,7 +679,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                               key={`more-${city}`}
                               type="button"
                               onClick={() => handleCityTagClick(city)}
-                              className="focusable rounded-full border border-white/25 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/90 transition-colors hover:bg-white/15"
+                              className="focusable rounded-full border border-white/25 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/90 transition-colors hover:bg-white/[0.12]"
                               aria-label={`Ver radios de ${city}`}
                             >
                               {city} ({locationCounts.get(city) ?? 0})
@@ -787,19 +787,19 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
               Beneficios de FM Lista
             </h2>
           <div className={cn('grid gap-6 text-pretty sm:grid-cols-2 lg:grid-cols-3', isTV && 'gap-8')}>
-            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10', isTV && 'p-8')}>
+            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left transition-all hover:bg-white/[0.08]', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">Sonido Cristalino</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
                 Streaming de alta fidelidad optimizado para el menor consumo de datos.
               </p>
             </div>
-            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10', isTV && 'p-8')}>
+            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left transition-all hover:bg-white/[0.08]', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">Sin Fronteras</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
                 SintonizÃ¡ desde cualquier dispositivo, en cualquier lugar del mundo.
               </p>
             </div>
-            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur-md transition-all hover:bg-white/10 sm:col-span-2 lg:col-span-1', isTV && 'p-8')}>
+            <div className={cn('group cursor-default rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left transition-all hover:bg-white/[0.08] sm:col-span-2 lg:col-span-1', isTV && 'p-8')}>
               <h3 className="text-xs font-black uppercase tracking-widest text-white/50 transition-colors group-hover:text-white">POR LOCALIDAD</h3>
               <p className={cn('mt-2 text-sm font-medium leading-relaxed text-white/80', isTV && 'mt-3 text-base')}>
                 DescubrÃ­ nuevas voces y gÃ©neros con nuestro buscador inteligente por ciudad.
