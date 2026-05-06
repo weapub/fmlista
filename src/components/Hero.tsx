@@ -373,15 +373,15 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
       >
         <div className="mx-auto max-w-5xl">
           <span className={cn('inline-flex rounded-full border border-white/25 bg-white/[0.08] px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/95 shadow-sm', isTV && 'px-6 py-2 text-xs')}>
-            Plataforma de radios en vivo
+            Radios de Formosa en vivo
           </span>
 
           <h1 className={cn('mx-auto mt-7 max-w-4xl text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-6xl', isTV && 'max-w-5xl text-5xl md:text-7xl')}>
-            Elegí tu radio favorita de Formosa
+            Elegí tu radio de Formosa y escuchá en vivo
           </h1>
 
           <p className={cn('mx-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/90 text-pretty md:text-xl', isTV && 'max-w-4xl text-lg md:text-2xl')}>
-            Encontrá emisoras en segundos y escuchá en vivo con audio estable desde cualquier dispositivo.
+            Encontrá emisoras por nombre o ciudad en segundos.
           </p>
 
           <div className={cn('mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row', isTV && 'mt-8 gap-4')}>
@@ -400,17 +400,21 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/ciudad/Formosa')}
+              onClick={() => {
+                const fallbackCity = topLocations[0] ?? locations[0]
+                if (!fallbackCity) return
+                navigate(`/ciudad/${encodeURIComponent(fallbackCity)}`)
+              }}
               className={cn(
-                'inline-flex items-center justify-center rounded-2xl border border-white/35 bg-white/[0.04] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/[0.1]',
+                'inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/[0.02] px-5 py-2.5 text-xs font-black uppercase tracking-[0.14em] text-white/90 transition-colors hover:bg-white/[0.08]',
                 isTV && 'px-8 py-3.5 text-base'
               )}
             >
-              Explorar por ciudad
+              Ver ciudades
             </button>
           </div>
 
-          <div className={cn('mx-auto mt-6 grid max-w-2xl grid-cols-3 gap-2 rounded-2xl border border-white/15 bg-white/[0.04] p-3', isTV && 'max-w-3xl gap-3 p-4')}>
+          <div className={cn('mx-auto mt-6 grid max-w-xl grid-cols-2 gap-2 rounded-2xl border border-white/15 bg-white/[0.04] p-3', isTV && 'max-w-2xl gap-3 p-4')}>
             <div className="rounded-xl bg-white/[0.06] px-3 py-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Emisoras</p>
               <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{radios.length}+</p>
@@ -418,10 +422,6 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
             <div className="rounded-xl bg-white/[0.06] px-3 py-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Ciudades</p>
               <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>{locations.length}</p>
-            </div>
-            <div className="rounded-xl bg-white/[0.06] px-3 py-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Transmisión</p>
-              <p className={cn('mt-1 text-xl font-black text-white', isTV && 'text-2xl')}>24/7</p>
             </div>
           </div>
 
@@ -595,14 +595,16 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                       onClick={() => {
                         onSearchChange('')
                         setShowSuggestions(false)
-                        navigate('/ciudad/Formosa')
+                        const fallbackCity = topLocations[0] ?? locations[0]
+                        if (!fallbackCity) return
+                        navigate(`/ciudad/${encodeURIComponent(fallbackCity)}`)
                       }}
                       className={cn(
                         'mt-3 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-[#1e293b] transition hover:bg-white/90',
                         isTV && !isMobileViewport && 'px-5 py-2.5 text-sm'
                       )}
                     >
-                      Ver radios de Formosa
+                      Ver radios disponibles
                     </button>
                   </div>
                 )}
@@ -667,9 +669,9 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
                       <button
                         type="button"
                         onClick={() => setShowAllCities((prev) => !prev)}
-                        className="text-xs font-black uppercase tracking-[0.16em] text-white/85 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+                        className="text-[11px] font-black uppercase tracking-[0.16em] text-white/85 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
                       >
-                        {showAllCities ? 'Ver menos ciudades' : 'Ver mÃ¡s ciudades'}
+                        {showAllCities ? 'Ver menos' : 'Ver todas'}
                       </button>
 
                       {showAllCities && (
