@@ -13,6 +13,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
+  const HERO_FALLBACK_IMAGE = '/live-on-air-radio-podcast-600nw.png'
   const navigate = useNavigate()
   const { isTV } = useDeviceStore()
   const searchAreaRef = useRef<HTMLDivElement | null>(null)
@@ -38,6 +39,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearchPinned, setIsSearchPinned] = useState(false)
   const [showAllCities, setShowAllCities] = useState(false)
+  const [isHeroBackdropBroken, setIsHeroBackdropBroken] = useState(false)
   const deferredSearchTerm = useDeferredValue(searchTerm)
 
   const [text, setText] = useState('en tiempo real.')
@@ -177,7 +179,18 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
     [heroImage, isTV]
   )
-  const heroBackdrop = optimizedHeroImage || heroImage || '/live-on-air-radio-podcast-600nw.png'
+  const normalizedHeroImage = useMemo(() => {
+    const value = heroImage.trim()
+    if (!value || value === 'null' || value === 'undefined') return ''
+    return value
+  }, [heroImage])
+  const heroBackdrop = isHeroBackdropBroken
+    ? HERO_FALLBACK_IMAGE
+    : optimizedHeroImage || normalizedHeroImage || HERO_FALLBACK_IMAGE
+
+  useEffect(() => {
+    setIsHeroBackdropBroken(false)
+  }, [optimizedHeroImage, normalizedHeroImage])
 
   useEffect(() => {
     const hasLiveSuggestions = suggestions.length > 0 || citySuggestions.length > 0
@@ -322,7 +335,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     const fetchData = async () => {
       try {
         const settings = await fetchAppSettings(['app_hero_image'])
-        const heroImageValue = settings.app_hero_image
+        const heroImageValue = String(settings.app_hero_image ?? '').trim()
 
         if (heroImageValue) {
           setHeroImage(heroImageValue)
@@ -361,6 +374,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
           fetchPriority="high"
           decoding="async"
           className="h-full w-full object-cover grayscale"
+          onError={() => setIsHeroBackdropBroken(true)}
         />
       </div>
 
