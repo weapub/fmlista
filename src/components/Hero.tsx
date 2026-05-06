@@ -177,6 +177,7 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
     () => optimizeSupabaseImageUrl(heroImage, { width: isTV ? 1920 : 1280, quality: 72 }),
     [heroImage, isTV]
   )
+  const heroBackdrop = optimizedHeroImage || heroImage || '/live-on-air-radio-podcast-600nw.png'
 
   useEffect(() => {
     const hasLiveSuggestions = suggestions.length > 0 || citySuggestions.length > 0
@@ -352,18 +353,16 @@ export const Hero: React.FC<HeroProps> = ({ searchTerm, onSearchChange }) => {
         <div className="absolute bottom-[-24%] right-[-12%] h-[46%] w-[46%] rounded-full bg-blue-300/[0.08] opacity-70 md:opacity-90 md:blur-[110px]" />
       </div>
 
-      {heroImage && (
-        <div className="absolute inset-0 opacity-35 md:mix-blend-overlay md:opacity-40">
-          <img
-            src={optimizedHeroImage || heroImage}
-            alt="Hero Background"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
-        </div>
-      )}
+      <div className="absolute inset-0 opacity-25 md:opacity-30">
+        <img
+          src={heroBackdrop}
+          alt="Hero Background"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="h-full w-full object-cover grayscale"
+        />
+      </div>
 
       <div
         className={cn(
