@@ -13,7 +13,8 @@ import { fetchAppSettings, queryPublicTable } from '@/lib/publicSupabase'
 export const Navigation: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
-  const [appLogo, setAppLogo] = useState('/favicon.svg')
+  const DEFAULT_APP_LOGO = '/fm-lista-logo.svg'
+  const [appLogo, setAppLogo] = useState(DEFAULT_APP_LOGO)
   const [appTitle, setAppTitle] = useState('FM Lista')
   const [appSlogan, setAppSlogan] = useState('')
   const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -44,7 +45,15 @@ export const Navigation: React.FC = () => {
     const fetchLogo = async () => {
       const data = await fetchAppSettings(['app_logo', 'app_title', 'app_slogan'])
 
-      if (data.app_logo) setAppLogo(data.app_logo)
+      if (data.app_logo) {
+        const nextLogo = String(data.app_logo).trim()
+        if (nextLogo && nextLogo !== DEFAULT_APP_LOGO) {
+          const preloader = new window.Image()
+          preloader.onload = () => setAppLogo(nextLogo)
+          preloader.onerror = () => setAppLogo(DEFAULT_APP_LOGO)
+          preloader.src = nextLogo
+        }
+      }
       if (data.app_title) setAppTitle(data.app_title)
       if (data.app_slogan) setAppSlogan(data.app_slogan)
     }
